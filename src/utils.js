@@ -75,10 +75,10 @@ const executeCentralMutation = async ( query, variables) => {
             variables
         }, { headers: centralHeaders });
 
-        console.log("[utils] executeEachBranchMutation: ", response.data.data.sync_history.length);
-        return response.data.data.sync_history;
+        console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
+        return response.data.data;
     }catch (e) {
-        console.error("[utils] executeEachBranchMutation Error: ", e.message);
+        console.error("[utils] executeCentralMutation Error: ", e.message);
     }
 };
 

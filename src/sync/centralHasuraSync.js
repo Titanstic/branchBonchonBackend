@@ -10,10 +10,14 @@ centralHasuraSyncRouter.post("/", async (req, res) => {
         const {query, variables} = getQueryForSync(branchData);
         const getSyncHistoryData = await executeCentralMutation(query, variables);
 
-        for (const eachSync of getSyncHistoryData) {
+        for (const eachSync of getSyncHistoryData.sync_history) {
             const variable = JSON.parse(eachSync.variables);
             const resposne  = await executeBranchMutation(eachSync.query, variable, branchData);
 
+            if(!resposne.errors){
+                const {query, variables} = deleteMutationForSync(eachSync);
+                await executeCentralMutation(query, variables);
+            }
         }
 
         res.status(200).json({ success: true, message: "Sync Successfully from cloud"});
@@ -39,6 +43,19 @@ const getQueryForSync = (branchData) => {
     const variables = { branchId: branchData.id };
 
     return { query, variables };
-}
+};
+
+
+const deleteMutationForSync = (sync) => {
+    const query = `mutation MyMutation($id: uuid!) {
+          delete_sync_history_by_pk(id: $id) {
+            id
+          }
+        }
+        `;
+    const variables = { id: sync.id };
+
+    return { query, variables };
+};
 
 module.exports = centralHasuraSyncRouter;

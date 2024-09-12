@@ -16,7 +16,7 @@ app.use("/transition", transitionRouter);
 app.use("/reprint", ReprintRouter);
 app.use('/central/sync', CentralHasuraSyncRouter);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 app.listen((PORT) , () => {
     console.log(`Express server listening on port ${PORT}`);
 })
