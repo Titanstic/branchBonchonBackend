@@ -3,7 +3,7 @@ const poolQuery = require("../misc/poolQuery");
 
 const abortApiFun = () => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     return { controller, timeoutId };
 };
@@ -63,28 +63,58 @@ const checkOperation =  async (event, tableName) => {
 };
 
 
+const centralHeaders  = {
+    'Content-Type': 'application/json',
+    'x-hasura-admin-secret': 'bonchonerppassword007',
+};
+
+const executeCentralMutation = async ( query, variables) => {
+    try{
+        const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
+            query,
+            variables
+        }, { headers: centralHeaders });
+
+        console.log("[utils] executeEachBranchMutation: ", response.data.data.sync_history.length);
+        return response.data.data.sync_history;
+    }catch (e) {
+        console.error("[utils] executeEachBranchMutation Error: ", e.message);
+    }
+};
+
 const branchHeaders  = {
     'Content-Type': 'application/json',
     'x-hasura-admin-secret': 'axra_48b59ff9b4139e7d',
 };
 
-const executeEachBranchMutation = async ( query, variables, branch) => {
-    const { controller, timeOutId } = abortApiFun();
+const executeBranchMutation = async ( query, variables, branch) => {
 
     try{
         const response = await axios.post(`https://${branch.ip_address}/v1/graphql`, {
             query,
             variables
-        }, { headers: branchHeaders, signal: controller.signal });
-        clearTimeout(timeOutId);
+        }, { headers: branchHeaders});
 
-        console.log("[utils] executeEachBranchMutation: ", response.data);
+        console.log("[utils] executeBranchMutation: ", response.data);
         return response.data;
     }catch (e) {
-        await poolQuery(`INSERT INTO sync_history(query, variables, branch_id) VALUES($1, $2, $3);`, [query, variables, branch.id]);
-        console.log("[utils] executeEachBranchMutation Error: ", e.message);
+        console.error("[utils] executeBranchMutation Error: ", e.message);
     }
 };
 
 
-module.exports = { abortApiFun, checkOperation, executeEachBranchMutation };
+
+const findCurrentBranch = async () => {
+    const branchData = await poolQuery(`SELECT id,ip_address FROM branches`);
+
+    if(branchData.rows.length === 0){
+        console.error(`[utils] findCurrentBranch Error: No Branch Data`);
+        throw new Error("No Branch Data");
+    }
+
+    console.log(`[utils] findCurrentBranch : ${JSON.stringify(branchData.rows)}`);
+    return branchData.rows[0];
+}
+
+
+module.exports = { abortApiFun, checkOperation, executeCentralMutation, executeBranchMutation, findCurrentBranch };

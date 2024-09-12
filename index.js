@@ -9,10 +9,12 @@ app.use(express.json());
 const { signInRouter} = require("./src/signIn");
 const transitionRouter = require("./src/sync/transition");
 const ReprintRouter = require("./src/sync/reprint");
+const CentralHasuraSyncRouter = require("./src/sync/centralHasuraSync");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
 app.use("/reprint", ReprintRouter);
+app.use('/central/sync', CentralHasuraSyncRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen((PORT) , () => {
