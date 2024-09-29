@@ -5,6 +5,7 @@ const centralHasuraSyncRouter = express.Router();
 
 centralHasuraSyncRouter.post("/", async (req, res) => {
     try{
+        // =>  from cloud to local, data CRUD
         const branchData = await findCurrentBranch();
 
         const {query, variables} = getQueryForSync(branchData);
@@ -19,13 +20,17 @@ centralHasuraSyncRouter.post("/", async (req, res) => {
                 await executeCentralMutation(query, variables);
             }
         }
+        // --------------------------------------
 
+        // => from local to cloud, transition data send to central database
+
+
+        console.log(`[centralHasuraSyncRouter]:`, "Sync Successfully from cloud");
         res.status(200).json({ success: true, message: "Sync Successfully from cloud"});
     }catch (e){
         console.error(`[centralHasuraSyncRouter] Error:`, e.message);
         res.status(500).json({ success: false, message: e.message });
     }
-
 });
 
 const getQueryForSync = (branchData) => {

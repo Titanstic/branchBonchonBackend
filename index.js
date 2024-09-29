@@ -10,11 +10,13 @@ const { signInRouter} = require("./src/signIn");
 const transitionRouter = require("./src/sync/transition");
 const ReprintRouter = require("./src/sync/reprint");
 const CentralHasuraSyncRouter = require("./src/sync/centralHasuraSync");
+const calculateStockRouter = require("./src/calculateStock");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
 app.use("/reprint", ReprintRouter);
 app.use('/central/sync', CentralHasuraSyncRouter);
+app.use("/calculatestock", calculateStockRouter);
 
 const PORT = process.env.PORT || 3002;
 app.listen((PORT) , () => {

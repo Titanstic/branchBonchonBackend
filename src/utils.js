@@ -16,11 +16,6 @@ const checkOperation =  async (event, tableName) => {
     const operation = event.op;
     if(operation !== "DELETE"){
         input = event.data.new;
-        // delete input.sync;
-        //
-        // if(tableName !== "menu_items"){
-        //     delete input.branch_id;
-        // }
     }
 
     switch (operation){
@@ -62,7 +57,6 @@ const checkOperation =  async (event, tableName) => {
     return { query, variables }
 };
 
-
 const centralHeaders  = {
     'Content-Type': 'application/json',
     'x-hasura-admin-secret': 'bonchonerppassword007',
@@ -88,7 +82,6 @@ const branchHeaders  = {
 };
 
 const executeBranchMutation = async ( query, variables, branch) => {
-
     try{
         const response = await axios.post(`https://${branch.ip_address}/v1/graphql`, {
             query,
