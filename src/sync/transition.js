@@ -38,7 +38,7 @@ transitionRouter.post("/", async (req, res) => {
         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
 
         // Synchronous with online database
-       // await fetchOnlineDbTransition(transitionResult, id);
+       await fetchOnlineDbTransition(transitionResult, id);
 
         res.json({ error: 0, message: transitionResult.id});
     } catch (e) {
@@ -56,6 +56,7 @@ const addTransition = async (
     id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo
 ) => {
     try {
+        console.log("transitionRouter [addTransition]: ", orderNo);
         const result = await poolQuery(`
             INSERT INTO transactions(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, order_no)
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
@@ -70,7 +71,7 @@ const addTransition = async (
             throw new Error("No data returned after insert.");
         }
     } catch (e) {
-        console.log(e.message);
+        console.error("transitionRouter [addTransition]: ", e.message);
         throw new Error(e.message);
     }
 }
@@ -144,13 +145,13 @@ const fetchOnlineDbTransition = async (data, id) => {
     await fetchWithTimeOut("onlineTransition", {timeout: 5000, method: "POST", body: JSON.stringify(data)})
         .then(res => res.json())
         .then(data => {
-            console.log("res", data);
+            console.log("[Transition Routes] fetchOnlineDbTransition : ", data);
             if(data.error === 0){
                 updateTransition(id);
             }
         })
         .catch(error => {
-            console.log("fetchWithTimeOut fun: ", error.message)
+            console.error("[Transition Routes] fetchOnlineDbTransition error : ", error.message);
             throw new Error(error.message);
         });
 }
