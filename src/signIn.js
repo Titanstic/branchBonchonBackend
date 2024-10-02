@@ -34,7 +34,7 @@ const signIn = async(username,password)=>{
             throw new Error("wrong password");
         }
 
-        const branchResult = await poolQuery(`SELECT * FROM branches WHERE id = $1 `, [result.rows[0].branch_id]);
+        const branchResult = await poolQuery(`SELECT * FROM branches`);
         const token = await jwtCreator(userId,result.rows[0].level, branchResult.rows[0].id, branchResult.rows[0].branch_name);
         return token;
     }catch(e){

@@ -93,7 +93,6 @@ const transitionItems = async (id, items) => {
     const kitchenPrintItem = [];
     const itemValue = [];
 
-
     for (const item of parsedItems) {
         let haveIndex;
         kitchenPrintItem.forEach((each, index) => {
@@ -109,7 +108,7 @@ const transitionItems = async (id, items) => {
         }
 
         // for multiple insert value
-        itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, items.note ? items.note : "", id, item.menu_item_id, item.container_charges, item.discount_price, JSON.stringify(item.flavour_types)])
+        itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, items.note ? items.note : "", id, item.normal_menu_item_id, item.container_charges, item.discount_price, JSON.stringify(item.flavour_types), item.combo_set_id])
     }
 
     const itemResults = await addTransitionItems(itemValue);
@@ -121,13 +120,13 @@ const addTransitionItems = async (value) => {
         console.log("[Transition Routes] addTransitionItems : ", value);
         // Create the placeholders for the VALUES clause dynamically
         const valuePlaceholders = value.map(
-            (_, i) => `($${i * 11 + 1}, $${i * 11 + 2}, $${i * 11 + 3}, $${i * 11 + 4}, $${i * 11 + 5}, $${i * 11 + 6}, $${i * 11 + 7}, $${i * 11 + 8}, $${i * 11 + 9}, $${i * 11 + 10}, $${i * 11 + 11})`
+            (_, i) => `($${i * 12 + 1}, $${i * 12 + 2}, $${i * 12 + 3}, $${i * 12 + 4}, $${i * 12 + 5}, $${i * 12 + 6}, $${i * 12 + 7}, $${i * 12 + 8}, $${i * 12 + 9}, $${i * 12 + 10}, $${i * 12 + 11}, $${i * 12 + 12})`
         ).join(', ');
         // Flatten the value array
         const flattenedValues = value.flat();
 
         const query = `
-            INSERT INTO transaction_items(item_name, quantity, total_amount, price, is_take_away, note, transaction_id, menu_item_id, container_charges, discount_price, flavour_types)
+            INSERT INTO transaction_items(item_name, quantity, total_amount, price, is_take_away, note, transaction_id, normal_menu_item_id, container_charges, discount_price, flavour_types, combo_set_id)
             VALUES ${valuePlaceholders}
             RETURNING *;
         `;
