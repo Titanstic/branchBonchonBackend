@@ -20,5 +20,5 @@ app.use("/calculatestock", calculateStockRouter);
 
 const PORT = process.env.PORT || 3002;
 app.listen((PORT) , () => {
-    console.log(`Express server listening on port ${PORT}`);
+    console.log(`Express server listening on ports ${PORT}`);
 })
