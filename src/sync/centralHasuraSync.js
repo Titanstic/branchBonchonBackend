@@ -1,5 +1,4 @@
 const express = require("express");
-const {fetchWithTimeOut} = require("../../misc/fetchApi");
 const {findCurrentBranch, executeCentralMutation, executeBranchMutation} = require("../utils");
 const centralHasuraSyncRouter = express.Router();
 
@@ -21,9 +20,6 @@ centralHasuraSyncRouter.post("/", async (req, res) => {
             }
         }
         // --------------------------------------
-
-        // => from local to cloud, transition data send to central database
-
 
         console.log(`[centralHasuraSyncRouter]:`, "Sync Successfully from cloud");
         res.status(200).json({ success: true, message: "Sync Successfully from cloud"});
