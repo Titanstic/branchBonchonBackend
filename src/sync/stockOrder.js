@@ -24,7 +24,7 @@ stockOrderRouter.post("/", async (req, res) => {
 
         if(!centralRes.errors){
             const purchaseOrderId = event.data.new.id;
-            await poolQuery(`UPDATE purchase_order SET sync = true WHERE id = $1;`, [purchaseOrderId]);
+            await poolQuery(`UPDATE ${tableName} SET sync = true WHERE id = $1;`, [purchaseOrderId]);
         }
 
         console.log(`[stockOrderRouter] :`, "Order Successfully to cloud");
