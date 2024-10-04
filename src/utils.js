@@ -57,17 +57,26 @@ const checkOperation =  async (event, tableName) => {
     return { query, variables }
 };
 
+const findBranch = async () => {
+    const branchData = await poolQuery(`SELECT id,ip_address FROM branches`);
+    console.log(`[utils] findBranch :`, branchData.rows);
+    return branchData.rows;
+};
+
 const centralHeaders  = {
     'Content-Type': 'application/json',
     'x-hasura-admin-secret': 'bonchonerppassword007',
 };
 
 const executeCentralMutation = async ( query, variables) => {
+    const { controller, timeOutId } = abortApiFun();
+
     try{
         const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
             query,
             variables
-        }, { headers: centralHeaders });
+        }, { headers: centralHeaders, signal: controller.signal });
+        clearTimeout(timeOutId);
 
         console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
         return response.data.data;
@@ -110,4 +119,4 @@ const findCurrentBranch = async () => {
 }
 
 
-module.exports = { abortApiFun, checkOperation, executeCentralMutation, executeBranchMutation, findCurrentBranch };
+module.exports = { abortApiFun, findBranch, checkOperation, executeCentralMutation, executeBranchMutation, findCurrentBranch };
