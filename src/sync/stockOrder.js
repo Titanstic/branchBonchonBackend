@@ -7,6 +7,8 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 stockOrderRouter.post("/", async (req, res) => {
     const event = req.body.event;
     const tableName = req.body.table.name;
+    console.log(`[stockOrderRouter] event:`, event);
+    console.log(`[stockOrderRouter] tableName:`, tableName);
 
     try{
         if((tableName === "purchase_order_item" || tableName === "good_return_item" || tableName === "good_received_item") && event.op === "INSERT"){
@@ -15,6 +17,7 @@ stockOrderRouter.post("/", async (req, res) => {
 
         // execute data to central
         const {query, variables} = await checkOperation(event, tableName);
+        console.log(`[stockOrderRouter] query:`, query);
         await executeCentralMutation(query, variables);
 
         console.log(`[stockOrderRouter] :`, "Order Successfully to cloud");

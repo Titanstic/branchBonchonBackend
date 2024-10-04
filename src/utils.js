@@ -78,7 +78,7 @@ const executeCentralMutation = async ( query, variables) => {
         }, { headers: centralHeaders, signal: controller.signal });
         clearTimeout(timeOutId);
 
-        console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
+        console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
         return response.data.data;
     }catch (e) {
         console.error("[utils] executeCentralMutation Error: ", e.message);
