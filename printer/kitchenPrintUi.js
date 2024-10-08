@@ -8,7 +8,6 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
     let flavourTypeLength = 0;
 
     data.forEach(each => {
-        flavourTypeLength += each.flavour_types.length;
         if(each.is_take_away){
             takeAwayItems.push(each);
         }else{
@@ -68,28 +67,53 @@ const checkNoUi = (ctx, canvas,transitionId, checkNoH, checkLineH, orderNo) => {
 
 const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, printerName, table_name ) => {
     ctx.font = "30px Pyidaungsu";
+
+    // =>  start Die In Item
     let flavourYPos = checkLineH;
     dieInItems.forEach((productItem, index) => {
         ctx.font = "24px Pyidaungsu";
         flavourYPos += 30;
         ctx.textAlign = "start";
         ctx.fillText(productItem.item_name, 30, flavourYPos);
+        if(productItem.comboName){
+            ctx.textAlign = "right";
+            ctx.fillText(`(${productItem.comboName})`, canvas.width - 130, flavourYPos);
+        }
         ctx.textAlign = "right";
         ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, flavourYPos);
 
         ctx.textAlign = "start";
-        productItem?.flavour_types.forEach((flavour, flavourIndex) => {
-            if(flavour.name !== ""){
-                ctx.font = "18px Pyidaungsu";
-                flavourYPos += (flavourIndex + 1) * 25;
+        ctx.font = "18px Pyidaungsu";
+        if(productItem.flavour_types.length > 0) {
+            flavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`Flavour Type`, 40, flavourYPos);
 
+            flavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`•`, 50, flavourYPos);
+
+            // Draw flavour text next to bullet point
+            ctx.fillText(productItem.flavour_types, 70, flavourYPos);
+        }
+
+        ctx.textAlign = "start";
+        ctx.font = "18px Pyidaungsu";
+        const productNote = JSON.parse(productItem.note);
+        if(productNote.length > 0) {
+            flavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`Note`, 40, flavourYPos);
+
+            productNote.forEach((note) => {
+                flavourYPos += 25;
                 // Draw bullet point
                 ctx.fillText(`•`, 50, flavourYPos);
 
                 // Draw flavour text next to bullet point
-                ctx.fillText(flavour.name, 70, flavourYPos);
-            }
-        })
+                ctx.fillText(note, 70, flavourYPos);
+            })
+        }
     });
 
     let customDieInItemH = dieInItemH + 30,
@@ -108,8 +132,9 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
             customDieInLineH
         );
     }
+    // => End Die In Item
 
-
+    // =>  start Take Away Item
     let takeFlavourYPos = dieInItems.length > 0 ? customDieInLineH : checkLineH;
     takeAwayItems.forEach((productItem, index) => {
         takeFlavourYPos += 50;
@@ -121,20 +146,39 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, takeFlavourYPos);
 
         ctx.textAlign = "start";
-        productItem?.flavour_types.forEach((flavour, flavourIndex) => {
-            if(flavour.name !== ""){
-                ctx.font = "18px Pyidaungsu";
-                takeFlavourYPos += (flavourIndex + 1) * 25;
+        ctx.font = "18px Pyidaungsu";
+        if(productItem.flavour_types.length > 0) {
+            takeFlavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`Flavour Type`, 40, takeFlavourYPos);
 
+            takeFlavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`•`, 50, takeFlavourYPos);
+
+            // Draw flavour text next to bullet point
+            ctx.fillText(productItem.flavour_types, 70, takeFlavourYPos);
+        }
+
+        ctx.textAlign = "start";
+        ctx.font = "18px Pyidaungsu";
+        const productNote = JSON.parse(productItem.note);
+        if(productNote.length > 0) {
+            takeFlavourYPos += 25;
+            // Draw bullet point
+            ctx.fillText(`Note`, 40, takeFlavourYPos);
+
+            productNote.forEach((note) => {
+                takeFlavourYPos += 25;
                 // Draw bullet point
                 ctx.fillText(`•`, 50, takeFlavourYPos);
 
                 // Draw flavour text next to bullet point
-                ctx.fillText(flavour.name, 70, takeFlavourYPos);
-            }
-        })
-    });
+                ctx.fillText(note, 70, takeFlavourYPos);
+            })
+        }
 
+    });
 
     if(takeAwayItems.length > 0){
         ctx.font = "24px Pyidaungsu";
@@ -147,13 +191,13 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
             takeFlavourYPos + 60
         );
     }
+    // =>  End Take Away Item
 
     ctx.font = "24px Pyidaungsu";
     ctx.textAlign = "start";
     ctx.fillText(date, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 90 : customDieInItemH + 60 );
     ctx.textAlign = "right";
     ctx.fillText(time, canvas.width - 30, takeAwayItems.length > 0 ? takeFlavourYPos + 90 : customDieInItemH + 60);
-
 
     ctx.textAlign = "start";
     ctx.fillText(`Printer : ${printerName}`, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 120 : customDieInItemH + 90);

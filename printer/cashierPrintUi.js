@@ -3,16 +3,10 @@ const {v4: uuidv4} = require("uuid");
 const QRCode = require("qrcode");
 const fs = require("fs");
 
-
-
 let customLastByItemLineH, customLastLineH, customQrLineH;
 
 const cashierPrintSlipBuffer =  async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo) => {
     let flavourTypeLength = 0;
-    data.forEach(each => {
-        flavourTypeLength += each.flavour_types.length;
-    })
-
     const originalHeight = point ? 1300 : 800;
     let canvasHeight = originalHeight + data.length * 50 + flavourTypeLength * 30;
     const canvas = createCanvas(576, canvasHeight);
@@ -171,16 +165,25 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
             ctx.fillText(productItem.total_amount.toLocaleString("en-US"), canvas.width - 10, flavourYPos);
         }
 
-        if(productItem.flavour_types.length > 0){
-            ctx.textAlign = "start";
-            productItem.flavour_types.forEach((flavour, flavourIndex) => {
-                if(flavour.name !== ""){
-                    ctx.font = "20px Comic Sans Ms";
-                    flavourYPos += (flavourIndex + 1) * 25;
-                    ctx.fillText(`•`, 50, flavourYPos);
-                    ctx.fillText(flavour.name, 70, flavourYPos);
-                }
+        // need change
+        if(productItem.combo_menu_items){
+            const comboMenuItems = typeof productItem.combo_menu_items == "string" ? JSON.parse(productItem.combo_menu_items) : productItem.combo_menu_items;
+
+            comboMenuItems.forEach((eachCombo) => {
+                ctx.textAlign = "start";
+                ctx.font = "20px Comic Sans Ms";
+                flavourYPos += 25;
+                ctx.fillText(`•`, 40, flavourYPos);
+                ctx.fillText(eachCombo.item_name, 70, flavourYPos);
             })
+        }
+
+        if(productItem.flavour_types){
+            ctx.textAlign = "start";
+            ctx.font = "20px Comic Sans Ms";
+            flavourYPos += 25;
+            ctx.fillText(`•`, 50, flavourYPos);
+            ctx.fillText(productItem.flavour_types, 70, flavourYPos);
         }
 
         if(productItem.container_charges > 0) {
