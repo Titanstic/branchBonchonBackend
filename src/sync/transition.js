@@ -1,5 +1,7 @@
 const poolQuery = require("../../misc/poolQuery");
 const express = require("express");
+const { v4: uuidv4 } = require('uuid');
+
 const transitionRouter = express.Router();
 
 const {fetchWithTimeOut} = require("../../misc/fetchApi");
@@ -41,8 +43,8 @@ transitionRouter.post("/", async (req, res) => {
         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
 
         // Synchronous with online database
-       await fetchOnlineDbTransition(transitionResult, id);
-       //
+       //await fetchOnlineDbTransition(transitionResult, id);
+
         console.log("transitionRouter :", "Transition Successfully");
         res.json({ error: 0, message: transitionResult.id});
     } catch (e) {
@@ -61,24 +63,19 @@ const findBranchById = async (id) => {
 const addTransition = async (
     id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count
 ) => {
-    try {
-        console.log("transitionRouter [addTransition]: ", orderNo);
-        const result = await poolQuery(`
+    console.log("transitionRouter [addTransition]: ", orderNo);
+    const result = await poolQuery(`
             INSERT INTO transactions(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, order_no, customer_count)
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
             RETURNING *;
         `, [
-            id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count
-        ]);
+        id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count
+    ]);
 
-        if (result.rows.length > 0) {
-            return result.rows[0];
-        } else {
-            throw new Error("No data returned after insert.");
-        }
-    } catch (e) {
-        console.error("transitionRouter [addTransition] error: ", e.message);
-        throw new Error(e.message);
+    if (result.rows.length > 0) {
+        return result.rows[0];
+    } else {
+        throw new Error("transitionRouter [addTransition] error: No data returned after insert.");
     }
 }
 
@@ -99,6 +96,7 @@ const transitionItems = async (transition_id, items) => {
     const parsedItems = typeof items == "string" ? JSON.parse(items) : items;
     const kitchenPrintItem = [];
     const itemValue = [];
+    const comboSetValue = [];
 
     for (const item of parsedItems) {
         if(item.normal_menu_item_id){
@@ -115,7 +113,14 @@ const transitionItems = async (transition_id, items) => {
             }else{
                 kitchenPrintItem.push([item]);
             }
+
+            // for multiple insert value for transition items table
+            itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, item.note ? items.note : "", transition_id, item.normal_menu_item_id, item.container_charges, item.discount_price, item.flavour_types, null]);
         }else{
+            const transitionComboSetId = uuidv4();
+            // for multiple insert value for transition combo set table
+            comboSetValue.push([transitionComboSetId, item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, transition_id, item.container_charges, item.discount_price, item.combo_set_id]);
+
             const comboMenuItems = typeof item.combo_menu_items == "string" ? JSON.parse(item.combo_menu_items) : item.combo_menu_items;
             console.log("transitionRouter [transitionItems]: comboMenuItems", comboMenuItems);
             comboMenuItems.forEach((eachCombo) => {
@@ -132,38 +137,48 @@ const transitionItems = async (transition_id, items) => {
                 }else{
                     kitchenPrintItem.push([{...eachCombo, comboName: item.item_name}]);
                 }
+
+                // for multiple insert value for transition items table
+                itemValue.push([eachCombo.item_name, eachCombo.quantity, 0, 0, eachCombo.is_take_away, eachCombo.note ? eachCombo.note : "", null, eachCombo.normal_menu_item_id, 0, 0, eachCombo.flavour_types, transitionComboSetId]);
             })
         }
 
-        // for multiple insert value
-        // need change json parse
-        itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, item.note ? items.note : "", transition_id, item.normal_menu_item_id, item.container_charges, item.discount_price, JSON.stringify(item.flavour_types), item.combo_set_id, typeof comboMenuItems == "string" ? item.combo_menu_items : JSON.stringify(item.combo_menu_items)]);
     }
 
-    const itemResults = await addTransitionItems(itemValue);
+    const itemResults = await addTransitionItems(itemValue, comboSetValue);
     return { parsedItems, kitchenPrintItem, itemResults };
 }
 
-const addTransitionItems = async (value) => {
-        console.log("[Transition Routes] addTransitionItems : ", value);
-        // Create the placeholders for the VALUES clause dynamically
-        const valuePlaceholders = value.map((_, i) => `($${i * 13 + 1}, $${i * 13 + 2}, $${i * 13 + 3}, $${i * 13 + 4}, $${i * 13 + 5}, $${i * 13 + 6}, $${i * 13 + 7}, $${i * 13 + 8}, $${i * 13 + 9}, $${i * 13 + 10}, $${i * 13 + 11}, $${i * 13 + 12}, $${i * 13 + 13})`).join(', ');
-        // Flatten the value array
-        const flattenedValues = value.flat();
+const addTransitionItems = async (value, comboSetValue) => {
+    if(comboSetValue.length > 0){
+        console.log("[Transition Routes] addTransitionItems comboSetValue: ", comboSetValue);
+        const comboValuePlaceholders = comboSetValue.map((_, i) => `($${i * 10 + 1}, $${i * 10 + 2}, $${i * 10 + 3}, $${i * 10 + 4}, $${i * 10 + 5}, $${i * 10 + 6}, $${i * 10 + 7}, $${i * 10 + 8}, $${i * 10 + 9}, $${i * 10 + 10})`).join(', ');
+        const comboValues = comboSetValue.flat();
+        const transitionComboSetQuery = `
+            INSERT INTO transaction_combo_set(id, combo_set_name, quantity, total_amount, price, is_take_away, transaction_id, container_charges, discount_price, combo_set_id)
+            VALUES ${comboValuePlaceholders}
+            RETURNING *;
+        `;
+        const transitionComboSetResult = await poolQuery(transitionComboSetQuery, comboValues);
+    }
 
-        const query = `
-            INSERT INTO transaction_items(item_name, quantity, total_amount, price, is_take_away, note, transaction_id, normal_menu_item_id, container_charges, discount_price, flavour_types, combo_set_id, combo_menu_items)
+    console.log("[Transition Routes] addTransitionItems value: ", value);
+    // Create the placeholders for the VALUES clause dynamically
+    const valuePlaceholders = value.map((_, i) => `($${i * 12 + 1}, $${i * 12 + 2}, $${i * 12 + 3}, $${i * 12 + 4}, $${i * 12 + 5}, $${i * 12 + 6}, $${i * 12 + 7}, $${i * 12 + 8}, $${i * 12 + 9}, $${i * 12 + 10}, $${i * 12 + 11}, $${i * 12 + 12})`).join(', ');
+    // Flatten the value array
+    const flattenedValues = value.flat();
+    const query = `
+            INSERT INTO transaction_items(item_name, quantity, total_amount, price, is_take_away, note, transaction_id, normal_menu_item_id, container_charges, discount_price, flavour_types, transition_combo_set_id)
             VALUES ${valuePlaceholders}
             RETURNING *;
         `;
+    const result = await poolQuery(query, flattenedValues);
 
-        const result = await poolQuery(query, flattenedValues);
-
-        if (result.rows.length > 0) {
-            return result.rows;
-        } else {
-            throw new Error("No data returned after insert.");
-        }
+    if (result.rows.length > 0) {
+        return result.rows;
+    } else {
+        throw new Error("No data returned after insert.");
+    }
 }
 
 const fetchOnlineDbTransition = async (data, id) => {
