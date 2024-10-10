@@ -27,7 +27,7 @@ dailySaleReportRouter.post("/", async (req, res) => {
             { paymentReport: paymentDataReport},
             { discountReport: discountDataReport}
         ];
-        res.status(200).json({ error: 0, data: data});
+        res.status(200).json({ error: 0, message: JSON.stringify(data)});
     }catch (e) {
         console.error('dailySaleReportRouter error:', e.message);
         res.status(500).json({ error: 1, message: e.message});
