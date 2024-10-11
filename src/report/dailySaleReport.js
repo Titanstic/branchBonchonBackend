@@ -16,21 +16,47 @@ dailySaleReportRouter.post("/:reportType", async (req, res) => {
 
     try{
         let dataReport;
+        let pages = 0;
         switch (reportType){
             case "summary":
-                dataReport = await getSummaryDataReport(startDate, endDate, offset);
+                const summaryReports = await getSummaryDataReport(startDate, endDate, offset);
+                summaryReports.forEach(each => {
+                    pages += Number(each.transactioncount);
+                    delete each.transactioncount;
+                });
+                dataReport = [{pages: Math.ceil(pages/ 10)},{summaryReports}];
                 break;
             case "payment":
-                dataReport = await getPaymentDataReport(startDate, endDate, offset);
+                const paymentReports = await getPaymentDataReport(startDate, endDate, offset);
+                paymentReports.forEach(each => {
+                    pages += Number(each.transactioncount);
+                    delete each.transactioncount;
+                });
+                dataReport = [{pages: Math.ceil(pages/ 10)},{paymentReports}];
                 break;
             case "discount":
-                dataReport = await getDiscountDataReport(startDate, endDate, offset);
+                const discountReports = await getDiscountDataReport(startDate, endDate, offset);
+                discountReports.forEach((each, index) => {
+                    pages += Number(each.transactioncount);
+                    delete each.transactioncount;
+                });
+                dataReport = [{pages: Math.ceil(pages/ 10)},{discountReports}];
                 break;
             case "promotion":
-                dataReport = await getPromotionDataReport(startDate, endDate, offset);
+                const promotionReports = await getPromotionDataReport(startDate, endDate, offset);
+                promotionReports.forEach(each => {
+                    pages += Number(each.transactioncount);
+                    delete each.transactioncount;
+                });
+                dataReport = [{pages: Math.ceil(pages/ 10)},{promotionReports}];
                 break;
             case "sale":
-                dataReport = await  getMenuDataReport(startDate, endDate, offset);
+                const menuReports = await  getMenuDataReport(startDate, endDate, offset);
+                menuReports.forEach(each => {
+                    pages += Number(each.transactioncount);
+                    delete each.transactioncount;
+                });
+                dataReport = [{pages: Math.ceil(pages/ 10)},{menuReports}];
                 break;
         }
 
@@ -46,7 +72,8 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
             sum(sub_total_amount) AS subTotal, 
             sum(tax_amount) AS taxTotal, 
             sum(service_charge_amount) AS serviceChargeTotal, sum(discount_amount) AS discountTotal,
-            DATE(created_at) 
+            DATE(created_at),
+            COUNT(*) AS transactionCount
             FROM transactions 
             WHERE created_at BETWEEN $1 AND $2
             GROUP BY DATE(created_at)
@@ -59,7 +86,7 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
 }
 
 const getPaymentDataReport = async (startDate, endDate, offset) => {
-    const query = `SELECT sum(transactions.grand_total_amount) AS grandTotal, DATE(transactions.created_at) AS date, payment_types.payment_name
+    const query = `SELECT sum(transactions.grand_total_amount) AS grandTotal, DATE(transactions.created_at) AS date, payment_types.payment_name,COUNT(transactions.id) AS transactionCount
         FROM transactions
         LEFT JOIN payment_types
         ON transactions.payment_type_id = payment_types.id
@@ -76,9 +103,11 @@ const getPaymentDataReport = async (startDate, endDate, offset) => {
 const getDiscountDataReport = async (startDate, endDate, offset) => {
     const query = `SELECT sum(grand_total_amount) AS grandTotal,
         DATE(created_at) AS date,
-        discount_name
+        discount_name,
+        COUNT(*) AS transactionCount
         FROM transactions
         WHERE created_at BETWEEN $1 AND $2
+        AND discount_name != ''
         GROUP BY DATE(created_at), discount_name
         ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""};`;
     const variables = offset >= 0 ? [startDate, endDate, offset]: [startDate, endDate];
@@ -91,7 +120,8 @@ const getDiscountDataReport = async (startDate, endDate, offset) => {
 const getPromotionDataReport = async (startDate, endDate, offset) => {
     const query = `SELECT DATE(transaction_items.created_at),
         sum(transaction_items.total_amount) AS grandTotal,
-        promotion.name
+        promotion.name,
+        COUNT(transaction_items.id) AS transactionCount
         FROM transaction_items 
         LEFT JOIN promotion_items
         ON transaction_items.normal_menu_item_id = promotion_items.normal_menu_item_id
@@ -111,7 +141,8 @@ const getMenuDataReport = async (startDate, endDate, offset) => {
     const query = `SELECT 
         DATE(transaction_items.created_at),
         sum(transaction_items.total_amount) AS grandTotal,
-        menu.menu_name
+        menu.menu_name,
+        COUNT(transaction_items.id) AS transactionCount
         FROM transaction_items 
         LEFT JOIN normal_menu_items
         ON transaction_items.normal_menu_item_id = normal_menu_items.id

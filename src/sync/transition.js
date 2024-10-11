@@ -99,6 +99,7 @@ const transitionItems = async (transition_id, items) => {
     const comboSetValue = [];
 
     for (const item of parsedItems) {
+        console.log("------------------", item);
         if(item.normal_menu_item_id){
             let haveIndex;
 
@@ -115,7 +116,7 @@ const transitionItems = async (transition_id, items) => {
             }
 
             // for multiple insert value for transition items table
-            itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, item.note ? items.note : "", transition_id, item.normal_menu_item_id, item.container_charges, item.discount_price, item.flavour_types, null]);
+            itemValue.push([item.item_name, item.quantity, item.total_amount, item.price, item.is_take_away, item.note ? item.note : "", transition_id, item.normal_menu_item_id, item.container_charges, item.discount_price, item.flavour_types, null]);
         }else{
             const transitionComboSetId = uuidv4();
             // for multiple insert value for transition combo set table

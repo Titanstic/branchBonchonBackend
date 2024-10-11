@@ -6,9 +6,33 @@ const fs = require("fs");
 let customLastByItemLineH, customLastLineH, customQrLineH;
 
 const cashierPrintSlipBuffer =  async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo) => {
-    let flavourTypeLength = 0;
-    const originalHeight = point ? 1300 : 800;
-    let canvasHeight = originalHeight + data.length * 50 + flavourTypeLength * 30;
+    console.log("cashierPrintUi [cashierPrintSlipBuffer]:", data);
+    let flavourTypeDataLength = 0;
+    let containerDataLength = 0;
+    let discountDataLength = 0;
+    data.forEach(each => {
+        if(each.flavour_types){
+            flavourTypeDataLength += 1;
+        }
+        if(each.combo_menu_items){
+            const comboMenuItems = typeof each.combo_menu_items == "string" ? JSON.parse(each.combo_menu_items) : each.combo_menu_items;
+            comboMenuItems.forEach((eachCombo) => {
+                if(eachCombo.flavour_types){
+                    flavourTypeDataLength += 1;
+                }
+            })
+        }
+        if(each.container_charges > 0){
+            containerDataLength += 1;
+        }
+
+        if(each.discount_price > 0){
+            discountDataLength += 1;
+        }
+    })
+    let flavourTypeLength = flavourTypeDataLength;
+    const originalHeight = point ? 1100 : 900;
+    let canvasHeight = originalHeight + data.length * 50 + flavourTypeLength * 30 + containerDataLength * 25 + discountDataLength * 25;
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
 
@@ -57,6 +81,7 @@ const slipHeightData = (data, point) => {
 };
 
 const headerUi = async (ctx, canvas, branchData, nameH, addH, phoneH, titleLineH, lineHeight ) => {
+    console.log("cashierPrintUi [headerUi]: print Header")
     ctx.font = "24px Pyidaungsu";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
@@ -88,6 +113,7 @@ const headerUi = async (ctx, canvas, branchData, nameH, addH, phoneH, titleLineH
 };
 
 const informationUi = (ctx, canvas, employee_name, table_name , dateTimeH, tableCashierH, informationLineH, date, time) => {
+    console.log("cashierPrintUi [informationUi]: print informationUi")
     ctx.textAlign = "start";
     ctx.font = "20px Comic Sans Ms";
     ctx.fillText(`Date`, 20, dateTimeH);
@@ -119,6 +145,7 @@ const informationUi = (ctx, canvas, employee_name, table_name , dateTimeH, table
 }
 
 const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, invoiceH, orderNo) => {
+    console.log("cashierPrintUi [buyItemUi]: print buyItemUi")
     ctx.font = "24px Pyidaungsu";
     ctx.textAlign = "center";
     ctx.font = "24px Pyidaungsu";
@@ -211,6 +238,7 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
 }
 
 const paymentDetailUi = (ctx, canvas, sub_total_amount, tax_amount, discount_amount, grand_total_amount, payment_type_name, payment, cash_back, point, add_on, inclusive, service_charge_amount) => {
+    console.log("cashierPrintUi [paymentDetailUi]: print paymentDetailUi")
     //subtotal
     ctx.textAlign = "start";
     ctx.fillText(`Sub Total`, 20, customLastByItemLineH + 30);
@@ -271,6 +299,7 @@ const paymentDetailUi = (ctx, canvas, sub_total_amount, tax_amount, discount_amo
 }
 
 const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount) => {
+    console.log("cashierPrintUi [qrUi]: print qr ui")
     ctx.font = "28px Pyidaungsu";
     ctx.textAlign = "center";
     ctx.fillText("Scan this QR Code to Collect Points.", canvas.width/2, customLastLineH + 30);
@@ -297,7 +326,7 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount) => {
 
 
 const footerUi = (ctx, canvas, point ) => {
-
+    console.log("cashierPrintUi [footerUi]: print footerUi")
     const customThankH = point ? customQrLineH + 50: customLastLineH + 50;
     //thank you
     ctx.textAlign = "center";

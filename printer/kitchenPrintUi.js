@@ -6,6 +6,7 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
         takeAwayItems = [];
 
     let flavourTypeLength = 0;
+    let noteTypeLength = 0;
 
     data.forEach(each => {
         if(each.is_take_away){
@@ -13,9 +14,25 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
         }else{
             dieInItems.push(each);
         }
+        if(each.flavour_types){
+            flavourTypeLength += 1;
+        }
+        if(each.combo_menu_items){
+            const comboMenuItems = typeof each.combo_menu_items == "string" ? JSON.parse(each.combo_menu_items) : each.combo_menu_items;
+            comboMenuItems.forEach((eachCombo) => {
+                if(eachCombo.flavour_types){
+                    flavourTypeLength += 1;
+                }
+
+                if(eachCombo.note){
+                    const noteItems = typeof each.note == "string" ? JSON.parse(each.note) : each.note;
+                    noteTypeLength += noteItems.length;
+                }
+            })
+        }
     })
 
-    let canvasHeight = 250 + data.length * 40 + flavourTypeLength * 30;
+    let canvasHeight = 250 + data.length * 40 + flavourTypeLength * 50;
     // console.log("-------------------------total height", canvasHeight);
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
@@ -99,7 +116,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
 
         ctx.textAlign = "start";
         ctx.font = "18px Pyidaungsu";
-        const productNote = JSON.parse(productItem.note);
+        const productNote = typeof productItem.note == "string" ? JSON.parse(productItem.note) : productItem.note;
         if(productNote.length > 0) {
             flavourYPos += 25;
             // Draw bullet point
