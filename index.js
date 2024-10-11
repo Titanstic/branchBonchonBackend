@@ -13,6 +13,8 @@ const CentralHasuraSyncRouter = require("./src/sync/centralHasuraSync");
 const calculateStockRouter = require("./src/calculateStock");
 const stockOrderRouter = require("./src/sync/stockOrder");
 const dailySaleReportRouter = require("./src/report/dailySaleReport");
+const groupSaleReportRouter = require("./src/report/groupSaleReport");
+const groupDetailSaleReportRouter = require("./src/report/groupDetailReport");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -21,6 +23,8 @@ app.use('/central/sync', CentralHasuraSyncRouter);
 app.use("/calculatestock", calculateStockRouter);
 app.use("/stockorder", stockOrderRouter);
 app.use("/dailySaleReport", dailySaleReportRouter);
+app.use("/groupSaleReport", groupSaleReportRouter);
+app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
 
 
 const PORT = process.env.PORT || 3002;
