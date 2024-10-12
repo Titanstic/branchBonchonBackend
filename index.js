@@ -12,9 +12,9 @@ const ReprintRouter = require("./src/sync/reprint");
 const CentralHasuraSyncRouter = require("./src/sync/centralHasuraSync");
 const calculateStockRouter = require("./src/calculateStock");
 const stockOrderRouter = require("./src/sync/stockOrder");
-const dailySaleReportRouter = require("./src/report/dailySaleReport");
-const groupSaleReportRouter = require("./src/report/groupSaleReport");
-const groupDetailSaleReportRouter = require("./src/report/groupDetailReport");
+const dailySaleReportRouter = require("./src/report/DailySale/dailySaleReportController");
+const groupSaleReportRouter = require("./src/report/GroupSale/groupSaleReportController");
+const groupDetailSaleReportRouter = require("./src/report/GroupSale/groupDetailReportController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
