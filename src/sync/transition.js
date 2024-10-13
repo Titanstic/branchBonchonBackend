@@ -12,15 +12,9 @@ transitionRouter.post("/", async (req, res) => {
         const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count} = req.body.input;
 
         const date = new Date();
-        const day = String(date.getDate()).padStart(2, '0');  // Pad single digits to two
-        const month = String(date.getMonth() + 1).padStart(2, '0');  // Months are zero-based, so add 1
-        const year = date.toLocaleDateString('en', { year: "2-digit" });  // Get 2-digit year
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        const milliseconds = String(date.getMilliseconds()).padStart(3, '0');  // Ensure 3 digits for milliseconds
-
-        const orderNo = `${day}${month}${year}${hours}${minutes}${seconds}${milliseconds}`;
+        const currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        const orderNo = await findOrderNo(currentDate);
+        console.log("transitionRouter order NO:", orderNo);
 
         // search sync data
         const branchResult = await findBranchById(branch_id);
@@ -39,7 +33,6 @@ transitionRouter.post("/", async (req, res) => {
         await poolQuery('COMMIT');
 
        //  printer state
-        console.log("transitionRouter: kitchenPrintItem", kitchenPrintItem);
         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
 
         // Synchronous with online database
@@ -53,6 +46,11 @@ transitionRouter.post("/", async (req, res) => {
         res.json({ error: 1, message: e.message });
     }
 });
+
+const findOrderNo = async (currentDate) => {
+    const transitionOrderRes = await poolQuery(`SELECT order_no FROM transactions WHERE DATE(created_at) = $1 ORDER BY  created_at DESC LIMIT 1;`, [currentDate]);
+    return transitionOrderRes.rows.length > 0 ? `${Number(transitionOrderRes.rows[0].order_no) + 1}` : "1000";
+}
 
 const findBranchById = async (id) => {
     return await poolQuery(`
@@ -99,7 +97,6 @@ const transitionItems = async (transition_id, items) => {
     const comboSetValue = [];
 
     for (const item of parsedItems) {
-        console.log("------------------", item);
         if(item.normal_menu_item_id){
             let haveIndex;
 
