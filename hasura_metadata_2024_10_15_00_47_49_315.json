@@ -1,0 +1,1863 @@
+{
+  "resource_version": 229,
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "BONCHON-OFFLINE-SERVER",
+        "kind": "postgres",
+        "tables": [
+          {
+            "table": {
+              "name": "batch",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "batch_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "branches",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "discounts",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "branch_id",
+                    "table": {
+                      "name": "discounts",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "purchase_orders",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "branch_id",
+                    "table": {
+                      "name": "purchase_order",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transfer_ins",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "banch_id",
+                    "table": {
+                      "name": "transfer_in",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transfer_outs",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "banch_id",
+                    "table": {
+                      "name": "transfer_out",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "combo_menu_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "combo_set",
+                "using": {
+                  "foreign_key_constraint_on": "combo_set_id"
+                }
+              },
+              {
+                "name": "normal_menu_item",
+                "using": {
+                  "foreign_key_constraint_on": "normal_menu_item_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "combo_set",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "family_group",
+                "using": {
+                  "foreign_key_constraint_on": "family_group_id"
+                }
+              },
+              {
+                "name": "major_group",
+                "using": {
+                  "foreign_key_constraint_on": "major_group_id"
+                }
+              },
+              {
+                "name": "report_group",
+                "using": {
+                  "foreign_key_constraint_on": "report_group_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "combo_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "combo_set_id",
+                    "table": {
+                      "name": "combo_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "promotion_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "combo_set_id",
+                    "table": {
+                      "name": "promotion_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transaction_combo_sets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "combo_set_id",
+                    "table": {
+                      "name": "transaction_combo_set",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "dinner_tables",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "transactions",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "dinner_table_id",
+                    "table": {
+                      "name": "transactions",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "discounts",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "branch",
+                "using": {
+                  "foreign_key_constraint_on": "branch_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "employees",
+              "schema": "public"
+            }
+          },
+          {
+            "table": {
+              "name": "family_group",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "combo_sets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "family_group_id",
+                    "table": {
+                      "name": "combo_set",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "normal_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "family_group_id",
+                    "table": {
+                      "name": "normal_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "flavour_types",
+              "schema": "public"
+            }
+          },
+          {
+            "table": {
+              "name": "good_received",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "purchase_order",
+                "using": {
+                  "foreign_key_constraint_on": "purchase_order_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "good_received_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "good_received_id",
+                    "table": {
+                      "name": "good_received_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "good_returns",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "good_received_id",
+                    "table": {
+                      "name": "good_return",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "good_received_item",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "good_received",
+                "using": {
+                  "foreign_key_constraint_on": "good_received_id"
+                }
+              },
+              {
+                "name": "stock_item",
+                "using": {
+                  "foreign_key_constraint_on": "stock_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "good_return",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "good_received",
+                "using": {
+                  "foreign_key_constraint_on": "good_received_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "good_return_item",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "good_return_item",
+                "using": {
+                  "foreign_key_constraint_on": "good_return_id"
+                }
+              },
+              {
+                "name": "stock_item",
+                "using": {
+                  "foreign_key_constraint_on": "stock_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "good_return_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "good_return_id",
+                    "table": {
+                      "name": "good_return_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "kitchen",
+              "schema": "public"
+            }
+          },
+          {
+            "table": {
+              "name": "major_group",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "combo_sets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "major_group_id",
+                    "table": {
+                      "name": "combo_set",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "normal_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "major_group_id",
+                    "table": {
+                      "name": "normal_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "menu",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "normal_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "menu_id",
+                    "table": {
+                      "name": "normal_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "menu_recipe_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "normal_menu_item",
+                "using": {
+                  "foreign_key_constraint_on": "menu_id"
+                }
+              },
+              {
+                "name": "recipe",
+                "using": {
+                  "foreign_key_constraint_on": "recipe_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "normal_menu_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "family_group",
+                "using": {
+                  "foreign_key_constraint_on": "family_group_id"
+                }
+              },
+              {
+                "name": "major_group",
+                "using": {
+                  "foreign_key_constraint_on": "major_group_id"
+                }
+              },
+              {
+                "name": "menu",
+                "using": {
+                  "foreign_key_constraint_on": "menu_id"
+                }
+              },
+              {
+                "name": "report_group",
+                "using": {
+                  "foreign_key_constraint_on": "report_group_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "combo_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "normal_menu_item_id",
+                    "table": {
+                      "name": "combo_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "menu_recipe_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "menu_id",
+                    "table": {
+                      "name": "menu_recipe_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "promotion_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "normal_menu_item_id",
+                    "table": {
+                      "name": "promotion_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transaction_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "normal_menu_item_id",
+                    "table": {
+                      "name": "transaction_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "payment_types",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "transactions",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "payment_type_id",
+                    "table": {
+                      "name": "transactions",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "promotion",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "promotion_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "promotion_id",
+                    "table": {
+                      "name": "promotion_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "promotion_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "combo_set",
+                "using": {
+                  "foreign_key_constraint_on": "combo_set_id"
+                }
+              },
+              {
+                "name": "normal_menu_item",
+                "using": {
+                  "foreign_key_constraint_on": "normal_menu_item_id"
+                }
+              },
+              {
+                "name": "promotion",
+                "using": {
+                  "foreign_key_constraint_on": "promotion_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "promotion_types",
+              "schema": "public"
+            }
+          },
+          {
+            "table": {
+              "name": "purchase_order",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "branch",
+                "using": {
+                  "foreign_key_constraint_on": "branch_id"
+                }
+              },
+              {
+                "name": "supplier",
+                "using": {
+                  "foreign_key_constraint_on": "supplier_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "good_receiveds",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "purchase_order_id",
+                    "table": {
+                      "name": "good_received",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "purchase_order_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "purchase_order_id",
+                    "table": {
+                      "name": "purchase_order_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "purchase_order_item",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "purchase_order",
+                "using": {
+                  "foreign_key_constraint_on": "purchase_order_id"
+                }
+              },
+              {
+                "name": "stock_item",
+                "using": {
+                  "foreign_key_constraint_on": "stock_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "recipe_group",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "recipes",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "recipe_group_id",
+                    "table": {
+                      "name": "recipes",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "recipe_item_types",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "recipe_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "type",
+                    "table": {
+                      "name": "recipe_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "recipes",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "sale_type",
+                    "table": {
+                      "name": "recipes",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "recipe_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "recipe",
+                "using": {
+                  "foreign_key_constraint_on": "recipe_id"
+                }
+              },
+              {
+                "name": "recipe_item_type",
+                "using": {
+                  "foreign_key_constraint_on": "type"
+                }
+              },
+              {
+                "name": "stock_item",
+                "using": {
+                  "foreign_key_constraint_on": "stock_items_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "recipes",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "recipe_group",
+                "using": {
+                  "foreign_key_constraint_on": "recipe_group_id"
+                }
+              },
+              {
+                "name": "recipe_item_type",
+                "using": {
+                  "foreign_key_constraint_on": "sale_type"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "menu_recipe_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "recipe_id",
+                    "table": {
+                      "name": "menu_recipe_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "recipe_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "recipe_id",
+                    "table": {
+                      "name": "recipe_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "report_group",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "combo_sets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "report_group_id",
+                    "table": {
+                      "name": "combo_set",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "normal_menu_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "report_group_id",
+                    "table": {
+                      "name": "normal_menu_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "stock_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "batch",
+                "using": {
+                  "foreign_key_constraint_on": "batch_id"
+                }
+              },
+              {
+                "name": "stock_items_department",
+                "using": {
+                  "foreign_key_constraint_on": "department_id"
+                }
+              },
+              {
+                "name": "stock_items_group",
+                "using": {
+                  "foreign_key_constraint_on": "group_id"
+                }
+              },
+              {
+                "name": "stock_items_type",
+                "using": {
+                  "foreign_key_constraint_on": "type_id"
+                }
+              },
+              {
+                "name": "supplier",
+                "using": {
+                  "foreign_key_constraint_on": "supplier_id"
+                }
+              },
+              {
+                "name": "tax",
+                "using": {
+                  "foreign_key_constraint_on": "tax_id"
+                }
+              },
+              {
+                "name": "unit_of_measurement",
+                "using": {
+                  "foreign_key_constraint_on": "unit_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "good_received_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "stock_id",
+                    "table": {
+                      "name": "good_received_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "good_return_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "stock_id",
+                    "table": {
+                      "name": "good_return_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "purchase_order_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "stock_id",
+                    "table": {
+                      "name": "purchase_order_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "recipe_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "stock_items_id",
+                    "table": {
+                      "name": "recipe_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transfer_out_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "stock_id",
+                    "table": {
+                      "name": "transfer_out_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "stock_items_department",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "department_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "stock_items_group",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "group_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "stock_items_type",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "type_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "suppliers",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "purchase_orders",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "supplier_id",
+                    "table": {
+                      "name": "purchase_order",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "supplier_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "tax",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "tax_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transaction_combo_set",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "combo_set",
+                "using": {
+                  "foreign_key_constraint_on": "combo_set_id"
+                }
+              },
+              {
+                "name": "transaction",
+                "using": {
+                  "foreign_key_constraint_on": "transaction_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "transaction_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transition_combo_set_id",
+                    "table": {
+                      "name": "transaction_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transaction_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "normal_menu_item",
+                "using": {
+                  "foreign_key_constraint_on": "normal_menu_item_id"
+                }
+              },
+              {
+                "name": "transaction",
+                "using": {
+                  "foreign_key_constraint_on": "transaction_id"
+                }
+              },
+              {
+                "name": "transaction_combo_set",
+                "using": {
+                  "foreign_key_constraint_on": "transition_combo_set_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transactions",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "dinner_table",
+                "using": {
+                  "foreign_key_constraint_on": "dinner_table_id"
+                }
+              },
+              {
+                "name": "payment_type",
+                "using": {
+                  "foreign_key_constraint_on": "payment_type_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "transaction_combo_sets",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transaction_id",
+                    "table": {
+                      "name": "transaction_combo_set",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transaction_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transaction_id",
+                    "table": {
+                      "name": "transaction_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transfer_in",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "branch",
+                "using": {
+                  "foreign_key_constraint_on": "banch_id"
+                }
+              },
+              {
+                "name": "transfer_out",
+                "using": {
+                  "foreign_key_constraint_on": "transfer_out_do_no"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "transfer_in_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transfer_in_id",
+                    "table": {
+                      "name": "transfer_in_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transfer_in_items",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "transfer_in",
+                "using": {
+                  "foreign_key_constraint_on": "transfer_in_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transfer_out",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "branch",
+                "using": {
+                  "foreign_key_constraint_on": "banch_id"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "transfer_ins",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transfer_out_do_no",
+                    "table": {
+                      "name": "transfer_in",
+                      "schema": "public"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "transfer_out_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "transfer_out_id",
+                    "table": {
+                      "name": "transfer_out_item",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "transfer_out_item",
+              "schema": "public"
+            },
+            "object_relationships": [
+              {
+                "name": "stock_item",
+                "using": {
+                  "foreign_key_constraint_on": "stock_id"
+                }
+              },
+              {
+                "name": "transfer_out",
+                "using": {
+                  "foreign_key_constraint_on": "transfer_out_id"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "unit_of_measurement",
+              "schema": "public"
+            },
+            "array_relationships": [
+              {
+                "name": "stock_items",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "unit_id",
+                    "table": {
+                      "name": "stock_items",
+                      "schema": "public"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "configuration": {
+          "connection_info": {
+            "database_url": {
+              "from_env": "HASURA_GRAPHQL_METADATA_DATABASE_URL"
+            },
+            "isolation_level": "read-committed",
+            "use_prepared_statements": false
+          }
+        }
+      }
+    ],
+    "actions": [
+      {
+        "name": "DownloadGroupDetailSaleReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/groupDetailSaleReport/download",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadGroupDetailSaleReport"
+      },
+      {
+        "name": "DownloadGroupSaleReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/groupSaleReport/download",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadGroupSaleReport"
+      },
+      {
+        "name": "DownloadSaleCategoryReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/download/sale",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadSaleCategoryReport"
+      },
+      {
+        "name": "DownloadSaleDiscountReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/download/discount",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadSaleDiscountReport"
+      },
+      {
+        "name": "DownloadSalePaymentReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/download/payment",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadSalePaymentReport"
+      },
+      {
+        "name": "DownloadSalePromotionReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/download/promotion",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadSalePromotionReport"
+      },
+      {
+        "name": "DownloadSaleSummaryReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/download/summary",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "DownloadSaleSummaryReport"
+      },
+      {
+        "name": "GroupDetailSaleReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/groupDetailSaleReport",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "GroupDetailSaleReport"
+      },
+      {
+        "name": "GroupSaleReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/groupSaleReport",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "GroupSaleReport"
+      },
+      {
+        "name": "Reprint",
+        "definition": {
+          "handler": "http://offline_backend:3002/reprint",
+          "output_type": "ReprintResponse",
+          "arguments": [
+            {
+              "name": "transaction_id",
+              "type": "uuid!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "Reprint"
+      },
+      {
+        "name": "SaleCategoryReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/sale",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SaleCategoryReport"
+      },
+      {
+        "name": "SaleDiscountReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/discount",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SaleDiscountReport"
+      },
+      {
+        "name": "SalePaymentReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/payment",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SalePaymentReport"
+      },
+      {
+        "name": "SalePromotionReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/promotion",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SalePromotionReport"
+      },
+      {
+        "name": "SaleSummaryReport",
+        "definition": {
+          "handler": "http://offline_backend:3002/dailySaleReport/summary",
+          "output_type": "ReportResponse",
+          "arguments": [
+            {
+              "name": "startDate",
+              "type": "String!"
+            },
+            {
+              "name": "endDate",
+              "type": "String!"
+            },
+            {
+              "name": "page",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SaleSummaryReport"
+      },
+      {
+        "name": "SignInEmployee",
+        "definition": {
+          "handler": "http://offline_backend:3002/signin",
+          "output_type": "SignInEmployeeResponse",
+          "arguments": [
+            {
+              "name": "username",
+              "type": "String!"
+            },
+            {
+              "name": "password",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "SignInEmployee"
+      },
+      {
+        "name": "Transition",
+        "definition": {
+          "handler": "http://offline_backend:3002/transition",
+          "output_type": "TransitionResponse",
+          "arguments": [
+            {
+              "name": "id",
+              "type": "uuid!"
+            },
+            {
+              "name": "employee_id",
+              "type": "uuid!"
+            },
+            {
+              "name": "employee_name",
+              "type": "String!"
+            },
+            {
+              "name": "employee_printer",
+              "type": "String!"
+            },
+            {
+              "name": "grand_total_amount",
+              "type": "Int!"
+            },
+            {
+              "name": "sub_total_amount",
+              "type": "Int!"
+            },
+            {
+              "name": "tax_amount",
+              "type": "Int!"
+            },
+            {
+              "name": "service_charge_amount",
+              "type": "Int!"
+            },
+            {
+              "name": "discount_amount",
+              "type": "Int"
+            },
+            {
+              "name": "discount_name",
+              "type": "String"
+            },
+            {
+              "name": "cash_back",
+              "type": "Int!"
+            },
+            {
+              "name": "payment",
+              "type": "Int!"
+            },
+            {
+              "name": "payment_type_id",
+              "type": "uuid!"
+            },
+            {
+              "name": "payment_type_name",
+              "type": "String!"
+            },
+            {
+              "name": "branch_id",
+              "type": "uuid!"
+            },
+            {
+              "name": "dinner_table_id",
+              "type": "uuid"
+            },
+            {
+              "name": "table_name",
+              "type": "String"
+            },
+            {
+              "name": "add_on",
+              "type": "Int!"
+            },
+            {
+              "name": "inclusive",
+              "type": "Int!"
+            },
+            {
+              "name": "point",
+              "type": "Int"
+            },
+            {
+              "name": "items",
+              "type": "jsonb!"
+            },
+            {
+              "name": "rounding",
+              "type": "Int!"
+            },
+            {
+              "name": "customer_count",
+              "type": "Int"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "Transition"
+      },
+      {
+        "name": "syncFromCentral",
+        "definition": {
+          "handler": "http://offline_backend:3002/central/sync",
+          "output_type": "SyncFromCentralResponse",
+          "arguments": [
+            {
+              "name": "transaction_id",
+              "type": "String!"
+            }
+          ],
+          "type": "mutation",
+          "kind": "synchronous"
+        },
+        "comment": "syncFromCentral"
+      }
+    ],
+    "custom_types": {
+      "input_objects": [
+        {
+          "name": "SampleInput",
+          "fields": [
+            {
+              "name": "username",
+              "type": "String!"
+            },
+            {
+              "name": "password",
+              "type": "String!"
+            }
+          ]
+        }
+      ],
+      "objects": [
+        {
+          "name": "ReportResponse",
+          "fields": [
+            {
+              "name": "error",
+              "type": "Int!"
+            },
+            {
+              "name": "message",
+              "type": "String!"
+            }
+          ]
+        },
+        {
+          "name": "SampleOutput",
+          "fields": [
+            {
+              "name": "accessToken",
+              "type": "String!"
+            }
+          ]
+        },
+        {
+          "name": "ReprintResponse",
+          "fields": [
+            {
+              "name": "error",
+              "type": "Int!"
+            },
+            {
+              "name": "message",
+              "type": "String!"
+            }
+          ]
+        },
+        {
+          "name": "SignInEmployeeResponse",
+          "fields": [
+            {
+              "name": "error",
+              "type": "Int!"
+            },
+            {
+              "name": "message",
+              "type": "String!"
+            },
+            {
+              "name": "accessToken",
+              "type": "String!"
+            }
+          ]
+        },
+        {
+          "name": "TransitionResponse",
+          "fields": [
+            {
+              "name": "error",
+              "type": "Int!"
+            },
+            {
+              "name": "message",
+              "type": "String!"
+            }
+          ]
+        },
+        {
+          "name": "SyncFromCentralResponse",
+          "fields": [
+            {
+              "name": "success",
+              "type": "Boolean!"
+            },
+            {
+              "name": "message",
+              "type": "String!"
+            }
+          ]
+        }
+      ]
+    },
+    "backend_configs": {
+      "dataconnector": {
+        "athena": {
+          "uri": "http://data-connector-agent:8081/api/v1/athena"
+        },
+        "mariadb": {
+          "uri": "http://data-connector-agent:8081/api/v1/mariadb"
+        },
+        "mysql8": {
+          "uri": "http://data-connector-agent:8081/api/v1/mysql"
+        },
+        "oracle": {
+          "uri": "http://data-connector-agent:8081/api/v1/oracle"
+        },
+        "snowflake": {
+          "uri": "http://data-connector-agent:8081/api/v1/snowflake"
+        }
+      }
+    }
+  }
+}
