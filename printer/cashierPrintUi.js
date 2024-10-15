@@ -1,32 +1,32 @@
-const {createCanvas , loadImage} = require("@napi-rs/canvas");
-const {v4: uuidv4} = require("uuid");
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
+const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 const fs = require("fs");
 
 let customLastByItemLineH, customLastLineH, customQrLineH;
 
-const cashierPrintSlipBuffer =  async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo) => {
+const cashierPrintSlipBuffer = async(employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo) => {
     console.log("cashierPrintUi [cashierPrintSlipBuffer]:", data);
     let flavourTypeDataLength = 0;
     let containerDataLength = 0;
     let discountDataLength = 0;
     data.forEach(each => {
-        if(each.flavour_types){
+        if (each.flavour_types) {
             flavourTypeDataLength += 1;
         }
-        if(each.combo_menu_items){
+        if (each.combo_menu_items) {
             const comboMenuItems = typeof each.combo_menu_items == "string" ? JSON.parse(each.combo_menu_items) : each.combo_menu_items;
             comboMenuItems.forEach((eachCombo) => {
-                if(eachCombo.flavour_types){
+                if (eachCombo.flavour_types) {
                     flavourTypeDataLength += 1;
                 }
             })
         }
-        if(each.container_charges > 0){
+        if (each.container_charges > 0) {
             containerDataLength += 1;
         }
 
-        if(each.discount_price > 0){
+        if (each.discount_price > 0) {
             discountDataLength += 1;
         }
     })
@@ -80,7 +80,7 @@ const slipHeightData = (data, point) => {
     return { lineHeight, nameH, addH, phoneH, titleLineH, invoiceH, dateTimeH, tableCashierH, informationLineH, headerHeight, firstLineH };
 };
 
-const headerUi = async (ctx, canvas, branchData, nameH, addH, phoneH, titleLineH, lineHeight ) => {
+const headerUi = async(ctx, canvas, branchData, nameH, addH, phoneH, titleLineH, lineHeight) => {
     console.log("cashierPrintUi [headerUi]: print Header")
     ctx.font = "24px Pyidaungsu";
     ctx.fillStyle = "black";
@@ -112,7 +112,7 @@ const headerUi = async (ctx, canvas, branchData, nameH, addH, phoneH, titleLineH
     );
 };
 
-const informationUi = (ctx, canvas, employee_name, table_name , dateTimeH, tableCashierH, informationLineH, date, time) => {
+const informationUi = (ctx, canvas, employee_name, table_name, dateTimeH, tableCashierH, informationLineH, date, time) => {
     console.log("cashierPrintUi [informationUi]: print informationUi")
     ctx.textAlign = "start";
     ctx.font = "20px Comic Sans Ms";
@@ -171,8 +171,8 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
         ctx.textAlign = "right";
         ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 150, flavourYPos);
 
-        if(productItem.discount_price > 0){
-            ctx.fillText(productItem.discount_price.toLocaleString("en-US"), canvas.width - 10, flavourYPos);
+        if (productItem.discount_price > 0) {
+            ctx.fillText((productItem.total_amount - productItem.discount_price).toLocaleString("en-US"), canvas.width - 10, flavourYPos);
 
             flavourYPos += 30;
             ctx.font = "20px Comic Sans Ms";
@@ -188,12 +188,12 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
             ctx.moveTo(canvas.width - 10 - textWidth, flavourYPos - 7); // Start point of the line
             ctx.lineTo(canvas.width - 10, flavourYPos - 7); // End point of the line
             ctx.stroke();
-        }else{
+        } else {
             ctx.fillText(productItem.total_amount.toLocaleString("en-US"), canvas.width - 10, flavourYPos);
         }
 
         // need change
-        if(productItem.combo_menu_items){
+        if (productItem.combo_menu_items) {
             const comboMenuItems = typeof productItem.combo_menu_items == "string" ? JSON.parse(productItem.combo_menu_items) : productItem.combo_menu_items;
 
             comboMenuItems.forEach((eachCombo) => {
@@ -205,7 +205,7 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
             })
         }
 
-        if(productItem.flavour_types){
+        if (productItem.flavour_types) {
             ctx.textAlign = "start";
             ctx.font = "20px Comic Sans Ms";
             flavourYPos += 25;
@@ -213,7 +213,7 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
             ctx.fillText(productItem.flavour_types, 70, flavourYPos);
         }
 
-        if(productItem.container_charges > 0) {
+        if (productItem.container_charges > 0) {
             flavourYPos += 30;
             ctx.font = "20px Comic Sans Ms";
             ctx.textAlign = "start";
@@ -239,7 +239,7 @@ const buyItemUi = (ctx, canvas, data, headerHeight, firstLineH, transitionId, in
 
 const paymentDetailUi = (ctx, canvas, sub_total_amount, tax_amount, discount_amount, grand_total_amount, payment_type_name, payment, cash_back, point, add_on, inclusive, service_charge_amount) => {
     console.log("cashierPrintUi [paymentDetailUi]: print paymentDetailUi")
-    //subtotal
+        //subtotal
     ctx.textAlign = "start";
     ctx.fillText(`Sub Total`, 20, customLastByItemLineH + 30);
     ctx.textAlign = "right";
@@ -283,7 +283,7 @@ const paymentDetailUi = (ctx, canvas, sub_total_amount, tax_amount, discount_amo
     ctx.textAlign = "right";
     ctx.fillText(`${cash_back.toLocaleString("en-US")}`, canvas.width - 10, customLastByItemLineH + 210);
 
-    if(point){
+    if (point) {
         ctx.textAlign = "start";
         ctx.fillText(`POINTS`, 20, customLastByItemLineH + 240);
         ctx.textAlign = "right";
@@ -298,13 +298,13 @@ const paymentDetailUi = (ctx, canvas, sub_total_amount, tax_amount, discount_amo
     );
 }
 
-const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount) => {
+const qrUi = async(transitionId, point, ctx, canvas, grand_total_amount) => {
     console.log("cashierPrintUi [qrUi]: print qr ui")
     ctx.font = "28px Pyidaungsu";
     ctx.textAlign = "center";
-    ctx.fillText("Scan this QR Code to Collect Points.", canvas.width/2, customLastLineH + 30);
+    ctx.fillText("Scan this QR Code to Collect Points.", canvas.width / 2, customLastLineH + 30);
 
-    const data = {id: transitionId, point, amount: grand_total_amount};
+    const data = { id: transitionId, point, amount: grand_total_amount };
     console.log(data);
     const qrCodeData = await QRCode.toDataURL(JSON.stringify(data));
 
@@ -325,9 +325,9 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount) => {
 }
 
 
-const footerUi = (ctx, canvas, point ) => {
+const footerUi = (ctx, canvas, point) => {
     console.log("cashierPrintUi [footerUi]: print footerUi")
-    const customThankH = point ? customQrLineH + 50: customLastLineH + 50;
+    const customThankH = point ? customQrLineH + 50 : customLastLineH + 50;
     //thank you
     ctx.textAlign = "center";
     ctx.fillText("Thank You for visiting Bonchon.....", canvas.width / 2, customThankH);
