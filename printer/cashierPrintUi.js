@@ -55,7 +55,8 @@ const cashierPrintSlipBuffer = async(employee_name, branchData, table_name, tran
 
     footerUi(ctx, canvas, point)
 
-    const filename = "orderImages/receipt.png";
+    // const filename = "./resources/app/orderImages/receipt.png";
+    const filename = "./orderImages/receipt.png";
     const buffer = canvas.toBuffer("image/png");
     fs.writeFileSync(filename, buffer);
 

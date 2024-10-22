@@ -3,14 +3,14 @@ const { Pool } = require("pg");
 const {databaseHost,databaseName,databasePassword,databaseUsername} = require("../config")
 
 const pool = new Pool({
-    host : databaseHost,
-    user : databaseUsername,
-    database: databaseName,
-    password: databasePassword,
+    host : "localhost",
+    user : "postgres",
+    database: "postgres",
+    password: "postgrespassword",
     max : 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
-
+    port: 5432
 })
 
 pool.connect((err, client, release) => {

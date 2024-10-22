@@ -2,10 +2,12 @@ require('dotenv').config();
 
 const express = require("express");
 const app = express();
-
+const cors = require("cors");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors({ origin: '*'}));
 
+// Start API CALL
 const { signInRouter} = require("./src/signIn");
 const transitionRouter = require("./src/sync/transition");
 const ReprintRouter = require("./src/sync/reprint");
@@ -25,9 +27,27 @@ app.use("/stockorder", stockOrderRouter);
 app.use("/dailySaleReport", dailySaleReportRouter);
 app.use("/groupSaleReport", groupSaleReportRouter);
 app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
+// End API CALL
+
+// Start Frontend Static
+const frontendPosStatic = require("./FrontendPosStatic");
+// End Frontend Static
 
 
 const PORT = process.env.PORT || 3002;
-app.listen((PORT) , () => {
-    console.log(`Express server listening on ports ${PORT}`);
-})
+
+const serverStart = async () => {
+    app.listen((PORT) , () => {
+        console.log(`Express server listening on ports ${PORT}`);
+    })
+
+    frontendPosStatic.listen(4000, () => {
+        console.log(`POS is running at port ${4000}`);
+    })
+
+    frontendPosStatic.listen(5000, () => {
+        console.log(`POS 2 is running at port 5000`);
+    })
+};
+
+module.exports = serverStart;

@@ -48,7 +48,8 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
 
     buyItemUi(ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, data[0].printer_name, table_name);
 
-    const fileName = "orderImages/kitchen.png";
+    // const fileName = "./resources/app/orderImages/kitchen.png";
+    const fileName = "./orderImages/kitchen.png";
     const buffer = canvas.toBuffer("image/png");
     fs.writeFileSync(fileName, buffer);
 
