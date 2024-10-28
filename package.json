@@ -1,12 +1,13 @@
 {
   "name": "branchbonchonbackend",
   "version": "1.0.0",
-  "main": "electronMain.js",
+  "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
     "electron": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "electron-packager . bonchon_pos --platform=win32 --arch=x64  --icon=./images/logo.ico --out=out"
+    "build": "electron-packager . bonchon_branch --platform=win32 --arch=x64  --icon=./images/logo.ico --out=out",
+    "build_msi": "node build_installer.js"
   },
   "author": "",
   "license": "ISC",

@@ -31,23 +31,24 @@ app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
 
 // Start Frontend Static
 const frontendPosStatic = require("./FrontendPosStatic");
+const frontendDashboardStatic = require("./FrontendDashboardStatic");
 // End Frontend Static
 
 
 const PORT = process.env.PORT || 3002;
 
-const serverStart = async () => {
+// const serverStart = async () => {
     app.listen((PORT) , () => {
         console.log(`Express server listening on ports ${PORT}`);
     })
 
-    frontendPosStatic.listen(4000, () => {
-        console.log(`POS is running at port ${4000}`);
-    })
-
-    frontendPosStatic.listen(5000, () => {
-        console.log(`POS 2 is running at port 5000`);
-    })
-};
-
-module.exports = serverStart;
+//     frontendPosStatic.listen(4000, () => {
+//         console.log(`POS is running at port ${4000}`);
+//     })
+//
+//     frontendDashboardStatic.listen(5000, () => {
+//         console.log(`Dashboard is running at port 5000`);
+//     })
+// };
+//
+// module.exports = serverStart;

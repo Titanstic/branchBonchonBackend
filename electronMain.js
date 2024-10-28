@@ -4,10 +4,10 @@ const serverStart = require('./index');
 // Run the Node.js server
 serverStart();
 
-let mainWindowPos;
+let mainWindowDashboard;
 
 function createWindow() {
-    mainWindowPos = new BrowserWindow({
+    mainWindowDashboard = new BrowserWindow({
         width: 1440,
         height: 900,
         webPreferences: {
@@ -18,16 +18,16 @@ function createWindow() {
     });
 
     // Disable DevTools in production mode
-    // mainWindowPos.webContents.on('devtools-opened', () => {
-    //     mainWindowPos.webContents.closeDevTools();
-    // });
+    mainWindowDashboard.webContents.on('devtools-opened', () => {
+        mainWindowDashboard.webContents.closeDevTools();
+    });
 
-    mainWindowPos.loadURL(`http://localhost:4000`);
+    mainWindowDashboard.loadURL(`http://localhost:5000`);
 
-    mainWindowPos.webContents.openDevTools();
+    mainWindowDashboard.webContents.openDevTools();
 
-    mainWindowPos.on('closed', () => {
-        mainWindowPos = null;
+    mainWindowDashboard.on('closed', () => {
+        mainWindowDashboard = null;
     });
 }
 
@@ -40,7 +40,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    if (mainWindowPos === null) {
+    if (mainWindowDashboard === null) {
         createWindow();
     }
 });

@@ -16,13 +16,6 @@ transitionRouter.post("/", async (req, res) => {
         const orderNo = await findOrderNo(currentDate);
         console.log("transitionRouter order NO:", orderNo);
 
-        // search sync data
-        const branchResult = await findBranchById(branch_id);
-        let branchData = [];
-        if(branchResult.rows.length > 0){
-            branchData = branchResult.rows[0];
-        }
-
         await poolQuery('BEGIN');
         // insert transition
         const transitionResult = await addTransition(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count);
@@ -30,10 +23,18 @@ transitionRouter.post("/", async (req, res) => {
         const { parsedItems, kitchenPrintItem, itemResults } = await transitionItems(id, items);
         transitionResult.items = JSON.stringify(itemResults);
         transitionResult.branch_id = branch_id;
+        // insert cashier drawer
+        await addCashierDrawer(currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems);
         await poolQuery('COMMIT');
 
        //  printer state
-        await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
+        // search sync data
+        const branchResult = await findBranchById(branch_id);
+        let branchData = [];
+        if(branchResult.rows.length > 0){
+            branchData = branchResult.rows[0];
+        }
+         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
 
         // Synchronous with online database
        //await fetchOnlineDbTransition(transitionResult, id);
@@ -157,7 +158,7 @@ const addTransitionItems = async (value, comboSetValue) => {
             VALUES ${comboValuePlaceholders}
             RETURNING *;
         `;
-        const transitionComboSetResult = await poolQuery(transitionComboSetQuery, comboValues);
+        await poolQuery(transitionComboSetQuery, comboValues);
     }
 
     console.log("[Transition Routes] addTransitionItems value: ", value);
@@ -176,6 +177,73 @@ const addTransitionItems = async (value, comboSetValue) => {
         return result.rows;
     } else {
         throw new Error("No data returned after insert.");
+    }
+}
+
+const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems) => {
+    const { rows: currentCashierDrawerData } = await poolQuery(`SELECT * FROM cashier_drawer WHERE DATE(created_at) = $1 AND pick_up_date_time IS NULL`, [currentDate]);
+
+    if(currentCashierDrawerData.length > 0){
+        console.log("transitionRouter [addCashierDrawer] currentCashierDrawerData:", currentCashierDrawerData);
+        // find payment type [self or delivery]
+        const { rows: paymentTypeRes } = await poolQuery(`SELECT type FROM payment_types WHERE payment_name = $1;`, [payment_type_name]);
+        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type);
+        const updateCashierDrawerQuery = `UPDATE cashier_drawer ${setCashierDrawerData} WHERE id = $1;`
+
+        await poolQuery(updateCashierDrawerQuery, [currentCashierDrawerData[0].id]);
+        await calculateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
+    }else {
+        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found OR cashier drawer detail error");
+    }
+
+};
+
+const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, type ) => {
+    if(payment_type_name === "Cash"){
+        cashierDrawerData.cash_sale += grand_total_amount;
+        cashierDrawerData.cash_in_drawer += grand_total_amount;
+    }else{
+        cashierDrawerData.other_sale += grand_total_amount;
+    }
+    cashierDrawerData.total_revenue += grand_total_amount;
+
+    cashierDrawerData.net_sales += sub_total_amount;
+    cashierDrawerData.tax_add_on += add_on + tax_amount;
+    cashierDrawerData.rounding = `${Number(cashierDrawerData.rounding) + Number(rounding)}`;
+
+    parsedItems.forEach((eachItem) => {
+        if(eachItem.is_take_away && type === "self"){
+            cashierDrawerData.die_in += eachItem.total_amount;
+        }else if(!eachItem.is_take_away && type === "self"){
+            cashierDrawerData.self_take_away += eachItem.total_amount;
+        }else{
+            cashierDrawerData.delivery += eachItem.total_amount;
+        }
+    })
+
+    const setCashierDrawerData = `SET cash_sale = ${cashierDrawerData.cash_sale}, 
+        other_sale = ${cashierDrawerData.other_sale}, 
+        total_revenue = ${cashierDrawerData.total_revenue}, 
+        cash_in_drawer = ${cashierDrawerData.cash_in_drawer},
+        net_sales = ${cashierDrawerData.net_sales},
+        tax_add_on = ${cashierDrawerData.tax_add_on},
+        rounding = ${cashierDrawerData.rounding},
+        die_in = ${cashierDrawerData.die_in},
+        self_take_away = ${cashierDrawerData.self_take_away},
+        delivery = ${cashierDrawerData.delivery}
+    `;
+
+    return { setCashierDrawerData };
+}
+
+const calculateDrawerDetail = async (grand_total_amount, payment_type_name, cashierDrawerId) => {
+    const { rows: cashierDrawerDetails } = await poolQuery(`SELECT * FROM cashier_drawer_details WHERE payment_type = $1 AND cashier_drawer_id = $2;`, [payment_type_name, cashierDrawerId]);
+    console.log("transitionRouter [calculateDrawerDetail] cashierDrawerDetails:", cashierDrawerDetails);
+    if(cashierDrawerDetails.length > 0){
+        cashierDrawerDetails[0].sale_amount += grand_total_amount;
+        await poolQuery(`UPDATE cashier_drawer_details SET sale_amount = $1 WHERE id = $2;`, [cashierDrawerDetails[0].sale_amount, cashierDrawerDetails[0].id]);
+    }else{
+        await poolQuery(`INSERT INTO cashier_drawer_details(payment_type, sale_amount, cashier_drawer_id) VALUES($1, $2, $3);`, [payment_type_name, grand_total_amount, cashierDrawerId]);
     }
 }
 
