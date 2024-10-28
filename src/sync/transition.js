@@ -9,9 +9,7 @@ const {PrintSlip} = require("../../printer/Print");
 
 transitionRouter.post("/", async (req, res) => {
     try {
-        const posIpAddress  = req.ip;
-        console.log("transitionRouter ip: ", posIpAddress );
-        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count} = req.body.input;
+        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, posIpAddress} = req.body.input;
 
         const date = new Date();
         const currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
