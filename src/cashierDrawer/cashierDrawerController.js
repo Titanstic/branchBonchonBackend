@@ -4,8 +4,7 @@ const {createCashierDrawer} = require("./cashierDrawerModal");
 const cashierDrawerController = express.Router();
 
 cashierDrawerController.post("/create", async (req, res) => {
-    const posIpAddress = req.ip;
-    const {opening_cash, employee_id } = req.body.input ? req.body.input : req.body;
+    const {opening_cash, employee_id, posIpAddress } = req.body.input ? req.body.input : req.body;
 
     try {
         const { cashierDrawerData } = await createCashierDrawer(posIpAddress, opening_cash, employee_id);
