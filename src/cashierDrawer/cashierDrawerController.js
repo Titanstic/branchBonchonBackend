@@ -5,11 +5,7 @@ const os = require('os');
 const cashierDrawerController = express.Router();
 
 cashierDrawerController.post("/create", async (req, res) => {
-    const {opening_cash, employee_id } = req.body.input ? req.body.input : req.body;
-    const posIpAddress = getMacAddress();
-
-    console.log("cashierDrawerController MAC Address:", posIpAddress);
-
+    const {opening_cash, employee_id, posIpAddress } = req.body.input ? req.body.input : req.body;
     try {
         const { cashierDrawerData } = await createCashierDrawer(posIpAddress, opening_cash, employee_id);
 
@@ -20,15 +16,5 @@ cashierDrawerController.post("/create", async (req, res) => {
     }
 });
 
-const getMacAddress = () => {
-    const interfaces = os.networkInterfaces();
-    for (let key in interfaces) {
-        for (let details of interfaces[key]) {
-            if (details.family === 'IPv4' && !details.internal) {
-                return details.mac;
-            }
-        }
-    }
-}
 
 module.exports = cashierDrawerController;
