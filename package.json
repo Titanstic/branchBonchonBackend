@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "electron": "^33.0.1",
-    "electron-wix-msi": "^5.1.3",
-    "electron-packager": "^17.1.2"
+    "electron-packager": "^17.1.2",
+    "electron-wix-msi": "^5.1.3"
   }
 }

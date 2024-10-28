@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors({ origin: '*'}));
@@ -17,6 +18,7 @@ const stockOrderRouter = require("./src/sync/stockOrder");
 const dailySaleReportRouter = require("./src/report/DailySale/dailySaleReportController");
 const groupSaleReportRouter = require("./src/report/GroupSale/groupSaleReportController");
 const groupDetailSaleReportRouter = require("./src/report/GroupSale/groupDetailReportController");
+const cashierDrawerRouter = require("./src/cashierDrawer/cashierDrawerController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -27,6 +29,7 @@ app.use("/stockorder", stockOrderRouter);
 app.use("/dailySaleReport", dailySaleReportRouter);
 app.use("/groupSaleReport", groupSaleReportRouter);
 app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
+app.use("/cashierDrawer", cashierDrawerRouter);
 // End API CALL
 
 // Start Frontend Static
