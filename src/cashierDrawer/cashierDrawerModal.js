@@ -9,6 +9,73 @@ const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     }else{
         throw new Error("cashierDrawerModal [createCashierDrawer] error: create in cashierDrawer")
     }
+};
+
+const findCashierDrawerGroupBy = async (startDate, endDate) => {
+    const { rows: cashierDrawerData } = await poolQuery(`
+        SELECT 
+            DATE(created_at) AS date,
+            SUM(net_sales) AS net_sales,
+            SUM(tax_add_on) AS tax_add_on, 
+            SUM(CAST(rounding AS INTEGER)) AS rounding,
+            SUM(total_revenue) AS total_revenue,
+            SUM(void) AS void,
+            SUM(opening_cash) AS opening_cash,
+            SUM(cash_sale) AS cash_sale,
+            SUM(pick_up) AS pick_up,
+            SUM(cash_in_drawer) AS cash_in_drawer,
+            SUM(die_in) AS die_in,
+            SUM(self_take_away) AS self_take_away,
+            SUM(delivery) AS delivery,
+            SUM(guest_count) AS guest_count,
+            SUM(total_revenue_count) AS total_revenue_count,
+            SUM(void_count) AS void_count
+        FROM cashier_drawer 
+        WHERE DATE(created_at) BETWEEN $1 AND $2 AND pick_up_date_time IS NOT NULL AND finished = true
+        GROUP BY DATE(created_at)
+        `, [startDate, endDate]);
+
+    console.log(`cashierDrawerController [findCashierDrawerGroupBy] cashierDrawerData: `, cashierDrawerData);
+    return cashierDrawerData;
+
 }
 
-module.exports = { createCashierDrawer }
+const findCashierDrawerById = async (id) => {
+    const { rows: cashierDrawerData } = await poolQuery(`
+        SELECT 
+            cashier_drawer.net_sales,
+            cashier_drawer.tax_add_on, 
+            cashier_drawer.rounding,
+            cashier_drawer.total_revenue,
+            cashier_drawer.void,
+            cashier_drawer.opening_cash,
+            cashier_drawer.cash_sale,
+            cashier_drawer.pick_up,
+            cashier_drawer.cash_in_drawer,
+            cashier_drawer.die_in,
+            cashier_drawer.self_take_away,
+            cashier_drawer.delivery,
+            cashier_drawer.guest_count,
+            cashier_drawer.total_revenue_count,
+            cashier_drawer.void_count,
+            pickUpEmployee.username AS pickEmployeeName,
+            pickUpEmployee.printer_name,
+            openingEmployee.username AS openEmployeeName
+        FROM cashier_drawer 
+        LEFT JOIN employees AS pickUpEmployee
+        ON cashier_drawer.pick_employee_id = pickUpEmployee.id
+        LEFT JOIN employees AS openingEmployee
+        ON cashier_drawer.opening_employee_id = openingEmployee.id
+        WHERE cashier_drawer.id = $1;
+        `, [id]);
+
+    if(cashierDrawerData.length > 0){
+        console.log(`cashierDrawerController [findCashierDrawerById] findCashierDrawerModal: `, cashierDrawerData[0]);
+        return cashierDrawerData[0];
+    }else{
+        throw new Error("cashierDrawerData does not found by id ");
+    }
+};
+
+
+module.exports = { createCashierDrawer, findCashierDrawerGroupBy, findCashierDrawerById }

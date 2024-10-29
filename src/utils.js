@@ -107,7 +107,7 @@ const executeBranchMutation = async ( query, variables, branch) => {
 
 
 const findCurrentBranch = async () => {
-    const branchData = await poolQuery(`SELECT id,ip_address FROM branches`);
+    const branchData = await poolQuery(`SELECT id,ip_address, branch_name  FROM branches`);
 
     if(branchData.rows.length === 0){
         console.error(`[utils] findCurrentBranch Error: No Branch Data`);
