@@ -9,7 +9,7 @@ const {PrintSlip} = require("../../printer/Print");
 
 transitionRouter.post("/", async (req, res) => {
     try {
-        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, posIpAddress} = req.body.input ? req.body.input : req.body;
+        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, pos_ip_address} = req.body.input ? req.body.input : req.body;
 
         const date = new Date();
         const currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -24,7 +24,7 @@ transitionRouter.post("/", async (req, res) => {
         transitionResult.items = JSON.stringify(itemResults);
         transitionResult.branch_id = branch_id;
         // insert cashier drawer
-        await addCashierDrawer(currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress, customer_count);
+        await addCashierDrawer(currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count);
         await poolQuery('COMMIT');
 
        //  printer state
@@ -180,11 +180,11 @@ const addTransitionItems = async (value, comboSetValue) => {
     }
 }
 
-const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress, customer_count) => {
+const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`
         SELECT * FROM cashier_drawer 
         WHERE DATE(created_at) = $1 AND pick_up_date_time IS NULL AND pos_ip_address = $2
-        `, [currentDate, posIpAddress]
+        `, [currentDate, pos_ip_address]
     );
 
     if(currentCashierDrawerData.length > 0){
@@ -198,7 +198,7 @@ const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_na
 
         await calculateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
     }else {
-        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by posIpAddress");
+        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by pos_ip_address");
     }
 
 };
