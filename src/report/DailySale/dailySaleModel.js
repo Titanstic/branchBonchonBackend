@@ -1,10 +1,11 @@
 const poolQuery = require("../../../misc/poolQuery");
 
 const getSummaryDataReport = async (startDate, endDate, offset) => {
-    const query = `SELECT sum(grand_total_amount) AS grandTotal, 
-            sum(sub_total_amount) AS subTotal, 
-            sum(tax_amount) AS taxTotal, 
-            sum(service_charge_amount) AS serviceChargeTotal, sum(discount_amount) AS discountTotal,
+    const query = `SELECT SUM(grand_total_amount) AS grandTotal, 
+            SUM(sub_total_amount) AS subTotal, 
+            SUM(tax_amount) AS taxTotal, 
+            SUM(service_charge_amount) AS serviceChargeTotal, 
+            SUM(discount_amount) AS discountTotal,
             DATE(created_at),
             COUNT(*) AS transactionCount
             FROM transactions 
@@ -15,10 +16,11 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
     const summaryDataRes = await poolQuery(query, variables)
     console.log('dailySaleReportRouter [getSummaryDataReport] summaryDataRes:', summaryDataRes.rows);
 
-    const totalSummaryDataRes = await poolQuery(`SELECT sum(grand_total_amount) AS grandTotal, 
-            sum(sub_total_amount) AS subTotal, 
-            sum(tax_amount) AS taxTotal, 
-            sum(service_charge_amount) AS serviceChargeTotal, sum(discount_amount) AS discountTotal,
+    const totalSummaryDataRes = await poolQuery(`SELECT SUM(grand_total_amount) AS grandTotal, 
+            SUM(sub_total_amount) AS subTotal, 
+            SUM(tax_amount) AS taxTotal, 
+            SUM(service_charge_amount) AS serviceChargeTotal, 
+            SUM(discount_amount) AS discountTotal,
             DATE(created_at),
             COUNT(*) AS transactionCount
             FROM transactions 

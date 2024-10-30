@@ -41,7 +41,7 @@ dailySaleReportController.post("/:reportType", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('dailySaleReportController error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message});
     }
 });
 
@@ -82,7 +82,7 @@ dailySaleReportController.post("/download/:reportType", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('dailySaleReportController Download error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message});
     }
 });
 

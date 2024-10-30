@@ -18,7 +18,7 @@ groupDetailReportRouter.post("/", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('groupDetailReportRouter error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message });
     }
 });
 
@@ -37,7 +37,7 @@ groupDetailReportRouter.post("/download", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('groupDetailReportRouter Download error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message});
     }
 });
 

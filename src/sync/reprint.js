@@ -47,7 +47,6 @@ const findTransactionAndEmployee = async (id) => {
             transactions.cash_back, 
             transactions.payment, 
             transactions.payment_type_id, 
-            transactions.branch_id,  
             transactions.dinner_table_id, 
             transactions.add_on, 
             transactions.inclusive, 

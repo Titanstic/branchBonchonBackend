@@ -18,7 +18,7 @@ groupSaleReportRouter.post("/", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('groupSaleReportRouter error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message});
     }
 });
 
@@ -38,7 +38,7 @@ groupSaleReportRouter.post("/download", async (req, res) => {
         res.status(200).json({ error: 0, message: JSON.stringify(dataReport)});
     }catch (e) {
         console.error('groupSaleReportRouter Download error:', e.message);
-        res.status(500).json({ error: 1, message: e.message});
+        res.status(200).json({ error: 1, message: e.message});
     }
 });
 module.exports = groupSaleReportRouter;

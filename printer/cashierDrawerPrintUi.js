@@ -210,4 +210,5 @@ const cashierDrawerDetailUi = (canvas, ctx, cashierDrawerDetail, finishBodyLineH
 
     console.log("cashierDrawerPrintUi [cashierDrawerDetailUi]: print cashierDrawerDetail");
 }
+
 module.exports = cashierDrawerPrintSlipBuffer;

@@ -17,7 +17,7 @@ cashierDrawerController.post("/create", async (req, res) => {
         res.status(200).send({error: 0, message: JSON.stringify(cashierDrawerData[0])});
     } catch (e) {
         console.error(`cashierDrawerController [create] error: `, e.message);
-        res.status(500).send({error: 1, message: e.message});
+        res.status(200).send({error: 1, message: e.message});
     }
 });
 
@@ -37,7 +37,7 @@ cashierDrawerController.post("/print", async (req, res) => {
         res.status(200).send({error: 0, message: "Cashier Drawer Print Successfully"});
     }catch (e){
         console.error(`cashierDrawerController [print] error: `, e.message);
-        res.status(500).send({error: 1, message: e.message});
+        res.status(200).send({error: 1, message: e.message});
     }
 });
 
@@ -63,7 +63,7 @@ cashierDrawerController.post("/print/total", async (req, res) => {
         res.status(200).send({error: 0, message: "Total Print Successfully"});
     } catch (e) {
         console.error(`cashierDrawerController [total] error: `, e.message);
-        res.status(500).send({error: 1, message: e.message});
+        res.status(200).send({error: 1, message: e.message});
     }
 });
 
@@ -90,7 +90,7 @@ cashierDrawerController.post("/print/allpos", async (req, res) => {
         res.status(200).send({error: 0, message: "Total Print Successfully"});
     } catch (e) {
         console.error(`cashierDrawerController [total] error: `, e.message);
-        res.status(500).send({error: 1, message: e.message});
+        res.status(200).send({error: 1, message: e.message});
     }
 });
 
