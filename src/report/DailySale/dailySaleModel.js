@@ -1,13 +1,15 @@
 const poolQuery = require("../../../misc/poolQuery");
 
 const getSummaryDataReport = async (startDate, endDate, offset) => {
-    const query = `SELECT SUM(grand_total_amount) AS grandTotal, 
-            SUM(sub_total_amount) AS subTotal, 
-            SUM(tax_amount) AS taxTotal, 
-            SUM(service_charge_amount) AS serviceChargeTotal, 
-            SUM(discount_amount) AS discountTotal,
-            DATE(created_at),
-            COUNT(*) AS transactionCount
+    const query = `
+            SELECT 
+                SUM(grand_total_amount) AS grandTotal, 
+                SUM(sub_total_amount) AS subTotal, 
+                SUM(tax_amount) AS taxTotal, 
+                SUM(service_charge_amount) AS serviceChargeTotal, 
+                SUM(discount_amount) AS discountTotal,
+                DATE(created_at),
+                COUNT(*) AS transactionCount
             FROM transactions 
             WHERE created_at BETWEEN $1 AND $2
             GROUP BY DATE(created_at)
@@ -16,13 +18,15 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
     const summaryDataRes = await poolQuery(query, variables)
     console.log('dailySaleReportRouter [getSummaryDataReport] summaryDataRes:', summaryDataRes.rows);
 
-    const totalSummaryDataRes = await poolQuery(`SELECT SUM(grand_total_amount) AS grandTotal, 
-            SUM(sub_total_amount) AS subTotal, 
-            SUM(tax_amount) AS taxTotal, 
-            SUM(service_charge_amount) AS serviceChargeTotal, 
-            SUM(discount_amount) AS discountTotal,
-            DATE(created_at),
-            COUNT(*) AS transactionCount
+    const totalSummaryDataRes = await poolQuery(`
+            SELECT 
+                SUM(grand_total_amount) AS grandTotal, 
+                SUM(sub_total_amount) AS subTotal, 
+                SUM(tax_amount) AS taxTotal, 
+                SUM(service_charge_amount) AS serviceChargeTotal, 
+                SUM(discount_amount) AS discountTotal,
+                DATE(created_at),
+                COUNT(*) AS transactionCount
             FROM transactions 
             WHERE created_at BETWEEN $1 AND $2
             GROUP BY DATE(created_at);`, [startDate, endDate])
@@ -31,10 +35,15 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
 }
 
 const getPaymentDataReport = async (startDate, endDate, offset) => {
-    const query = `SELECT sum(transactions.grand_total_amount) AS grandTotal, DATE(transactions.created_at) AS date, payment_types.payment_name,COUNT(transactions.id) AS transactionCount
+    const query = `
+        SELECT 
+            SUM(transactions.grand_total_amount) AS grandTotal, 
+            DATE(transactions.created_at) AS date, 
+            payment_types.payment_name,
+            COUNT(transactions.id) AS transactionCount
         FROM transactions
         LEFT JOIN payment_types
-        ON transactions.payment_type_id = payment_types.id
+            ON transactions.payment_type_id = payment_types.id
         WHERE transactions.created_at BETWEEN $1 AND $2
         GROUP BY DATE(transactions.created_at), payment_types.payment_name
         ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""} ;`;
@@ -42,7 +51,12 @@ const getPaymentDataReport = async (startDate, endDate, offset) => {
     const paymentDataRes = await poolQuery(query, variables);
     console.log('dailySaleReportRouter [getPaymentDataReport] paymentDataRes:', paymentDataRes.rows);
 
-    const totalPaymentDataRes = await poolQuery(`SELECT sum(transactions.grand_total_amount) AS grandTotal, DATE(transactions.created_at) AS date, payment_types.payment_name,COUNT(transactions.id) AS transactionCount
+    const totalPaymentDataRes = await poolQuery(`
+        SELECT 
+            SUM(transactions.grand_total_amount) AS grandTotal, 
+            DATE(transactions.created_at) AS date, 
+            payment_types.payment_name,
+            COUNT(transactions.id) AS transactionCount
         FROM transactions
         LEFT JOIN payment_types
         ON transactions.payment_type_id = payment_types.id
@@ -117,16 +131,17 @@ const getPromotionDataReport = async (startDate, endDate, offset) => {
 }
 
 const getMenuDataReport = async (startDate, endDate, offset) => {
-    const query = `SELECT 
-        DATE(transaction_items.created_at),
-        sum(transaction_items.total_amount) AS grandTotal,
-        menu.menu_name,
-        COUNT(transaction_items.id) AS transactionCount
+    const query = `
+        SELECT 
+            DATE(transaction_items.created_at),
+            sum(transaction_items.total_amount) AS grandTotal,
+            menu.menu_name,
+            COUNT(transaction_items.id) AS transactionCount
         FROM transaction_items 
         LEFT JOIN normal_menu_items
-        ON transaction_items.normal_menu_item_id = normal_menu_items.id
+            ON transaction_items.normal_menu_item_id = normal_menu_items.id
         LEFT JOIN menu
-        ON normal_menu_items.menu_id = menu.id
+            ON normal_menu_items.menu_id = menu.id
         WHERE transaction_items.created_at BETWEEN $1 AND $2
         GROUP BY DATE(transaction_items.created_at),menu.menu_name
         ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""};`;
@@ -134,16 +149,17 @@ const getMenuDataReport = async (startDate, endDate, offset) => {
     const menuDataRes = await poolQuery(query,variables);
     console.log('dailySaleReportRouter [getMenuDataReport] getMenuDataReport:', menuDataRes.rows);
 
-    const totalMenuDataRes = await poolQuery(`SELECT 
-        DATE(transaction_items.created_at),
-        sum(transaction_items.total_amount) AS grandTotal,
-        menu.menu_name,
-        COUNT(transaction_items.id) AS transactionCount
+    const totalMenuDataRes = await poolQuery(`
+        SELECT 
+            DATE(transaction_items.created_at),
+            sum(transaction_items.total_amount) AS grandTotal,
+            menu.menu_name,
+            COUNT(transaction_items.id) AS transactionCount
         FROM transaction_items 
         LEFT JOIN normal_menu_items
-        ON transaction_items.normal_menu_item_id = normal_menu_items.id
+            ON transaction_items.normal_menu_item_id = normal_menu_items.id
         LEFT JOIN menu
-        ON normal_menu_items.menu_id = menu.id
+            ON normal_menu_items.menu_id = menu.id
         WHERE transaction_items.created_at BETWEEN $1 AND $2
         GROUP BY DATE(transaction_items.created_at),menu.menu_name;`, [startDate, endDate]);
     console.log('dailySaleReportRouter [getMenuDataReport] totalMenuDataRes:', totalMenuDataRes.rows);

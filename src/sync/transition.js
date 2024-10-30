@@ -9,7 +9,7 @@ const {PrintSlip} = require("../../printer/Print");
 
 transitionRouter.post("/", async (req, res) => {
     try {
-        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, posIpAddress} = req.body.input;
+        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, posIpAddress} = req.body.input ? req.body.input : req.body;
 
         const date = new Date();
         const currentDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -181,7 +181,11 @@ const addTransitionItems = async (value, comboSetValue) => {
 }
 
 const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress, customer_count) => {
-    const { rows: currentCashierDrawerData } = await poolQuery(`SELECT * FROM cashier_drawer WHERE DATE(created_at) = $1 AND pick_up_date_time IS NULL AND pos_ip_address = $2`, [currentDate, posIpAddress]);
+    const { rows: currentCashierDrawerData } = await poolQuery(`
+        SELECT * FROM cashier_drawer 
+        WHERE DATE(created_at) = $1 AND pick_up_date_time IS NULL AND pos_ip_address = $2
+        `, [currentDate, posIpAddress]
+    );
 
     if(currentCashierDrawerData.length > 0){
         console.log("transitionRouter [addCashierDrawer] currentCashierDrawerData:", currentCashierDrawerData);
@@ -194,7 +198,7 @@ const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_na
 
         await calculateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
     }else {
-        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found OR cashier drawer detail error");
+        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by posIpAddress");
     }
 
 };
@@ -243,13 +247,17 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
 }
 
 const calculateDrawerDetail = async (grand_total_amount, payment_type_name, cashierDrawerId) => {
-    const { rows: cashierDrawerDetails } = await poolQuery(`SELECT * FROM cashier_drawer_details WHERE payment_type = $1 AND cashier_drawer_id = $2;`, [payment_type_name, cashierDrawerId]);
-    console.log("transitionRouter [calculateDrawerDetail] cashierDrawerDetails:", cashierDrawerDetails);
-    if(cashierDrawerDetails.length > 0){
-        cashierDrawerDetails[0].sale_amount += grand_total_amount;
-        await poolQuery(`UPDATE cashier_drawer_details SET sale_amount = $1 WHERE id = $2;`, [cashierDrawerDetails[0].sale_amount, cashierDrawerDetails[0].id]);
-    }else{
-        await poolQuery(`INSERT INTO cashier_drawer_details(payment_type, sale_amount, cashier_drawer_id) VALUES($1, $2, $3);`, [payment_type_name, grand_total_amount, cashierDrawerId]);
+    try {
+        const { rows: cashierDrawerDetails } = await poolQuery(`SELECT * FROM cashier_drawer_details WHERE payment_type = $1 AND cashier_drawer_id = $2;`, [payment_type_name, cashierDrawerId]);
+        console.log("transitionRouter [calculateDrawerDetail] cashierDrawerDetails:", cashierDrawerDetails);
+        if(cashierDrawerDetails.length > 0){
+            cashierDrawerDetails[0].sale_amount += grand_total_amount;
+            await poolQuery(`UPDATE cashier_drawer_details SET sale_amount = $1 WHERE id = $2;`, [cashierDrawerDetails[0].sale_amount, cashierDrawerDetails[0].id]);
+        }else{
+            await poolQuery(`INSERT INTO cashier_drawer_details(payment_type, sale_amount, cashier_drawer_id) VALUES($1, $2, $3);`, [payment_type_name, grand_total_amount, cashierDrawerId]);
+        }
+    }catch (e){
+        throw new Error(`transitionRouter [calculateDrawerDetail] error: ${e.message}`);
     }
 }
 
