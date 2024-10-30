@@ -1,9 +1,7 @@
 const express = require("express");
 const dailySaleReportController = express.Router();
 
-const poolQuery = require("../../../misc/poolQuery.js");
 const {getSummaryDataReport, getPaymentDataReport, getDiscountDataReport, getPromotionDataReport, getMenuDataReport} = require("./dailySaleModel");
-
 
 dailySaleReportController.post("/:reportType", async (req, res) => {
     const {reportType} = req.params;
