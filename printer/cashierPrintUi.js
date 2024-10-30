@@ -56,7 +56,7 @@ const cashierPrintSlipBuffer = async (
     }
   });
   let flavourTypeLength = flavourTypeDataLength;
-  const originalHeight = 900;
+  const originalHeight = 1100;
   let canvasHeight =
     originalHeight +
     data.length * 50 +

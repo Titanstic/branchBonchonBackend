@@ -1,11 +1,12 @@
 const express = require("express");
-const {createCashierDrawer, findCashierDrawerById, findCashierDrawerGroupBy} = require("./cashierDrawerModal");
-const {findDetailByCashierDrawerId} = require("./cashierDrawerDetailModa");
+const {createCashierDrawer, findCashierDrawerById, findCashierDrawerByTwoId, findCashierDrawerByDate} = require("./cashierDrawerModal");
+const {findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate} = require("./cashierDrawerDetailModa");
 const {PrintCashierDrawer} = require("../../printer/Print");
-const {findCurrentBranch} = require("../utils");
+const {findCurrentBranch, findEmployeeById} = require("../utils");
 
 const cashierDrawerController = express.Router();
 
+// create cashier drawer
 cashierDrawerController.post("/create", async (req, res) => {
     const {opening_cash, employee_id, posIpAddress } = req.body.input ? req.body.input : req.body;
 
@@ -20,20 +21,7 @@ cashierDrawerController.post("/create", async (req, res) => {
     }
 });
 
-cashierDrawerController.post("/total", async (req, res) => {
-    const { startDate, endDate } = req.body.input ? req.body.input : req.body;
-
-    try {
-        const cashierDrawerData = await findCashierDrawerGroupBy(startDate, endDate);
-
-        console.log(`cashierDrawerController [total] : `, cashierDrawerData);
-        res.status(200).send({error: 0, message: JSON.stringify(cashierDrawerData)});
-    } catch (e) {
-        console.error(`cashierDrawerController [total] error: `, e.message);
-        res.status(500).send({error: 1, message: e.message});
-    }
-});
-
+//print cashier drawer by id
 cashierDrawerController.post("/print", async (req, res) => {
     const { cashierDrawerId } = req.body.input ? req.body.input : req.body;
 
@@ -51,6 +39,60 @@ cashierDrawerController.post("/print", async (req, res) => {
         console.error(`cashierDrawerController [print] error: `, e.message);
         res.status(500).send({error: 1, message: e.message});
     }
-})
+});
+
+//print cashier drawer total by two id
+cashierDrawerController.post("/print/total", async (req, res) => {
+    const { morningId, eveningId, printEmployeeId } = req.body.input ? req.body.input : req.body;
+
+    try {
+        const getEmployeeData = await findEmployeeById(printEmployeeId);
+        const getBranchData = await findCurrentBranch();
+
+        const getCashierDrawer = await findCashierDrawerByTwoId(morningId, eveningId);
+        getCashierDrawer.pickemployeename = getEmployeeData.username;
+        getCashierDrawer.printer_name = getEmployeeData.printer_name;
+        getCashierDrawer.openemployeename = getEmployeeData.username;
+
+        const getCashierDrawerDetail = await findDetailByTwoId(morningId, eveningId);
+
+        // print
+        await PrintCashierDrawer(getCashierDrawer, getCashierDrawerDetail, getBranchData.branch_name);
+
+        console.log(`cashierDrawerController [total print] : Successfully`,);
+        res.status(200).send({error: 0, message: "Total Print Successfully"});
+    } catch (e) {
+        console.error(`cashierDrawerController [total] error: `, e.message);
+        res.status(500).send({error: 1, message: e.message});
+    }
+});
+
+//print cashier drawer total by date
+cashierDrawerController.post("/print/allpos", async (req, res) => {
+    const { date, printEmployeeId } = req.body.input ? req.body.input : req.body;
+
+    try {
+        const getEmployeeData = await findEmployeeById(printEmployeeId);
+        const getBranchData = await findCurrentBranch();
+
+        const getCashierDrawer = await findCashierDrawerByDate(date);
+        getCashierDrawer.pickemployeename = getEmployeeData.username;
+        getCashierDrawer.printer_name = getEmployeeData.printer_name;
+        getCashierDrawer.openemployeename = getEmployeeData.username;
+
+        // need to fix
+        const getCashierDrawerDetail = await findDetailByDate(date);
+
+        // print
+        await PrintCashierDrawer(getCashierDrawer, getCashierDrawerDetail, getBranchData.branch_name);
+
+        console.log(`cashierDrawerController [total print] : Successfully`,);
+        res.status(200).send({error: 0, message: "Total Print Successfully"});
+    } catch (e) {
+        console.error(`cashierDrawerController [total] error: `, e.message);
+        res.status(500).send({error: 1, message: e.message});
+    }
+});
+
 
 module.exports = cashierDrawerController;

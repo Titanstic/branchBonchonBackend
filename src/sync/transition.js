@@ -24,7 +24,7 @@ transitionRouter.post("/", async (req, res) => {
         transitionResult.items = JSON.stringify(itemResults);
         transitionResult.branch_id = branch_id;
         // insert cashier drawer
-        await addCashierDrawer(currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress);
+        await addCashierDrawer(currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress, customer_count);
         await poolQuery('COMMIT');
 
        //  printer state
@@ -180,17 +180,18 @@ const addTransitionItems = async (value, comboSetValue) => {
     }
 }
 
-const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress) => {
+const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, posIpAddress, customer_count) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`SELECT * FROM cashier_drawer WHERE DATE(created_at) = $1 AND pick_up_date_time IS NULL AND pos_ip_address = $2`, [currentDate, posIpAddress]);
 
     if(currentCashierDrawerData.length > 0){
         console.log("transitionRouter [addCashierDrawer] currentCashierDrawerData:", currentCashierDrawerData);
         // find payment type [self or delivery]
         const { rows: paymentTypeRes } = await poolQuery(`SELECT type FROM payment_types WHERE payment_name = $1;`, [payment_type_name]);
-        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type);
-        const updateCashierDrawerQuery = `UPDATE cashier_drawer ${setCashierDrawerData} WHERE id = $1;`
 
+        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type, customer_count);
+        const updateCashierDrawerQuery = `UPDATE cashier_drawer ${setCashierDrawerData} WHERE id = $1;`
         await poolQuery(updateCashierDrawerQuery, [currentCashierDrawerData[0].id]);
+
         await calculateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
     }else {
         throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found OR cashier drawer detail error");
@@ -198,7 +199,7 @@ const addCashierDrawer = async (currentDate, grand_total_amount, payment_type_na
 
 };
 
-const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, type ) => {
+const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, type, customer_count ) => {
     if(payment_type_name === "Cash"){
         cashierDrawerData.cash_sale += grand_total_amount;
         cashierDrawerData.cash_in_drawer += grand_total_amount;
@@ -210,6 +211,9 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.net_sales += sub_total_amount;
     cashierDrawerData.tax_add_on += add_on + tax_amount;
     cashierDrawerData.rounding = `${Number(cashierDrawerData.rounding) + Number(rounding)}`;
+
+    cashierDrawerData.guest_count += customer_count;
+    cashierDrawerData.total_revenue_count += 1;
 
     parsedItems.forEach((eachItem) => {
         if(eachItem.is_take_away && type === "self"){
@@ -230,7 +234,9 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
         rounding = ${cashierDrawerData.rounding},
         die_in = ${cashierDrawerData.die_in},
         self_take_away = ${cashierDrawerData.self_take_away},
-        delivery = ${cashierDrawerData.delivery}
+        delivery = ${cashierDrawerData.delivery},
+        guest_count = ${cashierDrawerData.guest_count},
+        total_revenue_count = ${cashierDrawerData.total_revenue_count}
     `;
 
     return { setCashierDrawerData };

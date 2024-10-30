@@ -43,7 +43,7 @@ const headerUi = (canvas, ctx, branchName, cashierDrawer, currentDate, currentTi
 
     ctx.font = "28px Pyidaungsu";
     ctx.textAlign = "center";
-    ctx.fillText(`Employee Report`, canvas.width/2, titleLineHeight);
+    ctx.fillText(`System Sale Report`, canvas.width/2, titleLineHeight);
 
     ctx.font = "22px Pyidaungsu";
     ctx.textAlign = "start";
@@ -91,12 +91,12 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.textAlign = "start";
     ctx.fillText(`Net Sale`, 30, netSaleLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.net_sales.toLocaleString("en-US")}`, canvas.width - 30, netSaleLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.net_sales).toLocaleString("en-US")}`, canvas.width - 30, netSaleLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Tax Add On`, 30, taxAddOnLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.tax_add_on.toLocaleString("en-US")}`, canvas.width - 30, taxAddOnLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.tax_add_on).toLocaleString("en-US")}`, canvas.width - 30, taxAddOnLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Rounding`, 30, roundingLineHeight);
@@ -105,9 +105,9 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
 
     ctx.textAlign = "start";
     ctx.fillText(`Total Revenue`, 30, totalRevenueLineHeight);
-    ctx.fillText(`${cashierDrawer.total_revenue_count.toLocaleString("en-US")}`, canvas.width/2, totalRevenueLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.total_revenue_count).toLocaleString("en-US")}`, canvas.width/2, totalRevenueLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.total_revenue.toLocaleString("en-US")}`, canvas.width - 30, totalRevenueLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.total_revenue).toLocaleString("en-US")}`, canvas.width - 30, totalRevenueLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(
@@ -121,9 +121,9 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
 
     ctx.textAlign = "start";
     ctx.fillText(`Voids`, 30, voidsLineHeight);
-    ctx.fillText(`${cashierDrawer.void_count.toLocaleString("en-US")}`, canvas.width/2, voidsLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.void_count).toLocaleString("en-US")}`, canvas.width/2, voidsLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.void.toLocaleString("en-US")}`, canvas.width - 30, voidsLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.void).toLocaleString("en-US")}`, canvas.width - 30, voidsLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(
@@ -141,22 +141,22 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.textAlign = "start";
     ctx.fillText(`Opening Cash`, 30, openingCashLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.opening_cash.toLocaleString("en-US")}`, canvas.width - 30, openingCashLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.opening_cash).toLocaleString("en-US")}`, canvas.width - 30, openingCashLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Cash Sales`, 30, cashSaleLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.cash_sale.toLocaleString("en-US")}`, canvas.width - 30, cashSaleLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.cash_sale).toLocaleString("en-US")}`, canvas.width - 30, cashSaleLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Pick Up`, 30, pickUpLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.pick_up.toLocaleString("en-US")}`, canvas.width - 30, pickUpLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.pick_up).toLocaleString("en-US")}`, canvas.width - 30, pickUpLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Cash in Drawer`, 30, cashInDrawerLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.cash_in_drawer.toLocaleString("en-US")}`, canvas.width - 30, cashInDrawerLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.cash_in_drawer).toLocaleString("en-US")}`, canvas.width - 30, cashInDrawerLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(
@@ -173,17 +173,17 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.textAlign = "start";
     ctx.fillText(`Dine In`, 30, dieInLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.die_in.toLocaleString("en-US")}`, canvas.width - 30, dieInLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.die_in).toLocaleString("en-US")}`, canvas.width - 30, dieInLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Take Away`, 30, takeawayLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.self_take_away.toLocaleString("en-US")}`, canvas.width - 30, takeawayLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.self_take_away).toLocaleString("en-US")}`, canvas.width - 30, takeawayLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Delivery`, 30, deliveryLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${cashierDrawer.delivery.toLocaleString("en-US")}`, canvas.width - 30, deliveryLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.delivery).toLocaleString("en-US")}`, canvas.width - 30, deliveryLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(
@@ -203,7 +203,7 @@ const cashierDrawerDetailUi = (canvas, ctx, cashierDrawerDetail, finishBodyLineH
         ctx.textAlign = "start";
         ctx.fillText(`${eachDetail.payment_type}`, 30, eachDetailLineHeight);
         ctx.textAlign = "right";
-        ctx.fillText(`${eachDetail.sale_amount.toLocaleString("en-US")}`, canvas.width - 30, eachDetailLineHeight);
+        ctx.fillText(`${Number(eachDetail.sale_amount).toLocaleString("en-US")}`, canvas.width - 30, eachDetailLineHeight);
 
         eachDetailLineHeight += 30;
     })

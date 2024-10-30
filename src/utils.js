@@ -116,7 +116,18 @@ const findCurrentBranch = async () => {
 
     console.log(`[utils] findCurrentBranch : ${JSON.stringify(branchData.rows)}`);
     return branchData.rows[0];
+};
+
+const findEmployeeById = async (id) => {
+    const { rows: employeeData } = await poolQuery(`SELECT username, printer_name FROM employees WHERE id = $1;`, [id]);
+
+    if(employeeData.length > 0){
+        console.log(`[utils] findEmployeeById : ${employeeData[0].username} ${employeeData[0].printer_name}`);
+        return employeeData[0];
+    }else{
+        throw new Error("Employee does not exist");
+    }
 }
 
 
-module.exports = { abortApiFun, findBranch, checkOperation, executeCentralMutation, executeBranchMutation, findCurrentBranch };
+module.exports = { abortApiFun, findBranch, checkOperation, executeCentralMutation, executeBranchMutation, findCurrentBranch, findEmployeeById };
