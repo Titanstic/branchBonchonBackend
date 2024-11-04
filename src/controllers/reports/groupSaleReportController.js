@@ -1,7 +1,7 @@
 const express = require("express");
 const groupSaleReportRouter = express.Router();
 
-const {getGroupSaleReport} = require("./groupReportModel");
+const {getGroupSaleReport} = require("../../models/reports/groupReportModel");
 
 groupSaleReportRouter.post("/", async (req, res) => {
     let {startDate, endDate, page} = req.body.input ? req.body.input : req.body;

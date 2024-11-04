@@ -1,8 +1,9 @@
 const express = require("express");
-const {findCurrentBranch, executeCentralMutation, executeBranchMutation} = require("../utils");
-const centralHasuraSyncRouter = express.Router();
+const {findCurrentBranch} = require("../models/branchModel");
+const {executeBranchMutation, executeCentralMutation} = require("../utils/centralHasuraSync");
+const centralHasuraSyncController = express.Router();
 
-centralHasuraSyncRouter.post("/", async (req, res) => {
+centralHasuraSyncController.post("/", async (req, res) => {
     try{
         // =>  from cloud to local, data CRUD
         const branchData = await findCurrentBranch();
@@ -12,9 +13,9 @@ centralHasuraSyncRouter.post("/", async (req, res) => {
 
         for (const eachSync of getSyncHistoryData.sync_history) {
             const variable = JSON.parse(eachSync.variables);
-            const resposne  = await executeBranchMutation(eachSync.query, variable, branchData);
+            const response  = await executeBranchMutation(eachSync.query, variable, branchData);
 
-            if(!resposne.errors){
+            if(!response.errors){
                 const {query, variables} = deleteMutationForSync(eachSync);
                 await executeCentralMutation(query, variables);
             }
@@ -59,4 +60,4 @@ const deleteMutationForSync = (sync) => {
     return { query, variables };
 };
 
-module.exports = centralHasuraSyncRouter;
+module.exports = centralHasuraSyncController;

@@ -1,35 +1,4 @@
 const poolQuery = require("../../misc/poolQuery");
-const express = require("express");
-const {PrintSlip} = require("../../printer/Print");
-const ReprintRouter = express.Router();
-
-ReprintRouter.post("/", async (req, res) => {
-    const { transaction_id } = req.body.input;
-
-    try{
-        const transactionRes = await findTransactionAndEmployee(transaction_id);
-        const branchRes = await findBranch();
-
-        const transactionItemRes =  await findTransactionItem(transaction_id);
-        const {kitchenPrintItem, filterItem} = filterKitchenItem(transactionItemRes);
-
-        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem);
-
-        res.json( {error: 0, message: transaction_id });
-    }catch (e) {
-        res.json( {error: 1, message: e.message });
-    }
-});
-
-const findBranch = async () => {
-    const result =  await poolQuery(`SELECT * FROM branches `);
-
-    if(result.rows.length > 0) {
-        return result.rows[0];
-    }else{
-        throw new Error("No Branch Data");
-    }
-}
 
 const findTransactionAndEmployee = async (id) => {
     const result = await poolQuery(`
@@ -66,7 +35,7 @@ const findTransactionAndEmployee = async (id) => {
     }else{
         throw new Error("No transaction found for id");
     }
-}
+};
 
 const findTransactionItem = async (transactionId) => {
     const itemRes = [];
@@ -143,48 +112,40 @@ const findTransactionItem = async (transactionId) => {
     }
 };
 
-const filterKitchenItem = (items) => {
-    const kitchenPrintItem = [];
-    const filterItem = [];
+const addTransition = async (id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion) => {
+    console.log("transitionRouter [addTransition]: ", orderNo);
+    const result = await poolQuery(`
+            INSERT INTO transactions(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, order_no, customer_count, promotion_amount)
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+            RETURNING *;
+        `, [
+        id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion
+    ]);
 
-    for (const item of items) {
-        filterItem.push({...item});
-
-        if(item.normal_menu_item_id){
-            let haveIndex;
-
-            kitchenPrintItem.forEach((each, index) => {
-                if(each[0].kitchen_printer === item.kitchen_printer) {
-                    haveIndex = index
-                }
-            });
-
-            if(haveIndex !== undefined){
-                kitchenPrintItem[haveIndex].push(item);
-            }else{
-                kitchenPrintItem.push([item]);
-            }
-
-        }else{
-            const comboMenuItems = typeof item.combo_menu_items == "string" ? JSON.parse(item.combo_menu_items) : item.combo_menu_items;
-            comboMenuItems.forEach((eachCombo) => {
-                let haveComboIndex;
-
-                kitchenPrintItem.forEach((each, index) => {
-                    if(each[0].kitchen_printer === eachCombo.kitchen_printer) {
-                        haveComboIndex = index
-                    }
-                });
-
-                if(haveComboIndex !== undefined){
-                    kitchenPrintItem[haveComboIndex].push({...eachCombo, comboName: item.item_name});
-                }else{
-                    kitchenPrintItem.push([{...eachCombo, comboName: item.item_name}]);
-                }
-            })
-        }
+    if (result.rows.length > 0) {
+        return result.rows[0];
+    } else {
+        throw new Error("transitionRouter [addTransition] error: No data returned after insert.");
     }
-    return { kitchenPrintItem, filterItem };
 }
 
-module.exports = ReprintRouter;
+const updateTransition = async (id) => {
+    try{
+        await poolQuery(`
+            UPDATE transactions
+            SET sync = true
+            WHERE id = $1
+        `, [id]);
+    }catch (e){
+        console.log(e.message);
+        throw new Error(e.message);
+    }
+};
+
+const findOrderNo = async () => {
+    const transitionOrderRes = await poolQuery(`SELECT order_no FROM transactions WHERE DATE(created_at) = CURRENT_DATE ORDER BY  created_at DESC LIMIT 1;`);
+    return transitionOrderRes.rows.length > 0 ? `${Number(transitionOrderRes.rows[0].order_no) + 1}` : "1000";
+}
+
+
+module.exports = { findTransactionAndEmployee, findTransactionItem, addTransition, updateTransition, findOrderNo };

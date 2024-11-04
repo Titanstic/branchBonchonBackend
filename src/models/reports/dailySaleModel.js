@@ -69,11 +69,12 @@ const getPaymentDataReport = async (startDate, endDate, offset) => {
 const getDiscountDataReport = async (startDate, endDate, offset) => {
     const query = `
         SELECT 
-            SUM(discount_price) AS grand_discount_price,
-            DATE(created_at) AS date
-        FROM transaction_items
-        WHERE created_at BETWEEN $1 AND $2
-        GROUP BY DATE(created_at)
+            DATE(created_at),
+            item_name,
+            SUM(discount_price) AS grand_discount_amount
+        FROM transaction_items  
+        WHERE created_at BETWEEN $1 AND $2 AND discount_price > 0
+        GROUP BY DATE(created_at), item_name
         ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""};`;
     const variables = offset >= 0 ? [startDate, endDate, offset]: [startDate, endDate];
     const discountDataRes = await poolQuery(query,variables);
@@ -81,11 +82,14 @@ const getDiscountDataReport = async (startDate, endDate, offset) => {
 
     const totalDiscountDataRes = await poolQuery(`
         SELECT 
-            sum(discount_price) AS grand_discount_price,
-            DATE(created_at) AS date
-        FROM transaction_items
-        WHERE created_at BETWEEN $1 AND $2
-        GROUP BY DATE(created_at);`, [startDate, endDate]);
+            DATE(created_at),
+            item_name,
+            SUM(discount_price) AS grand_discount_amount
+        FROM transaction_items  
+        WHERE created_at BETWEEN $1 AND $2 AND discount_price > 0
+        GROUP BY DATE(created_at), item_name;`,
+        [startDate, endDate]
+    );
     console.log('dailySaleReportRouter [getDiscountDataReport] totalDiscountDataRes:', totalDiscountDataRes.rows);
     return { discountReports: discountDataRes.rows, totalDiscountReports: totalDiscountDataRes.rows };
 }
@@ -93,19 +97,14 @@ const getDiscountDataReport = async (startDate, endDate, offset) => {
 const getPromotionDataReport = async (startDate, endDate, offset) => {
     const query = `
         SELECT 
-            DATE(transaction_items.created_at),
-            SUM(transaction_items.discount_price) AS items_discount,
-            SUM(transactions.discount_amount) AS transaction_discount_promotion,
+            DATE(transactions.created_at),
+            SUM(transactions.promotion_amount) AS grand_promotion_amount,
             promotion.name
-        FROM transaction_items  
-        LEFT JOIN transactions
-            ON transaction_items.transaction_id = transactions.id
-        LEFT JOIN promotion_items
-            ON transaction_items.normal_menu_item_id = promotion_items.normal_menu_item_id
+        FROM transactions  
         LEFT JOIN promotion
-            ON promotion_items.promotion_id = promotion.id
-        WHERE transaction_items.created_at BETWEEN $1 AND $2
-        GROUP BY DATE(transaction_items.created_at), promotion.name
+            ON transactions.discount_name = promotion.name
+        WHERE transactions.created_at BETWEEN $1 AND $2  AND transactions.discount_name <> ''
+        GROUP BY DATE(transactions.created_at), promotion.name
         ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""};`;
     const variables = offset >= 0 ? [startDate, endDate, offset]: [startDate, endDate];
     const promotionDataRes = await poolQuery(query,variables);
@@ -113,19 +112,16 @@ const getPromotionDataReport = async (startDate, endDate, offset) => {
 
     const totalPromotionDataRes = await poolQuery(`
         SELECT 
-            DATE(transaction_items.created_at),
-            SUM(transaction_items.discount_price) AS items_discount,
-            SUM(transactions.discount_amount) AS transaction_discount_promotion,
+            DATE(transactions.created_at),
+            SUM(transactions.promotion_amount) AS grand_promotion_amount,
             promotion.name
-        FROM transaction_items 
-        LEFT JOIN transactions
-            ON transaction_items.transaction_id = transactions.id
-        LEFT JOIN promotion_items
-            ON transaction_items.normal_menu_item_id = promotion_items.normal_menu_item_id
+        FROM transactions  
         LEFT JOIN promotion
-            ON promotion_items.promotion_id = promotion.id
-        WHERE transaction_items.created_at BETWEEN $1 AND $2
-        GROUP BY DATE(transaction_items.created_at), promotion.name`, [startDate, endDate]);
+            ON transactions.discount_name = promotion.name
+        WHERE transactions.created_at BETWEEN $1 AND $2  AND transactions.discount_name <> ''
+        GROUP BY DATE(transactions.created_at), promotion.name;`,
+        [startDate, endDate]
+    );
     console.log('dailySaleReportRouter [getPromotionDataReport] totalPromotionDataRes:', totalPromotionDataRes.rows);
     return { promotionReports: promotionDataRes.rows, totalPromotionReports: totalPromotionDataRes.rows };
 }

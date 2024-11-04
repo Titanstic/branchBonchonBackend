@@ -1,5 +1,6 @@
-const poolQuery = require("../../misc/poolQuery");
-
+const poolQuery = require("../../../misc/poolQuery");
+const {calculateDrawerAmount} = require("../../utils/cashierDrawer");
+const {updateDrawerDetail} = require("./cashierDrawerDetailModel");
 
 const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     const { rows: cashierDrawerData } = await poolQuery(`
@@ -16,7 +17,30 @@ const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     }
 };
 
-const  findCashierDrawerByTwoId = async (morningId, eveningId) => {
+const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count, promotion, discount) => {
+    const { rows: currentCashierDrawerData } = await poolQuery(`
+        SELECT * FROM cashier_drawer 
+        WHERE DATE(created_at) = CURRENT_DATE AND pick_up_date_time IS NULL AND pos_ip_address = $1;
+        `, [pos_ip_address]
+    );
+
+    if(currentCashierDrawerData.length > 0){
+        console.log("transitionRouter [addCashierDrawer] currentCashierDrawerData:", currentCashierDrawerData);
+        // find payment type [self or delivery]
+        const { rows: paymentTypeRes } = await poolQuery(`SELECT type FROM payment_types WHERE payment_name = $1;`, [payment_type_name]);
+
+        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type, customer_count, promotion, discount);
+        const updateCashierDrawerQuery = `UPDATE cashier_drawer ${setCashierDrawerData} WHERE id = $1;`
+        await poolQuery(updateCashierDrawerQuery, [currentCashierDrawerData[0].id]);
+
+        await updateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
+    }else {
+        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by pos_ip_address");
+    }
+
+};
+
+const findCashierDrawerByTwoId = async (morningId, eveningId) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         SELECT 
             DATE(created_at) AS date,
@@ -117,4 +141,4 @@ const findCashierDrawerById = async (id) => {
     }
 };
 
-module.exports = { createCashierDrawer, findCashierDrawerByTwoId, findCashierDrawerByDate, findCashierDrawerById }
+module.exports = { createCashierDrawer, addCashierDrawer, findCashierDrawerByTwoId, findCashierDrawerByDate, findCashierDrawerById }

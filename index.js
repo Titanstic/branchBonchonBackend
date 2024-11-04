@@ -9,23 +9,19 @@ app.use(express.json());
 app.use(cors({ origin: '*'}));
 
 // Start API CALL
-const { signInRouter} = require("./src/signIn");
-const transitionRouter = require("./src/sync/transition");
-const ReprintRouter = require("./src/sync/reprint");
-const CentralHasuraSyncRouter = require("./src/sync/centralHasuraSync");
-const calculateStockRouter = require("./src/calculateStock");
-const stockOrderRouter = require("./src/sync/stockOrder");
-const dailySaleReportRouter = require("./src/report/DailySale/dailySaleReportController");
-const groupSaleReportRouter = require("./src/report/GroupSale/groupSaleReportController");
-const groupDetailSaleReportRouter = require("./src/report/GroupSale/groupDetailReportController");
-const cashierDrawerRouter = require("./src/cashierDrawer/cashierDrawerController");
+const signInRouter = require("./src/controllers/signInController");
+const transitionRouter = require("./src/controllers/transactionController");
+const CentralHasuraSyncRouter = require("./src/controllers/centralHasuraSyncController");
+const stockRouter = require("./src/controllers/stockController");
+const dailySaleReportRouter = require("./src/controllers/reports/dailySaleReportController");
+const groupSaleReportRouter = require("./src/controllers/reports/groupSaleReportController");
+const groupDetailSaleReportRouter = require("./src/controllers/reports/groupDetailReportController");
+const cashierDrawerRouter = require("./src/controllers/cashierDrawerController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
-app.use("/reprint", ReprintRouter);
 app.use('/central/sync', CentralHasuraSyncRouter);
-app.use("/calculatestock", calculateStockRouter);
-app.use("/stockorder", stockOrderRouter);
+app.use("/stock", stockRouter);
 app.use("/dailySaleReport", dailySaleReportRouter);
 app.use("/groupSaleReport", groupSaleReportRouter);
 app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
@@ -53,5 +49,5 @@ const PORT = process.env.PORT || 3002;
 //         console.log(`Dashboard is running at port 5000`);
 //     })
 // };
-//
+
 // module.exports = serverStart;

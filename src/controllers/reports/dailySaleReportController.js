@@ -1,7 +1,7 @@
 const express = require("express");
 const dailySaleReportController = express.Router();
 
-const {getSummaryDataReport, getPaymentDataReport, getDiscountDataReport, getPromotionDataReport, getMenuDataReport} = require("./dailySaleModel");
+const {getSummaryDataReport, getPaymentDataReport, getDiscountDataReport, getPromotionDataReport, getMenuDataReport} = require("../../models/reports/dailySaleModel");
 
 dailySaleReportController.post("/:reportType", async (req, res) => {
     const {reportType} = req.params;

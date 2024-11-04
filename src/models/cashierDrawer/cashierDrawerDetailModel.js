@@ -1,4 +1,4 @@
-const poolQuery = require("../../misc/poolQuery");
+const poolQuery = require("../../../misc/poolQuery");
 
 const findDetailByCashierDrawerId = async (cashierDrawerId) => {
     const { rows: cashierDrawerDetails } = await poolQuery(`SELECT payment_type, sale_amount FROM cashier_drawer_details WHERE cashier_drawer_id = $1;`, [cashierDrawerId]);
@@ -46,4 +46,19 @@ const findDetailByDate = async (date) => {
     }
 };
 
-module.exports = { findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate };
+const updateDrawerDetail = async (grand_total_amount, payment_type_name, cashierDrawerId) => {
+    try {
+        const { rows: cashierDrawerDetails } = await poolQuery(`SELECT * FROM cashier_drawer_details WHERE payment_type = $1 AND cashier_drawer_id = $2;`, [payment_type_name, cashierDrawerId]);
+        console.log("transitionRouter [calculateDrawerDetail] cashierDrawerDetails:", cashierDrawerDetails);
+        if(cashierDrawerDetails.length > 0){
+            cashierDrawerDetails[0].sale_amount += grand_total_amount;
+            await poolQuery(`UPDATE cashier_drawer_details SET sale_amount = $1 WHERE id = $2;`, [cashierDrawerDetails[0].sale_amount, cashierDrawerDetails[0].id]);
+        }else{
+            await poolQuery(`INSERT INTO cashier_drawer_details(payment_type, sale_amount, cashier_drawer_id) VALUES($1, $2, $3);`, [payment_type_name, grand_total_amount, cashierDrawerId]);
+        }
+    }catch (e){
+        throw new Error(`transitionRouter [calculateDrawerDetail] error: ${e.message}`);
+    }
+}
+
+module.exports = { findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate, updateDrawerDetail };

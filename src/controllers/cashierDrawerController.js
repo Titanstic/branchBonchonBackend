@@ -1,8 +1,9 @@
 const express = require("express");
-const {createCashierDrawer, findCashierDrawerById, findCashierDrawerByTwoId, findCashierDrawerByDate} = require("./cashierDrawerModal");
-const {findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate} = require("./cashierDrawerDetailModa");
+const {createCashierDrawer, findCashierDrawerById, findCashierDrawerByTwoId, findCashierDrawerByDate} = require("../models/cashierDrawer/cashierDrawerModel");
+const {findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate} = require("../models/cashierDrawer/cashierDrawerDetailModel");
 const {PrintCashierDrawer} = require("../../printer/Print");
-const {findCurrentBranch, findEmployeeById} = require("../utils");
+const {findEmployeeById} = require("../models/employeeModel");
+const {findCurrentBranch} = require("../models/branchModel");
 
 const cashierDrawerController = express.Router();
 

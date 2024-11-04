@@ -1,11 +1,25 @@
 const express = require("express");
-const {executeCentralMutation, checkOperation} = require("../utils");
-const poolQuery = require("../../misc/poolQuery");
-const stockOrderRouter = express.Router();
+const stockController = express.Router();
+const poolQuery = require("../../misc/poolQuery.js");
+const {checkOperation} = require("../utils/stock");
+const {executeCentralMutation} = require("../utils/centralHasuraSync");
+
+stockController.post("/calculate", async (req, res) => {
+    const event = req.body.event;
+    const transitionId = event.data.new.id;
+
+    try{
+        const resMessage = await poolQuery(`SELECT * FROM public.stock_reduce($1);`, [transitionId]);
+
+        res.status(200).json({ success: true, message: resMessage});
+    }catch (e) {
+        res.status(500).json({ success: true, message: e.message});
+    }
+});
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-stockOrderRouter.post("/", async (req, res) => {
+stockController.post("/order", async (req, res) => {
     const event = req.body.event;
     const tableName = req.body.table.name;
 
@@ -35,4 +49,4 @@ stockOrderRouter.post("/", async (req, res) => {
     }
 });
 
-module.exports = stockOrderRouter;
+module.exports = stockController;

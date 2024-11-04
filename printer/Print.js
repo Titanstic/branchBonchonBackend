@@ -1,8 +1,7 @@
-const cashierPrintSlipBuffer = require("./cashierPrintUi");
+const cashierPrintSlipBuffer = require("./ui/cashierPrintUi");
 const {networkPrinterPrint} = require("./networkPrinterPrint");
-const kitchenPrintSlipBuffer = require("./kitchenPrintUi");
-const cashierDrawerPrintSlipBuffer = require("./cashierDrawerPrintUi");
-
+const kitchenPrintSlipBuffer = require("./ui/kitchenPrintUi");
+const cashierDrawerPrintSlipBuffer = require("./ui/cashierDrawerPrintUi");
 
 const PrintSlip = async (employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem) => {
     //  printer state

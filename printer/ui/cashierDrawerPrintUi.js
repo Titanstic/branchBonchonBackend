@@ -6,13 +6,13 @@ const cashierDrawerPrintSlipBuffer = async (cashierDrawer, cashierDrawerDetail, 
     const currentDate = date.toLocaleDateString("en-US");
     const currentTime = date.toLocaleTimeString("en-US");
 
-    const { canvas, ctx, startLineHeight, canvasHeight } = slipHeight(cashierDrawerDetail);
-
+    const { canvas, ctx, startLineHeight } = slipHeight(cashierDrawerDetail);
     const { finishHeaderLineHeight } = headerUi(canvas, ctx, branchName, cashierDrawer, currentDate, currentTime, startLineHeight);
     const { finishBodyLineHeight } = bodyUi(canvas, ctx, cashierDrawer, finishHeaderLineHeight);
     cashierDrawerDetailUi(canvas, ctx, cashierDrawerDetail, finishBodyLineHeight);
 
     const filename = "./orderImages/cashierDrawer.png";
+    // const filename = "./resources/app/orderImages/cashierDrawer.png";
     const buffer = canvas.toBuffer("image/png");
     fs.writeFileSync(filename, buffer);
     return buffer;
@@ -28,7 +28,7 @@ const slipHeight = (cashierDrawerDetail) => {
     ctx.fillStyle = "black";
     const startLineHeight = 0;
 
-    return { canvas, ctx, startLineHeight, canvasHeight }
+    return { canvas, ctx, startLineHeight }
 };
 
 const headerUi = (canvas, ctx, branchName, cashierDrawer, currentDate, currentTime, startLineHeight) => {
@@ -181,7 +181,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.fillText(`${Number(cashierDrawer.self_take_away).toLocaleString("en-US")}`, canvas.width - 30, takeawayLineHeight);
 
     ctx.textAlign = "start";
-    ctx.fillText(`Delivery`, 30, deliveryLineHeight);
+    ctx.fillText(`Deliveries`, 30, deliveryLineHeight);
     ctx.textAlign = "right";
     ctx.fillText(`${Number(cashierDrawer.delivery).toLocaleString("en-US")}`, canvas.width - 30, deliveryLineHeight);
 
