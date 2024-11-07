@@ -35,9 +35,9 @@ transactionController.post("/", async (req, res) => {
             branchData = branchResult.rows[0];
         }
          await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem);
-
-        // Synchronous with online database
-       // await fetchOnlineDbTransition(transitionResult, id);
+       //
+       //  // Synchronous with online database
+       await fetchOnlineDbTransition(transitionResult);
 
         console.log("transitionRouter :", "Transition Successfully");
         res.json({ error: 0, message: transitionResult.id});

@@ -1,7 +1,7 @@
 const express = require("express");
 const stockController = express.Router();
 const poolQuery = require("../../misc/poolQuery.js");
-const {checkOperation} = require("../utils/stock");
+const {checkOperation} = require("../utils/mutation");
 const {executeCentralMutation} = require("../utils/centralHasuraSync");
 
 stockController.post("/calculate", async (req, res) => {

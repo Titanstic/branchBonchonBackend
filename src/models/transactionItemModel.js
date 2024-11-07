@@ -1,6 +1,8 @@
 const poolQuery = require("../../misc/poolQuery");
 
 const addTransitionItems = async (value, comboSetValue) => {
+    let result = [];
+
     if(comboSetValue.length > 0){
         console.log("[Transition Routes] addTransitionItems comboSetValue: ", comboSetValue);
         const comboValuePlaceholders = comboSetValue.map((_, i) => `($${i * 10 + 1}, $${i * 10 + 2}, $${i * 10 + 3}, $${i * 10 + 4}, $${i * 10 + 5}, $${i * 10 + 6}, $${i * 10 + 7}, $${i * 10 + 8}, $${i * 10 + 9}, $${i * 10 + 10})`).join(', ');
@@ -10,7 +12,8 @@ const addTransitionItems = async (value, comboSetValue) => {
             VALUES ${comboValuePlaceholders}
             RETURNING *;
         `;
-        await poolQuery(transitionComboSetQuery, comboValues);
+        const { rows: comboSetItems} = await poolQuery(transitionComboSetQuery, comboValues);
+        result.push(...comboSetItems);
     }
 
     console.log("[Transition Routes] addTransitionItems value: ", value);
@@ -23,10 +26,11 @@ const addTransitionItems = async (value, comboSetValue) => {
             VALUES ${valuePlaceholders}
             RETURNING *;
         `;
-    const result = await poolQuery(query, flattenedValues);
+    const { rows: normalMenuItem } = await poolQuery(query, flattenedValues);
+    result.push(...normalMenuItem);
 
-    if (result.rows.length > 0) {
-        return result.rows;
+    if (result.length > 0) {
+        return result;
     } else {
         throw new Error("No data returned after insert.");
     }
