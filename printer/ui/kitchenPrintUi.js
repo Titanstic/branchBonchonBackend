@@ -40,7 +40,7 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
     const { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH, dateTimeH, tableNoH} = slipHeightData(dieInItems, takeAwayItems, flavourTypeLength);
 
     ctx.fillStyle = "black";
-    ctx.font = "24px Pyidaungsu";
+    ctx.font = "24px Myanmar Text";
     checkNoUi(ctx, canvas, transitionId, checkNoH, checkLineH, orderNo );
     const currentDate = new Date();
     const date = currentDate.toLocaleDateString(),
@@ -48,10 +48,9 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
 
     buyItemUi(ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, data[0].printer_name, table_name);
 
-    // const fileName = "./resources/app/orderImages/kitchen.png";
-    const fileName = "./orderImages/kitchen.png";
+    const filename = fs.existsSync("./resources/app/orderImages/kitchen.png") ? "./resources/app/orderImages/kitchen.png" : "./orderImages/kitchen.png";
     const buffer = canvas.toBuffer("image/png");
-    fs.writeFileSync(fileName, buffer);
+    fs.writeFileSync(filename, buffer);
 
     return buffer;
 };
@@ -84,12 +83,12 @@ const checkNoUi = (ctx, canvas,transitionId, checkNoH, checkLineH, orderNo) => {
 };
 
 const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, printerName, table_name ) => {
-    ctx.font = "30px Pyidaungsu";
+    ctx.font = "30px Myanmar Text";
 
     // =>  start Die In Item
     let flavourYPos = checkLineH;
     dieInItems.forEach((productItem, index) => {
-        ctx.font = "24px Pyidaungsu";
+        ctx.font = "24px Myanmar Text";
         flavourYPos += 30;
         ctx.textAlign = "start";
         ctx.fillText(productItem.item_name, 30, flavourYPos);
@@ -101,7 +100,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, flavourYPos);
 
         ctx.textAlign = "start";
-        ctx.font = "18px Pyidaungsu";
+        ctx.font = "18px Myanmar Text";
         if(productItem.flavour_types.length > 0) {
             flavourYPos += 25;
             // Draw bullet point
@@ -116,7 +115,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         }
 
         ctx.textAlign = "start";
-        ctx.font = "18px Pyidaungsu";
+        ctx.font = "18px Myanmar Text";
         const productNote = typeof productItem.note == "string" ? JSON.parse(productItem.note) : productItem.note;
         if(productNote.length > 0) {
             flavourYPos += 25;
@@ -140,7 +139,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         customDieInItemH = flavourYPos + 40;
         customDieInLineH = customDieInItemH + 20;
 
-        ctx.font = "24px Pyidaungsu";
+        ctx.font = "24px Myanmar Text";
         ctx.textAlign = "center";
         ctx.fillText("***** ( Dine In ) ******", canvas.width / 2 , customDieInItemH);
         ctx.textAlign = "start";
@@ -157,14 +156,14 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
     takeAwayItems.forEach((productItem, index) => {
         takeFlavourYPos += 50;
 
-        ctx.font = "24px Pyidaungsu";
+        ctx.font = "24px Myanmar Text";
         ctx.textAlign = "start";
         ctx.fillText(productItem.item_name, 30, takeFlavourYPos);
         ctx.textAlign = "right";
         ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, takeFlavourYPos);
 
         ctx.textAlign = "start";
-        ctx.font = "18px Pyidaungsu";
+        ctx.font = "18px Myanmar Text";
         if(productItem.flavour_types.length > 0) {
             takeFlavourYPos += 25;
             // Draw bullet point
@@ -179,7 +178,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         }
 
         ctx.textAlign = "start";
-        ctx.font = "18px Pyidaungsu";
+        ctx.font = "18px Myanmar Text";
         const productNote = JSON.parse(productItem.note);
         if(productNote.length > 0) {
             takeFlavourYPos += 25;
@@ -199,7 +198,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
     });
 
     if(takeAwayItems.length > 0){
-        ctx.font = "24px Pyidaungsu";
+        ctx.font = "24px Myanmar Text";
         ctx.textAlign = "center";
         ctx.fillText("***** ( Take Away ) ******", canvas.width / 2 , takeFlavourYPos +40)
         ctx.textAlign = "start";
@@ -211,7 +210,7 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
     }
     // =>  End Take Away Item
 
-    ctx.font = "24px Pyidaungsu";
+    ctx.font = "24px Myanmar Text";
     ctx.textAlign = "start";
     ctx.fillText(date, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 90 : customDieInItemH + 60 );
     ctx.textAlign = "right";

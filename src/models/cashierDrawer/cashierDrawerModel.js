@@ -17,7 +17,7 @@ const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     }
 };
 
-const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count, promotion, discount) => {
+const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count, promotion = 0, discount) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`
         SELECT * FROM cashier_drawer 
         WHERE DATE(created_at) = CURRENT_DATE AND pick_up_date_time IS NULL AND pos_ip_address = $1;
@@ -107,6 +107,9 @@ const  findCashierDrawerByDate = async (date) => {
 const findCashierDrawerById = async (id) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         SELECT 
+            cashier_drawer.total_amount,
+            cashier_drawer.discount,
+            cashier_drawer.promotion,
             cashier_drawer.net_sales,
             cashier_drawer.tax_add_on, 
             cashier_drawer.rounding,

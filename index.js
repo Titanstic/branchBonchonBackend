@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { port, posPort, dashboardPort} = require("./config");
 
 const express = require("express");
 const app = express();
@@ -33,21 +34,18 @@ const frontendPosStatic = require("./FrontendPosStatic");
 const frontendDashboardStatic = require("./FrontendDashboardStatic");
 // End Frontend Static
 
-
-const PORT = process.env.PORT || 3002;
-
 // const serverStart = async () => {
-    app.listen((PORT) , () => {
-        console.log(`Express server listening on ports ${PORT}`);
+    app.listen((port || 3002) , () => {
+        console.log(`Express server listening on ports ${port || 3002}`);
     })
 
-//     frontendPosStatic.listen(4000, () => {
-//         console.log(`POS is running at port ${4000}`);
+//     frontendPosStatic.listen(posPort || 4000 , () => {
+//         console.log(`POS is running at port ${posPort}`);
 //     })
 //
-//     frontendDashboardStatic.listen(5000, () => {
-//         console.log(`Dashboard is running at port 5000`);
+//     frontendDashboardStatic.listen(dashboardPort || 5000, () => {
+//         console.log(`Dashboard is running at port ${dashboardPort || 5000}`);
 //     })
 // };
-
+//
 // module.exports = serverStart;

@@ -20,8 +20,7 @@ const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, tra
   }
   footerUi(ctx, canvas, footerStartLineHeight);
 
-  const filename = "./orderImages/receipt.png";
-  //   const filename = "./resources/app/orderImages/cashier.png";
+  const filename = fs.existsSync("./resources/app/orderImages/receipt.png") ? "./resources/app/orderImages/receipt.png" : "./orderImages/receipt.png";
   const buffer = canvas.toBuffer("image/png");
   fs.writeFileSync(filename, buffer);
 
@@ -75,16 +74,16 @@ const headerUi = async (ctx, canvas, branchData, startLineHeight) => {
   const phoneH = addH + 30;
   const finishHeaderLineH = phoneH + 30;
 
-  ctx.font = "24px Pyidaungsu";
-  ctx.textAlign = "center";
-  const logoImg = await loadImage("./images/logo.png");
-  // const logoImg = await loadImage("./resources/app/images/logo.png");
+  const logoFilePath = fs.existsSync("./resources/app/images/logo.png") ? "./resources/app/images/logo.png" : "./images/logo.png";
+  const logoImg = await loadImage(logoFilePath);
   const logoWidth = 200;
   const logoHeight = (logoWidth / logoImg.width) * logoImg.height;
+  ctx.font = "24px Myanmar Text";
+  ctx.textAlign = "center";
   ctx.drawImage(logoImg, canvas.width / 2 - logoWidth / 2, lineHeight, logoWidth, logoHeight);
 
   // => header
-  ctx.font = "28px Comic Sans Ms";
+  ctx.font = "28px Myanmar Text";
   ctx.fillText(`${branchData.address}`, canvas.width / 2, nameH);
   ctx.fillText(`${branchData.road_city}`, canvas.width / 2, addH);
   ctx.fillText(`Phone - ${branchData.phone} `, canvas.width / 2, phoneH);
@@ -103,7 +102,7 @@ const informationUi = (ctx, canvas, employee_name, table_name, date, time, order
   const finishInfoLineH = invoiceH + 30;
 
   console.log("cashierPrintUi [informationUi]: print informationUi");
-  ctx.font = "20px Comic Sans Ms";
+  ctx.font = "20px Myanmar Text";
   ctx.textAlign = "start";
   ctx.fillText(`Date`, 20, dateTimeH);
   ctx.fillText(`:`, 100, dateTimeH);
@@ -124,12 +123,12 @@ const informationUi = (ctx, canvas, employee_name, table_name, date, time, order
   ctx.fillText(`:`, canvas.width - 130, tableCashierH);
   ctx.fillText(`${table_name ?? "-"}`, canvas.width - 10, tableCashierH);
 
-  ctx.font = "24px Pyidaungsu";
+  ctx.font = "24px Myanmar Text";
   ctx.textAlign = "center";
   ctx.fillText(`Check No : ${orderNo}`, canvas.width / 2, invoiceH);
 
   ctx.textAlign = "start";
-  ctx.font = "24px Comic Sans Ms";
+  ctx.font = "24px Myanmar Text";
   ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, finishInfoLineH);
 
   console.log("cashierPrintUi [Information Ui]: print Information Ui");
@@ -150,7 +149,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
   let flavourYPos = firstLineH;
   data.forEach((productItem, index) => {
     flavourYPos += 40;
-    ctx.font = "24px Comic Sans Ms";
+    ctx.font = "24px Myanmar Text";
     ctx.textAlign = "start";
     ctx.fillText(productItem.item_name, 30, flavourYPos);
     ctx.fillText(productItem.is_take_away ? "T" : "D", 350, flavourYPos);
@@ -164,7 +163,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
       const comboMenuItems = typeof productItem.combo_menu_items == "string" ? JSON.parse(productItem.combo_menu_items) : productItem.combo_menu_items;
       comboMenuItems.forEach((eachCombo) => {
         ctx.textAlign = "start";
-        ctx.font = "20px Comic Sans Ms";
+        ctx.font = "20px Myanmar Text";
         flavourYPos += 25;
         ctx.fillText(`•`, 40, flavourYPos);
         ctx.fillText(eachCombo.item_name, 70, flavourYPos);
@@ -173,7 +172,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 
     if (productItem.flavour_types) {
       ctx.textAlign = "start";
-      ctx.font = "20px Comic Sans Ms";
+      ctx.font = "20px Myanmar Text";
       flavourYPos += 25;
       ctx.fillText(`•`, 50, flavourYPos);
       ctx.fillText(productItem.flavour_types, 70, flavourYPos);
@@ -181,7 +180,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 
     if (productItem.container_charges && productItem.container_charges > 0) {
       flavourYPos += 30;
-      ctx.font = "20px Comic Sans Ms";
+      ctx.font = "20px Myanmar Text";
       ctx.textAlign = "start";
       ctx.fillText(`•`, 50, flavourYPos);
       ctx.fillText("Container Charges", 70, flavourYPos);
@@ -194,7 +193,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 
   //first dotted line
   finishBuyItemLineH = flavourYPos + 30;
-  ctx.font = "24px Pyidaungsu";
+  ctx.font = "24px Myanmar Text";
   ctx.textAlign = "start";
   ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, finishBuyItemLineH);
 
@@ -208,7 +207,7 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finish
   const data = { id: transitionId, point, amount: grand_total_amount };
   const qrCodeData = await QRCode.toDataURL(JSON.stringify(data));
 
-  ctx.font = "24px Pyidaungsu";
+  ctx.font = "24px Myanmar Text";
   ctx.textAlign = "center";
   const qrImage = await loadImage(qrCodeData);
   const qrWidth = 200;

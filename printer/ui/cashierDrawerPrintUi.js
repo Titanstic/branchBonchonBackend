@@ -11,8 +11,7 @@ const cashierDrawerPrintSlipBuffer = async (cashierDrawer, cashierDrawerDetail, 
     const { finishBodyLineHeight } = bodyUi(canvas, ctx, cashierDrawer, finishHeaderLineHeight);
     cashierDrawerDetailUi(canvas, ctx, cashierDrawerDetail, finishBodyLineHeight);
 
-    const filename = "./orderImages/cashierDrawer.png";
-    // const filename = "./resources/app/orderImages/cashierDrawer.png";
+    const filename = fs.existsSync("./resources/app/orderImages/cashierDrawer.png") ? "./resources/app/orderImages/cashierDrawer.png" : "./orderImages/cashierDrawer.png";
     const buffer = canvas.toBuffer("image/png");
     fs.writeFileSync(filename, buffer);
     return buffer;
@@ -20,7 +19,7 @@ const cashierDrawerPrintSlipBuffer = async (cashierDrawer, cashierDrawerDetail, 
 
 const slipHeight = (cashierDrawerDetail) => {
     const cashierDrawerDetailHeight = cashierDrawerDetail.length * 30;
-    const originalHeight = 700;
+    const originalHeight = 900;
     const canvasHeight = originalHeight + cashierDrawerDetailHeight;
 
     const canvas = createCanvas(576, canvasHeight);
@@ -41,11 +40,11 @@ const headerUi = (canvas, ctx, branchName, cashierDrawer, currentDate, currentTi
     const guestLineHeight = printEmployeeLineHeight + 30;
     const finishHeaderLineHeight = guestLineHeight + 20;
 
-    ctx.font = "28px Pyidaungsu";
+    ctx.font = "28px Myanmar Text";
     ctx.textAlign = "center";
     ctx.fillText(`System Sale Report`, canvas.width/2, titleLineHeight);
 
-    ctx.font = "22px Pyidaungsu";
+    ctx.font = "22px Myanmar Text";
     ctx.textAlign = "start";
     ctx.fillText(`Branch`, 30, branchLineHeight);
     ctx.fillText(`:`, canvas.width/2, branchLineHeight);
@@ -82,11 +81,35 @@ const headerUi = (canvas, ctx, branchName, cashierDrawer, currentDate, currentTi
 }
 
 const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
-    const netSaleLineHeight = finishHeaderLineHeight + 20;
+    const totalAmountLineHeight = finishHeaderLineHeight + 20;
+    const discountLineHeight = totalAmountLineHeight + 30;
+    const promotionLineHeight = discountLineHeight + 30;
+    const netSaleLineHeight = promotionLineHeight + 30;
     const taxAddOnLineHeight = netSaleLineHeight + 30;
     const roundingLineHeight = taxAddOnLineHeight + 30;
     const totalRevenueLineHeight = roundingLineHeight + 30;
     const firstLineHeight = totalRevenueLineHeight + 20;
+
+    ctx.textAlign = "start";
+    ctx.fillText(`Total Amount`, 30, totalAmountLineHeight);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Number(cashierDrawer.total_amount).toLocaleString("en-US")}`, canvas.width - 30, totalAmountLineHeight);
+
+    ctx.textAlign = "start";
+    ctx.fillText(`Discount`, 30, discountLineHeight);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Number(cashierDrawer.discount).toLocaleString("en-US")}`, canvas.width - 30, discountLineHeight);
+
+    ctx.textAlign = "start";
+    ctx.fillText(`Promotion`, 30, promotionLineHeight);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Number(cashierDrawer.promotion).toLocaleString("en-US")}`, canvas.width - 30, promotionLineHeight);
+
+    ctx.textAlign = "start";
+    ctx.fillText(`Net Sale`, 30, netSaleLineHeight);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Number(cashierDrawer.net_sales).toLocaleString("en-US")}`, canvas.width - 30, netSaleLineHeight);
+
 
     ctx.textAlign = "start";
     ctx.fillText(`Net Sale`, 30, netSaleLineHeight);
@@ -197,7 +220,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
 }
 
 const cashierDrawerDetailUi = (canvas, ctx, cashierDrawerDetail, finishBodyLineHeight) => {
-    let eachDetailLineHeight = finishBodyLineHeight + 30;
+    let eachDetailLineHeight = finishBodyLineHeight + 20;
 
     cashierDrawerDetail.forEach(eachDetail => {
         ctx.textAlign = "start";

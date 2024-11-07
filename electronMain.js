@@ -1,18 +1,25 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const serverStart = require('./index');
+
+const config = require("dotenv");
+config.config();
 
 // Run the Node.js server
 serverStart();
 
 let mainWindowDashboard;
 
+ipcMain.on("invokeEnv", (event) => {
+    event.sender.send("envReply", config);
+});
+
 function createWindow() {
     mainWindowDashboard = new BrowserWindow({
         width: 1440,
         height: 900,
         webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true,
+            nodeIntegration: true   ,
+            contextIsolation: false,
             webSecurity: true,
         },
     });
@@ -24,7 +31,7 @@ function createWindow() {
 
     mainWindowDashboard.loadURL(`http://localhost:5000`);
 
-    mainWindowDashboard.webContents.openDevTools();
+    // mainWindowDashboard.webContents.openDevTools();
 
     mainWindowDashboard.on('closed', () => {
         mainWindowDashboard = null;

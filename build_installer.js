@@ -10,7 +10,7 @@ const  msiCreator = new MSICreator({
 
     description: "This is Bonchon app",
     exe: "bonchon_branch",
-    appIconPath: path.resolve(__dirname,'./images/logo.ico'),
+    icon: "./icon.ico",
     name: "Bonchon Dashboard",
     manufacturer: "Axra Inc",
     version: "1.0.0",
@@ -20,7 +20,7 @@ const  msiCreator = new MSICreator({
     }
 })
 
-msiCreator.iconPath = path.resolve(__dirname, './images/logo.png');
+msiCreator.iconPath = path.resolve(__dirname, './icon.ico');
 
 msiCreator.create().then(function() {
     msiCreator.compile();

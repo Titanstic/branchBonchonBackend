@@ -6,16 +6,17 @@
     "start": "nodemon index.js",
     "electron": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "electron-packager . bonchon_branch --platform=win32 --arch=x64  --icon=./images/logo.ico --out=out",
+    "build": "electron-packager . bonchon_branch --platform=win32 --arch=x64  --icon=icon.ico --out=out --ignore=\"\\.idea|bonchon_branch_installer|\\.git|\\.github|build_installer\\.js|docker-compose\\.yml|Dockerfile|note\\.txt\"",
     "build_msi": "node build_installer.js"
   },
-  "author": "",
+  "author": "axra",
   "license": "ISC",
-  "description": "",
+  "description": "Developed By Axra",
   "dependencies": {
     "@napi-rs/canvas": "^0.1.53",
     "axios": "^1.7.5",
     "bcryptjs": "^2.4.3",
+    "canvas": "^2.11.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "escpos": "^3.0.0-alpha.6",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "electron": "^33.0.1",
+    "electron-builder": "^25.1.8",
     "electron-packager": "^17.1.2",
     "electron-wix-msi": "^5.1.3"
   }
