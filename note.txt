@@ -1,3 +1,2 @@
-1 - cashier drawer table => add total_amount column
-
-2 - db => host name change
+2 - env => change DATABASE_SERVER_ADDRESS => 'localhost' || "postgres"
+3 - package.json => change main

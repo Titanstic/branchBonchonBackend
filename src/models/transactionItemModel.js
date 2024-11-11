@@ -36,4 +36,46 @@ const addTransitionItems = async (value, comboSetValue) => {
     }
 }
 
-module.exports = { addTransitionItems };
+const getDashboardTotalAmount = async (dieInTakeAwayQuery, deliveryAndTotalRevQuery) => {
+    const showDashboardData = { "dieInAmount": 0, "takeawayAmount": 0, "deliveryAmount": 0, "totalRevenueAmount": 0 }
+
+    // CURRENT_DATE
+    const { rows: transactionItemsData } = await poolQuery(dieInTakeAwayQuery);
+    console.log(`transitionItemModal [getTransactionItemByDate] transactionItemsData : `, transactionItemsData);
+    transactionItemsData.forEach(each => {
+        switch (each.type){
+            case "dine_in":
+                showDashboardData.dieInAmount = Number(each.grand_total_amount);
+                break;
+            case "takeaway":
+                showDashboardData.takeawayAmount = Number(each.grand_total_amount);
+                break;
+        }
+    })
+
+    const { rows: transitionData } = await poolQuery(deliveryAndTotalRevQuery);
+    console.log(`transitionItemModal [getTransactionItemByDate] transitionData : `, transitionData);
+
+    transitionData.forEach(each => {
+        switch (each.type){
+            case "delivery":
+                showDashboardData.deliveryAmount = Number(each.total_revenue);
+                showDashboardData.totalRevenueAmount += Number(each.total_revenue);
+                break;
+            case "self":
+                showDashboardData.totalRevenueAmount += Number(each.total_revenue);
+                break;
+        }
+    })
+
+    return showDashboardData;
+}
+
+const getBestSellerItems = async (besetSellerItemQuery) => {
+    const { rows: bestItemsData } = await poolQuery(besetSellerItemQuery)
+
+    console.log(`transitionItemModal [getBestSellerItems] bestItemsData: `, bestItemsData);
+    return bestItemsData;
+}
+
+module.exports = { addTransitionItems, getDashboardTotalAmount, getBestSellerItems };

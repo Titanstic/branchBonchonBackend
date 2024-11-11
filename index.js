@@ -18,6 +18,7 @@ const dailySaleReportRouter = require("./src/controllers/reports/dailySaleReport
 const groupSaleReportRouter = require("./src/controllers/reports/groupSaleReportController");
 const groupDetailSaleReportRouter = require("./src/controllers/reports/groupDetailReportController");
 const cashierDrawerRouter = require("./src/controllers/cashierDrawerController");
+const dashboardRouter = require("./src/controllers/dashboardController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -27,6 +28,7 @@ app.use("/dailySaleReport", dailySaleReportRouter);
 app.use("/groupSaleReport", groupSaleReportRouter);
 app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
 app.use("/cashierDrawer", cashierDrawerRouter);
+app.use("/dashboard", dashboardRouter);
 // End API CALL
 
 // Start Frontend Static

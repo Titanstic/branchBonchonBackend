@@ -1,4 +1,4 @@
-const databaseHost = process.env.DATABASE_SERVER_ADDRESS || "postgres";
+const databaseHost = process.env.DATABASE_SERVER_ADDRESS || "localhost";
 const databaseName = process.env.DATABASE_NAME || "postgres";
 const databasePassword = process.env.DATABASE_PASSWORD || "postgrespassword";
 const databaseUsername = process.env.DATABASE_USERNAME  || "postgres";
