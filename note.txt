@@ -1,2 +1,8 @@
+// push to git
+
 2 - env => change DATABASE_SERVER_ADDRESS => 'localhost' || "postgres"
 3 - package.json => change main
+
+// electron
+1. index.js မှာ comment ဖွင့်ရန်
+2 - package.json => change electronMian

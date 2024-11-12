@@ -1,6 +1,5 @@
 const dashboardQuery = (type) => {
     let whereCondition = "";
-
     switch (type) {
         case "daily":
             whereCondition = `= CURRENT_DATE`
