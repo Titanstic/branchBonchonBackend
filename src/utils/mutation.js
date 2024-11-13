@@ -9,7 +9,7 @@ const abortApiFun = () => {
     return { controller, timeoutId };
 };
 
-const checkOperation =  async (event, tableName) => {
+const checkOperation =  async (event, tableName, branchId) => {
     let query = "";
     let variables = {};
     let input;
@@ -28,7 +28,7 @@ const checkOperation =  async (event, tableName) => {
                         }
                     }
                 `;
-            variables= { input };
+            variables= { input: {...input, branch_id: branchId} };
             break;
         case "UPDATE":
             const primaryKey = 'id';
@@ -39,7 +39,7 @@ const checkOperation =  async (event, tableName) => {
                         }
                     }
                 `;
-            variables = { pk: event.data.old[primaryKey], changes: event.data.new };
+            variables = { pk: event.data.old[primaryKey], changes: {...event.data.new, branch_id: branchId } };
             break;
         case "DELETE":
             // Mutation to delete data in local Hasura
