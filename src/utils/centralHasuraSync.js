@@ -26,6 +26,7 @@ const executeCentralMutation = async ( query, variables) => {
         return response.data.data;
     }catch (e) {
         console.error("[utils] executeCentralMutation Error: ", e.message);
+        throw new Error(e.message);
     }
 };
 

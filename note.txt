@@ -6,3 +6,11 @@
 // electron
 1. index.js မှာ comment ဖွင့်ရန်
 2 - package.json => change electronMian
+
+// sync
+
+1.cashier_drawer
+2.cashier_drawer_details
+3.wastes
+4.waste_details
+5.PO => good_received, good_return, purchase_order, transfer_in , transfer_out

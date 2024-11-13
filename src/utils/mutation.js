@@ -1,5 +1,6 @@
-const poolQuery = require("../../misc/poolQuery");
 const axios = require("axios");
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const abortApiFun = () => {
     const controller = new AbortController();
@@ -67,15 +68,15 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
     const columnId = event.data.new ? event.data.new.id : event.data.old.id;
 
     try{
-        const response = await axios.post(`https://${branch.ip_address}/v1/graphql`, {
+        const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
             query,
             variables
         }, { headers: centralHeaders, signal: controller.signal});
         clearTimeout(timeOutId);
 
-        // if(response.data.errors){
-        //     await filterSyncTable(query, variables, branch, event, columnId);
-        // }
+        if(response.data.errors){
+            await filterSyncTable(query, variables, branch, event, columnId);
+        }
 
         console.log("[utils] executeCentralMutation: ", response.data);
         return response.data;
@@ -85,7 +86,7 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
         console.error("[utils] executeCentralMutation Error: ", e.message);
     }
 };
-//
+
 // const filterSyncTable = async (query, variables, branch, event, columnId) => {
 //     // find data from sync table
 //     const getSyncDataBranchId = await poolQuery(`SELECT id,action FROM sync_history WHERE branch_id = $1 and column_id = $2`, [branch.id, columnId]);
@@ -104,4 +105,4 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
 //     }
 // }
 
-module.exports = { checkOperation, executeCentralMutation };
+module.exports = { delay, checkOperation, executeCentralMutation };
