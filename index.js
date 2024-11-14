@@ -20,6 +20,7 @@ const groupDetailSaleReportRouter = require("./src/controllers/reports/groupDeta
 const cashierDrawerRouter = require("./src/controllers/cashierDrawerController");
 const dashboardRouter = require("./src/controllers/dashboardController");
 const twoTableHasuraSyncRouter = require("./src/controllers/sync/twoTableSyncController");
+const notificationRouter = require("./src/controllers/notificationController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -31,6 +32,7 @@ app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
 app.use("/cashierDrawer", cashierDrawerRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/central", twoTableHasuraSyncRouter);
+app.use("/notification", notificationRouter);
 // End API CALL
 
 // Start Frontend Static

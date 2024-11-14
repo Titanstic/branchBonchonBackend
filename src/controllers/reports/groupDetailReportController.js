@@ -23,7 +23,7 @@ groupDetailReportRouter.post("/", async (req, res) => {
 });
 
 groupDetailReportRouter.post("/download", async (req, res) => {
-    let {startDate, endDate, page} = req.body.input ? req.body.input : req.body;
+    let {startDate, endDate} = req.body.input ? req.body.input : req.body;
     startDate += " 00:00:00" ;
     endDate += " 23:59:59";
     const offset = 0

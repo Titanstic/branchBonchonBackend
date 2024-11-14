@@ -9,9 +9,5 @@
 
 // sync
 
-// => error branchid မပါတာ
-1.cashier_drawer
-2.cashier_drawer_details
-3.waste
-
+// => error branchid ပါတာ
 5.PO => transfer_in , transfer_out

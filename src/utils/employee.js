@@ -10,4 +10,6 @@ const jwtCreator = async (id,role, branchId, branchName)=>{
     return jwt.sign({"https://hasura.io/jwt/claims": hasura, user_id: id, branchId, branchName}, jwttokenkey, {expiresIn: jwtExpTime});
 };
 
+
+
 module.exports = { jwtCreator };
