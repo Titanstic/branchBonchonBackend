@@ -4,6 +4,8 @@ const poolQuery = require("../../misc/poolQuery.js");
 const {checkOperation, delay} = require("../utils/mutation");
 const {executeCentralMutation} = require("../utils/centralHasuraSync");
 const {filterSyncHistory} = require("../utils/syncHistory");
+const {addStockItemForGoodReceived, findStockItemById} = require("../models/stockItemsModel");
+const {filterStockItemQty} = require("../utils/stock");
 
 stockController.post("/calculate", async (req, res) => {
     const event = req.body.event;
@@ -17,6 +19,25 @@ stockController.post("/calculate", async (req, res) => {
         res.status(500).json({ success: true, message: e.message});
     }
 });
+
+stockController.post("/goodReceivedItems", async (req, res) => {
+    const event = req.body.event;
+    const inputData = event.data.new ?? event.data.old;
+    const tableName = req.body.table.name;
+    console.log(inputData);
+
+    try{
+        const stockItemData = await findStockItemById(inputData.stock_id);
+        console.log(`stockController stockItemData: ${stockItemData}`);
+
+        const { updateInventoryQty } = filterStockItemQty(tableName, stockItemData, inputData);
+        await addStockItemForGoodReceived(inputData.stock_id, updateInventoryQty);
+
+        res.status(200).json({ success: true, message: `Updated Stock item for ${tableName} successfully` });
+    }catch (e) {
+        res.status(500).json({ success: true, message: e.message});
+    }
+})
 
 
 // stockController.post("/order", async (req, res) => {

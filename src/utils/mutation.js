@@ -28,7 +28,7 @@ const checkOperation =  async (event, tableName, branchId) => {
                         }
                     }
                 `;
-            variables= { input: {...input, branch_id: branchId} };
+            variables= { input: {...input } };
             break;
         case "UPDATE":
             const primaryKey = 'id';
@@ -39,7 +39,7 @@ const checkOperation =  async (event, tableName, branchId) => {
                         }
                     }
                 `;
-            variables = { pk: event.data.old[primaryKey], changes: {...event.data.new, branch_id: branchId } };
+            variables = { pk: event.data.old[primaryKey], changes: {...event.data.new } };
             break;
         case "DELETE":
             // Mutation to delete data in local Hasura

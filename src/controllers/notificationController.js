@@ -10,7 +10,6 @@ notificationRouter.post("/", async (req, res) => {
     const action = event.op;
 
     try{
-        // const notificationTables = ["cashier_drawer", "good_received", "good_return", "purchase_order", "transfer_in", "transfer_out", "wastes"];
         const data = event.data.new;
         console.log(`[twoTableHasuraSyncRouter] notification data:`, data)
 

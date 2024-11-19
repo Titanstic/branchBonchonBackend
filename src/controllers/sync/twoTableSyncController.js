@@ -15,16 +15,14 @@ twoTableHasuraSyncRouter.post("/hasura-sync", async (req, res) => {
         await delay(3000);
     }
 
-    // const notificationTables = ["cashier_drawer", "good_received", "good_return", "purchase_order", "transfer_in", "transfer_out", "wastes"];
-    // if(notificationTables.includes(tableName) && event.op === "INSERT"){
-    //     const data = event.data.new;
-    //     console.log(`[twoTableHasuraSyncRouter] notification data:`, data)
-    //
-    //     await filterNotification(data, tableName);
-    // }
+    // need to add data in stock
     const branchData = await findCurrentBranch();
+    if(!delayedTables.includes(tableName)){
+        event.data.new.branch_id =  branchData.id;
+    }
+    console.log(`[twoTableHasuraSyncRouter] event:`,  event.data.new);
 
-    const {query, variables} = await checkOperation(event, tableName, branchData.id);
+    const {query, variables} = await checkOperation(event, tableName);
     console.log(`[twoTableHasuraSyncRouter] query:`, query)
     console.log(`[twoTableHasuraSyncRouter] variables:`, variables);
 

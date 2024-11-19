@@ -21,7 +21,6 @@ const deleteSyncHistoryDataByColumnId = async (columnId) => {
     console.log(`syncModel [deleteSyncHistoryDataByColumnId] columnId: ${columnId}`);
 
     await poolQuery(`DELETE FROM sync_history WHERE column_id = $1;`, [columnId]);
-
 }
 
 module.exports = { findSyncHistoryByColumnId, insertSyncHistoryData, deleteSyncHistoryDataByColumnId};
