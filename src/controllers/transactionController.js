@@ -4,10 +4,16 @@ const express = require("express");
 const transactionController = express.Router();
 
 const {PrintSlip} = require("../../printer/Print");
-const {findOrderNo, addTransition, updateTransition, findTransactionAndEmployee, findTransactionItem} = require("../models/transactionModel");
+const {findOrderNo, addTransition, updateTransition, findTransactionAndEmployee, findTransactionItem,
+    findTransactionById, updateTransactionVoidById
+} = require("../models/transactionModel");
 const {findBranchById, findBranch} = require("../models/branchModel");
-const {addCashierDrawer} = require("../models/cashierDrawer/cashierDrawerModel");
+const {addCashierDrawer, findCashierDrawerByTodayDate, updateCashierDrawerById} = require("../models/cashierDrawer/cashierDrawerModel");
 const {fetchOnlineDbTransition, filterKitchenItem, transitionItems} = require("../utils/transaction");
+const {findPaymentTypeById} = require("../models/paymentTypeModel");
+const {findDetailByCashierDrawerIdAndType, updateCashierDrawerDetailsById, deleteCashierDrawerDetailsById} = require("../models/cashierDrawer/cashierDrawerDetailModel");
+const {rowBackDrawerAmount} = require("../utils/cashierDrawer");
+const {findTransactionItemsByTransactionId} = require("../models/transactionItemModel");
 
 transactionController.post("/", async (req, res) => {
     try {
@@ -34,10 +40,11 @@ transactionController.post("/", async (req, res) => {
         if(branchResult.rows.length > 0){
             branchData = branchResult.rows[0];
         }
-         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion);
+        const slipType = "sale";
+         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType);
 
         // Synchronous with online database
-       await fetchOnlineDbTransition(transitionResult);
+       // await fetchOnlineDbTransition(transitionResult);
 
         console.log("transitionRouter :", "Transition Successfully");
         res.json({ error: 0, message: transitionResult.id});
@@ -58,10 +65,54 @@ transactionController.post("/reprint", async (req, res) => {
         const transactionItemRes =  await findTransactionItem(transaction_id);
         const {kitchenPrintItem, filterItem} = filterKitchenItem(transactionItemRes);
 
-        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem);
+        const slipType = transactionRes.void ? "Void" : "reprint";
+        console.log("transitionRouter reprint :", slipType);
+        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem, transactionRes.promotion_amount, slipType);
 
         res.json( {error: 0, message: transaction_id });
     }catch (e) {
+        res.json( {error: 1, message: e.message });
+    }
+});
+
+transactionController.post("/void", async (req, res) => {
+    const { transactionId, posIpAddress } = req.body.input ?? req.body;
+
+    try{
+        const transactionData = await findTransactionById(transactionId);
+        console.log(`transactionController [void] transactionData: `, transactionData);
+
+        const transactionItemData = await findTransactionItemsByTransactionId(transactionId);
+        console.log(`transactionController [void] transactionItemData: `, transactionItemData);
+
+        const paymentTypeData = await findPaymentTypeById(transactionData.payment_type_id);
+        console.log(`transactionController [void] paymentTypeData: `, paymentTypeData);
+
+        const cashierDrawerData = await findCashierDrawerByTodayDate(posIpAddress);
+        console.log(`transactionController [void] cashierDrawerData: `, cashierDrawerData);
+
+        const cashierDrawerDetailData = await findDetailByCashierDrawerIdAndType(cashierDrawerData.id, paymentTypeData.payment_name);
+        cashierDrawerDetailData.sale_amount -= transactionData.grand_total_amount;
+
+        // Start transaction row back
+        await poolQuery(`BEGIN`);
+
+        if(cashierDrawerDetailData.sale_amount === 0){
+            await deleteCashierDrawerDetailsById(cashierDrawerDetailData.id);
+        }else{
+            await updateCashierDrawerDetailsById(cashierDrawerDetailData.id, cashierDrawerDetailData.sale_amount);
+        }
+        const { setCashierDrawerData } = rowBackDrawerAmount(cashierDrawerData, transactionData, transactionItemData, paymentTypeData );
+        await updateCashierDrawerById(cashierDrawerData.id, setCashierDrawerData);
+        await updateTransactionVoidById(transactionId);
+
+        await poolQuery(`COMMIT`);
+        // End transaction row back
+
+        console.log(`transactionController [void]: `,  `Transaction Id - ${transactionId} is successfully void.` );
+        res.json( {error: 0, message: `Transaction Id - ${transactionId} is successfully void.` });
+    }catch (e) {
+        console.error(`transactionController [void] error: `,  e.message);
         res.json( {error: 1, message: e.message });
     }
 });

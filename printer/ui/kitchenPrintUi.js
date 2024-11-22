@@ -1,7 +1,7 @@
 const {createCanvas} = require("@napi-rs/canvas");
 const fs = require("fs");
 
-const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) => {
+const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo, slipType) => {
     const dieInItems = [],
         takeAwayItems = [];
 
@@ -41,7 +41,7 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo) =
 
     ctx.fillStyle = "black";
     ctx.font = "24px Myanmar Text";
-    checkNoUi(ctx, canvas, transitionId, checkNoH, checkLineH, orderNo );
+    checkNoUi(ctx, canvas, transitionId, checkNoH, checkLineH, orderNo, slipType );
     const currentDate = new Date();
     const date = currentDate.toLocaleDateString(),
         time = currentDate.toLocaleTimeString();
@@ -72,14 +72,20 @@ const slipHeightData = (dieInItems, takeAwayItems, orderNo) => {
     return { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH, dateTimeH, tableNoH };
 };
 
-const checkNoUi = (ctx, canvas,transitionId, checkNoH, checkLineH, orderNo) => {
+const checkNoUi = (ctx, canvas,transitionId, checkNoH, checkLineH, orderNo, slipType) => {
     ctx.textAlign = "start";
     ctx.fillText(`Check No : ${orderNo}`, 0, checkNoH);
+
+    ctx.textAlign = "right";
+    ctx.fillText(`${slipType}`, canvas.width - 10, checkNoH)
+
+    ctx.textAlign = "start";
     ctx.fillText(
         `-----------------------------------------------------------------------------------------------------------`,
         0,
         checkLineH
     );
+
 };
 
 const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, printerName, table_name ) => {

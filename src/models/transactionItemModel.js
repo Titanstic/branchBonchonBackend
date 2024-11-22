@@ -1,5 +1,19 @@
 const poolQuery = require("../../misc/poolQuery");
 
+const findTransactionItemsByTransactionId = async (transactionId) => {
+    const { rows: transactionItemData } = await poolQuery(`
+        SELECT * FROM transaction_items 
+        WHERE transaction_id = $1;
+        `, [transactionId]
+    );
+
+    if(transactionItemData.length === 0){
+        throw  new Error("Transaction Item doesn't found by transaction_id");
+    }
+
+    return transactionItemData;
+}
+
 const addTransitionItems = async (value, comboSetValue) => {
     let result = [];
 
@@ -78,4 +92,4 @@ const getBestSellerItems = async (besetSellerItemQuery) => {
     return bestItemsData;
 }
 
-module.exports = { addTransitionItems, getDashboardTotalAmount, getBestSellerItems };
+module.exports = { findTransactionItemsByTransactionId, addTransitionItems, getDashboardTotalAmount, getBestSellerItems };

@@ -21,6 +21,9 @@ const cashierDrawerRouter = require("./src/controllers/cashierDrawerController")
 const dashboardRouter = require("./src/controllers/dashboardController");
 const twoTableHasuraSyncRouter = require("./src/controllers/sync/twoTableSyncController");
 const notificationRouter = require("./src/controllers/notificationController");
+const goodReceivedItemRouter = require("./src/controllers/goodReceivedItemController");
+const wasteDetailsRouter = require("./src/controllers/wasteDetailsController");
+const transferInOutRouter = require("./src/controllers/transferInOutController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -33,6 +36,9 @@ app.use("/cashierDrawer", cashierDrawerRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/central", twoTableHasuraSyncRouter);
 app.use("/notification", notificationRouter);
+app.use("/goodReceivedItem", goodReceivedItemRouter);
+app.use("/wasteDetails", wasteDetailsRouter);
+app.use("/transferInOut", transferInOutRouter);
 // End API CALL
 
 // Start Frontend Static

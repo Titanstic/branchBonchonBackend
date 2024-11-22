@@ -3,13 +3,13 @@ const {networkPrinterPrint} = require("./networkPrinterPrint");
 const kitchenPrintSlipBuffer = require("./ui/kitchenPrintUi");
 const cashierDrawerPrintSlipBuffer = require("./ui/cashierDrawerPrintUi");
 
-const PrintSlip = async (employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion) => {
+const PrintSlip = async (employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType) => {
     //  printer state
-    const cashierSlipBuffer = await cashierPrintSlipBuffer(employee_name, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, parsedItems, orderNo, promotion);
+    const cashierSlipBuffer = await cashierPrintSlipBuffer(employee_name, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, parsedItems, orderNo, promotion, slipType);
     networkPrinterPrint(cashierSlipBuffer, employee_printer);
 
     for (const each of kitchenPrintItem) {
-        const kitchenSlipBuffer = await kitchenPrintSlipBuffer(each, table_name, id, orderNo);
+        const kitchenSlipBuffer = await kitchenPrintSlipBuffer(each, table_name, id, orderNo, slipType);
         networkPrinterPrint(kitchenSlipBuffer, each[0].kitchen_printer);
     }
 };

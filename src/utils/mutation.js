@@ -75,7 +75,7 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
         clearTimeout(timeOutId);
 
         if(response.data.errors){
-            await filterSyncTable(query, variables, branch, event, columnId);
+            throw new Error(response.data.errors[0].message);
         }
 
         console.log("[utils] executeCentralMutation: ", response.data);
@@ -87,22 +87,38 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
     }
 };
 
-// const filterSyncTable = async (query, variables, branch, event, columnId) => {
-//     // find data from sync table
-//     const getSyncDataBranchId = await poolQuery(`SELECT id,action FROM sync_history WHERE branch_id = $1 and column_id = $2`, [branch.id, columnId]);
-//
-//     if(getSyncDataBranchId.rowCount !== 0 && event.op === "DELETE"){
-//         // if sync data already exists
-//         for (const eachSync of getSyncDataBranchId.rows) {
-//             await poolQuery(`DELETE FROM sync_history WHERE id = $1;`, [eachSync.id]);
-//
-//             if (getSyncDataBranchId.rowCount === 1 && eachSync.action === "UPDATE"){
-//                 await poolQuery(`INSERT INTO sync_history(query, variables, branch_id, action, column_id) VALUES($1, $2, $3, $4, $5);`, [query, variables, branch.id, event.op, columnId]);
-//             }
-//         }
-//     }else{
-//         await poolQuery(`INSERT INTO sync_history(query, variables, branch_id, action, column_id) VALUES($1, $2, $3, $4, $5);`, [query, variables, branch.id, event.op, columnId]);
-//     }
-// }
+const executeCentralMutationWithoutEvent = async ( query, variables) => {
+    const { controller, timeOutId } = abortApiFun();
+    const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
+        query,
+        variables
+    }, { headers: centralHeaders, signal: controller.signal});
+    clearTimeout(timeOutId);
 
-module.exports = { delay, checkOperation, executeCentralMutation };
+    if(response.data.errors){
+        throw new Error(response.data.errors[0].message);
+    }
+
+    console.log("[utils] executeCentralMutationWithoutEvent: ", response.data);
+    return response.data.data;
+};
+
+const filterSyncTable = async (query, variables, branch, event, columnId) => {
+    // find data from sync table
+    const getSyncDataBranchId = await poolQuery(`SELECT id,action FROM sync_history WHERE branch_id = $1 and column_id = $2`, [branch.id, columnId]);
+
+    if(getSyncDataBranchId.rowCount !== 0 && event.op === "DELETE"){
+        // if sync data already exists
+        for (const eachSync of getSyncDataBranchId.rows) {
+            await poolQuery(`DELETE FROM sync_history WHERE id = $1;`, [eachSync.id]);
+
+            if (getSyncDataBranchId.rowCount === 1 && eachSync.action === "UPDATE"){
+                await poolQuery(`INSERT INTO sync_history(query, variables, branch_id, action, column_id) VALUES($1, $2, $3, $4, $5);`, [query, variables, branch.id, event.op, columnId]);
+            }
+        }
+    }else{
+        await poolQuery(`INSERT INTO sync_history(query, variables, branch_id, action, column_id) VALUES($1, $2, $3, $4, $5);`, [query, variables, branch.id, event.op, columnId]);
+    }
+}
+
+module.exports = { delay, checkOperation, executeCentralMutation, executeCentralMutationWithoutEvent };

@@ -2,6 +2,20 @@ const poolQuery = require("../../../misc/poolQuery");
 const {calculateDrawerAmount} = require("../../utils/cashierDrawer");
 const {updateDrawerDetail} = require("./cashierDrawerDetailModel");
 
+const findCashierDrawerByTodayDate = async (pos_ip_address) => {
+    const { rows: currentCashierDrawerData } = await poolQuery(`
+        SELECT * FROM cashier_drawer 
+        WHERE DATE(created_at) = CURRENT_DATE AND pick_up_date_time IS NULL AND pos_ip_address = $1;
+        `, [pos_ip_address]
+    );
+
+    if(currentCashierDrawerData.length === 0){
+        throw  new Error("Cashier Drawer Not found in current date");
+    }
+
+    return currentCashierDrawerData[0];
+}
+
 const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         INSERT INTO cashier_drawer(opening_cash, opening_employee_id, pos_ip_address, cash_in_drawer) 
@@ -144,4 +158,18 @@ const findCashierDrawerById = async (id) => {
     }
 };
 
-module.exports = { createCashierDrawer, addCashierDrawer, findCashierDrawerByTwoId, findCashierDrawerByDate, findCashierDrawerById }
+const updateCashierDrawerById = async (cashierDrawerId, setCashierDrawerData) => {
+    const query = `
+        UPDATE cashier_drawer
+        ${setCashierDrawerData}
+        WHERE id = $1;
+    `
+
+    const { rowCount } = await poolQuery(query, [cashierDrawerId]);
+
+    if(rowCount === 0){
+        throw new Error(`Update cashier drawer error`);
+    }
+}
+
+module.exports = { findCashierDrawerByTodayDate, createCashierDrawer, addCashierDrawer, findCashierDrawerByTwoId, findCashierDrawerByDate, findCashierDrawerById, updateCashierDrawerById }

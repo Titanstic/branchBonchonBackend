@@ -1,13 +1,31 @@
 const poolQuery = require("../../../misc/poolQuery");
 
 const findDetailByCashierDrawerId = async (cashierDrawerId) => {
-    const { rows: cashierDrawerDetails } = await poolQuery(`SELECT payment_type, sale_amount FROM cashier_drawer_details WHERE cashier_drawer_id = $1;`, [cashierDrawerId]);
+    const { rows: cashierDrawerDetails } = await poolQuery(`SELECT id, payment_type, sale_amount FROM cashier_drawer_details WHERE cashier_drawer_id = $1;`, [cashierDrawerId]);
 
     if(cashierDrawerDetails.length > 0) {
         console.log(`cashierDrawerController [findDetailByCashierDrawerId] cashierDrawerDetails: `, cashierDrawerDetails);
         return cashierDrawerDetails;
     }else {
         throw new Error("findDetailByCashierDrawerId does not exist");
+    }
+};
+
+const findDetailByCashierDrawerIdAndType = async (cashierDrawerId, payment_type) => {
+    const { rows: cashierDrawerDetails } = await poolQuery(`
+        SELECT 
+            id, 
+            payment_type, 
+            sale_amount 
+        FROM cashier_drawer_details 
+        WHERE cashier_drawer_id = $1 AND payment_type = $2;
+        `, [cashierDrawerId, payment_type]);
+
+    if(cashierDrawerDetails.length > 0) {
+        console.log(`cashierDrawerController [findDetailByCashierDrawerIdAndType] cashierDrawerDetails: `, cashierDrawerDetails[0]);
+        return cashierDrawerDetails[0];
+    }else {
+        throw new Error("findDetailByCashierDrawerIdAndType does not exist by id");
     }
 };
 
@@ -61,4 +79,23 @@ const updateDrawerDetail = async (grand_total_amount, payment_type_name, cashier
     }
 }
 
-module.exports = { findDetailByCashierDrawerId, findDetailByTwoId, findDetailByDate, updateDrawerDetail };
+const updateCashierDrawerDetailsById = async (id, amount) => {
+    const { rowCount } = await poolQuery(`
+        UPDATE cashier_drawer_details
+        SET sale_amount = $1
+        WHERE id = $2;`,
+        [amount, id]);
+
+    if(rowCount === 0){
+        throw  new Error(`Update Cashier Drawer Detail By id`)
+    }
+};
+
+const deleteCashierDrawerDetailsById = async (id) => {
+    const { rowCount } = await poolQuery(`DELETE FROM cashier_drawer_details WHERE id = $1;`, [id]);
+
+    if(rowCount === 0){
+        throw  new Error(`Delete Cashier Drawer Detail By id`)
+    }
+}
+module.exports = { findDetailByCashierDrawerId, findDetailByCashierDrawerIdAndType, findDetailByTwoId, findDetailByDate, updateDrawerDetail, updateCashierDrawerDetailsById, deleteCashierDrawerDetailsById };

@@ -91,7 +91,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     const firstLineHeight = totalRevenueLineHeight + 20;
 
     ctx.textAlign = "start";
-    ctx.fillText(`Total Amount`, 30, totalAmountLineHeight);
+    ctx.fillText(`Total Sales`, 30, totalAmountLineHeight);
     ctx.textAlign = "right";
     ctx.fillText(`${Number(cashierDrawer.total_amount).toLocaleString("en-US")}`, canvas.width - 30, totalAmountLineHeight);
 
@@ -101,7 +101,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.fillText(`${Number(cashierDrawer.discount).toLocaleString("en-US")}`, canvas.width - 30, discountLineHeight);
 
     ctx.textAlign = "start";
-    ctx.fillText(`Promotion`, 30, promotionLineHeight);
+    ctx.fillText(`Promotions`, 30, promotionLineHeight);
     ctx.textAlign = "right";
     ctx.fillText(`${Number(cashierDrawer.promotion).toLocaleString("en-US")}`, canvas.width - 30, promotionLineHeight);
 

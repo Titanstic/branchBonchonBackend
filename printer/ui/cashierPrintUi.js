@@ -2,7 +2,7 @@ const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const QRCode = require("qrcode");
 const fs = require("fs");
 
-const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion) => {
+const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion, slipType) => {
   const currentDate = new Date();
   const date = currentDate.toLocaleDateString(),
       time = currentDate.toLocaleTimeString();
@@ -10,7 +10,7 @@ const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, tra
   let { canvas, ctx, startLineHeight, footerStartLineHeight } = slipHeight(data, point);
 
   const { finishHeaderLineH } = await  headerUi(ctx, canvas, branchData, startLineHeight);
-  const { finishInfoLineH } = informationUi(ctx, canvas, employee_name, table_name, date, time, orderNo, finishHeaderLineH);
+  const { finishInfoLineH } = informationUi(ctx, canvas, employee_name, table_name, date, time, orderNo, slipType, finishHeaderLineH);
   const { finishBuyItemLineH } = buyItemUi(ctx, canvas, data, finishInfoLineH);
   const { finishPaymentInfoLineHeight } = paymentInformationUi(ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point);
 
@@ -96,10 +96,11 @@ const headerUi = async (ctx, canvas, branchData, startLineHeight) => {
   return { finishHeaderLineH }
 };
 
-const informationUi = (ctx, canvas, employee_name, table_name, date, time, orderNo, finishHeaderLineH) => {
+const informationUi = (ctx, canvas, employee_name, table_name, date, time, orderNo, slipType, finishHeaderLineH) => {
   const dateTimeH = finishHeaderLineH + 30;
   const tableCashierH = dateTimeH + 30;
-  const invoiceH = tableCashierH + 30;
+  const slipTypeH = tableCashierH + 30;
+  const invoiceH = slipTypeH + 30;
   const finishInfoLineH = invoiceH + 30;
 
   console.log("cashierPrintUi [informationUi]: print informationUi");
@@ -123,6 +124,11 @@ const informationUi = (ctx, canvas, employee_name, table_name, date, time, order
   ctx.fillText(`Table`, canvas.width - 155, tableCashierH);
   ctx.fillText(`:`, canvas.width - 130, tableCashierH);
   ctx.fillText(`${table_name ?? "-"}`, canvas.width - 10, tableCashierH);
+
+  ctx.textAlign = "start";
+  ctx.fillText(`Slip Type`, 20, slipTypeH);
+  ctx.fillText(`:`, 100, slipTypeH);
+  ctx.fillText(`${slipType}`, 130, slipTypeH);
 
   ctx.font = "24px Myanmar Text";
   ctx.textAlign = "center";

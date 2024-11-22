@@ -1,5 +1,19 @@
 const poolQuery = require("../../misc/poolQuery");
 
+const findTransactionById = async (transactionId) => {
+    const { rows: transactionData } = await poolQuery(`
+        SELECT * FROM transactions 
+        WHERE id = $1;
+        `, [transactionId]
+    );
+
+    if(transactionData.length === 0){
+        throw  new Error("Cashier Drawer Not found in current date");
+    }
+
+    return transactionData[0];
+}
+
 const findTransactionAndEmployee = async (id) => {
     const result = await poolQuery(`
         SELECT 
@@ -21,7 +35,9 @@ const findTransactionAndEmployee = async (id) => {
             transactions.inclusive, 
             transactions.point, 
             payment_types.payment_name AS payment_type_name, 
-            transactions.order_no 
+            transactions.order_no,
+            transactions.promotion_amount,
+            transactions.void
         FROM transactions
         LEFT JOIN employees ON transactions.employee_id = employees.id
         LEFT JOIN dinner_tables ON transactions.dinner_table_id = dinner_tables.id
@@ -31,6 +47,7 @@ const findTransactionAndEmployee = async (id) => {
     );
 
     if(result.rows.length > 0){
+        console.log("transactionModel [findTransactionAndEmployee] :", result.rows[0]);
         return result.rows[0];
     }else{
         throw new Error("No transaction found for id");
@@ -147,5 +164,16 @@ const findOrderNo = async () => {
     return transitionOrderRes.rows.length > 0 ? `${Number(transitionOrderRes.rows[0].order_no) + 1}` : "1000";
 }
 
+const updateTransactionVoidById = async (transactionId) => {
+    const { rowCount } = await poolQuery(`
+        UPDATE transactions
+        SET void = true
+        WHERE id = $1;
+    `, [transactionId]);
 
-module.exports = { findTransactionAndEmployee, findTransactionItem, addTransition, updateTransition, findOrderNo };
+    if(rowCount === 0){
+        throw new Error(`updateTransactionVoidById error`);
+    }
+    console.log(`tranasctionModel [updateTransactionVoidById] rowCount: `, rowCount);
+}
+module.exports = { findTransactionById, findTransactionAndEmployee, findTransactionItem, addTransition, updateTransition, findOrderNo, updateTransactionVoidById };
