@@ -75,21 +75,21 @@ transactionController.post("/reprint", async (req, res) => {
     }
 });
 
-transactionController.post("/void", async (req, res) => {
+transactionController.post("/voidSlip", async (req, res) => {
     const { transactionId, posIpAddress } = req.body.input ?? req.body;
 
     try{
         const transactionData = await findTransactionById(transactionId);
-        console.log(`transactionController [void] transactionData: `, transactionData);
+        console.log(`transactionController [voidSlip] transactionData: `, transactionData);
 
         const transactionItemData = await findTransactionItemsByTransactionId(transactionId);
-        console.log(`transactionController [void] transactionItemData: `, transactionItemData);
+        console.log(`transactionController [voidSlip] transactionItemData: `, transactionItemData);
 
         const paymentTypeData = await findPaymentTypeById(transactionData.payment_type_id);
-        console.log(`transactionController [void] paymentTypeData: `, paymentTypeData);
+        console.log(`transactionController [voidSlip] paymentTypeData: `, paymentTypeData);
 
         const cashierDrawerData = await findCashierDrawerByTodayDate(posIpAddress);
-        console.log(`transactionController [void] cashierDrawerData: `, cashierDrawerData);
+        console.log(`transactionController [voidSlip] cashierDrawerData: `, cashierDrawerData);
 
         const cashierDrawerDetailData = await findDetailByCashierDrawerIdAndType(cashierDrawerData.id, paymentTypeData.payment_name);
         cashierDrawerDetailData.sale_amount -= transactionData.grand_total_amount;
@@ -109,10 +109,10 @@ transactionController.post("/void", async (req, res) => {
         await poolQuery(`COMMIT`);
         // End transaction row back
 
-        console.log(`transactionController [void]: `,  `Transaction Id - ${transactionId} is successfully void.` );
+        console.log(`transactionController [voidSlip]: `,  `Transaction Id - ${transactionId} is successfully void.` );
         res.json( {error: 0, message: `Transaction Id - ${transactionId} is successfully void.` });
     }catch (e) {
-        console.error(`transactionController [void] error: `,  e.message);
+        console.error(`transactionController [voidSlip] error: `,  e.message);
         res.json( {error: 1, message: e.message });
     }
 });
