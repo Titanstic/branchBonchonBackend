@@ -13,7 +13,7 @@ app.use(cors({ origin: '*'}));
 const signInRouter = require("./src/controllers/signInController");
 const transitionRouter = require("./src/controllers/transactionController");
 const CentralHasuraSyncRouter = require("./src/controllers/centralHasuraSyncController");
-const stockRouter = require("./src/controllers/stockController");
+const stockRouter = require("./src/controllers/stock/stockController");
 const dailySaleReportRouter = require("./src/controllers/reports/dailySaleReportController");
 const groupSaleReportRouter = require("./src/controllers/reports/groupSaleReportController");
 const groupDetailSaleReportRouter = require("./src/controllers/reports/groupDetailReportController");
@@ -21,14 +21,15 @@ const cashierDrawerRouter = require("./src/controllers/cashierDrawerController")
 const dashboardRouter = require("./src/controllers/dashboardController");
 const twoTableHasuraSyncRouter = require("./src/controllers/sync/twoTableSyncController");
 const notificationRouter = require("./src/controllers/notificationController");
-const goodReceivedItemRouter = require("./src/controllers/goodReceivedItemController");
-const wasteDetailsRouter = require("./src/controllers/wasteDetailsController");
-const transferInOutRouter = require("./src/controllers/transferInOutController");
+const goodReceivedItemRouter = require("./src/controllers/stock/goodReceivedItemController");
+const goodReturnItemRouter = require("./src/controllers/stock/goodReturnItemController");
+const wasteDetailsRouter = require("./src/controllers/stock/wasteDetailsController");
+const transferInOutRouter = require("./src/controllers/stock/transferInOutController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
 app.use('/central/sync', CentralHasuraSyncRouter);
-app.use("/stock", stockRouter);
+app.use("/stockControl", stockRouter);
 app.use("/dailySaleReport", dailySaleReportRouter);
 app.use("/groupSaleReport", groupSaleReportRouter);
 app.use("/groupDetailSaleReport", groupDetailSaleReportRouter);
@@ -37,6 +38,7 @@ app.use("/dashboard", dashboardRouter);
 app.use("/central", twoTableHasuraSyncRouter);
 app.use("/notification", notificationRouter);
 app.use("/goodReceivedItem", goodReceivedItemRouter);
+app.use("/goodReturnItem", goodReturnItemRouter);
 app.use("/wasteDetails", wasteDetailsRouter);
 app.use("/transferInOut", transferInOutRouter);
 // End API CALL

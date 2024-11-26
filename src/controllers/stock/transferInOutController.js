@@ -1,6 +1,6 @@
 const express = require("express");
-const {checkOperationForTransfer, branchDataForTransfer} = require("../utils/transferInOut");
-const {executeCentralMutationWithoutEvent} = require("../utils/mutation");
+const {checkOperationForTransfer, branchDataForTransfer} = require("../../utils/stockControl/transferInOut");
+const {executeCentralMutationWithoutEvent} = require("../../utils/mutation");
 const transferInOutController = express.Router();
 
 transferInOutController.post("/:action/:tableName", async (req, res) => {

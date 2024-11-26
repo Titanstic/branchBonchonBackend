@@ -7,10 +7,6 @@ const findTransactionItemsByTransactionId = async (transactionId) => {
         `, [transactionId]
     );
 
-    if(transactionItemData.length === 0){
-        throw  new Error("Transaction Item doesn't found by transaction_id");
-    }
-
     return transactionItemData;
 }
 
