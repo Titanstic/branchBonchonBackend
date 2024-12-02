@@ -6,14 +6,14 @@ const transactionController = express.Router();
 const {PrintSlip} = require("../../printer/Print");
 const {findOrderNo, addTransition, updateTransition, findTransactionAndEmployee, findTransactionItem,
     findTransactionById, updateTransactionVoidById
-} = require("../models/transactionModel");
+} = require("../models/transaction/transactionModel");
 const {findBranchById, findBranch} = require("../models/branchModel");
 const {addCashierDrawer, findCashierDrawerByTodayDate, updateCashierDrawerById} = require("../models/cashierDrawer/cashierDrawerModel");
 const {fetchOnlineDbTransition, filterKitchenItem, transitionItems} = require("../utils/transaction");
 const {findPaymentTypeById} = require("../models/paymentTypeModel");
 const {findDetailByCashierDrawerIdAndType, updateCashierDrawerDetailsById, deleteCashierDrawerDetailsById} = require("../models/cashierDrawer/cashierDrawerDetailModel");
 const {rowBackDrawerAmount} = require("../utils/cashierDrawer");
-const {findTransactionItemsByTransactionId} = require("../models/transactionItemModel");
+const {findTransactionItemsByTransactionId} = require("../models/transaction/transactionItemModel");
 
 transactionController.post("/", async (req, res) => {
     try {
@@ -41,7 +41,7 @@ transactionController.post("/", async (req, res) => {
             branchData = branchResult.rows[0];
         }
         const slipType = "sale";
-         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType);
+        await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType);
 
         // Synchronous with online database
        // await fetchOnlineDbTransition(transitionResult);

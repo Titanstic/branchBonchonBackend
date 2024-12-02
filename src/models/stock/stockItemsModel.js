@@ -1,4 +1,4 @@
-const poolQuery = require("../../misc/poolQuery");
+const poolQuery = require("../../../misc/poolQuery");
 
 const getStockItemAndRecipeByMenuId = async (menuId, takeAway) => {
     const { rows: stockItemData } = await poolQuery(`

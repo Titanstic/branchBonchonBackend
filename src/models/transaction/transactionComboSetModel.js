@@ -1,4 +1,4 @@
-const poolQuery = require("../../misc/poolQuery");
+const poolQuery = require("../../../misc/poolQuery");
 
 const getComboSetByTransactionId = async (transactionId) => {
     const {rows: transactionComboSet} = await poolQuery(`

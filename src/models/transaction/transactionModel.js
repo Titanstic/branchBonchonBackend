@@ -1,4 +1,4 @@
-const poolQuery = require("../../misc/poolQuery");
+const poolQuery = require("../../../misc/poolQuery");
 
 const findTransactionById = async (transactionId) => {
     const { rows: transactionData } = await poolQuery(`

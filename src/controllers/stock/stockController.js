@@ -1,7 +1,7 @@
 const express = require("express");
 const stockController = express.Router();
-const {findTransactionItemsByTransactionId} = require("../../models/transactionItemModel");
-const {getComboSetByTransactionId} = require("../../models/transactionComboSetModel");
+const {findTransactionItemsByTransactionId} = require("../../models/transaction/transactionItemModel");
+const {getComboSetByTransactionId} = require("../../models/transaction/transactionComboSetModel");
 const {calculateStock} = require("../../utils/stockControl/stock");
 
 stockController.post("/calculate", async (req, res) => {

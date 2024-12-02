@@ -1,5 +1,5 @@
 const express = require("express");
-const {getDashboardTotalAmount, getBestSellerItems} = require("../models/transactionItemModel");
+const {getDashboardTotalAmount, getBestSellerItems} = require("../models/transaction/transactionItemModel");
 const {dashboardQuery} = require("../utils/dashboard");
 
 

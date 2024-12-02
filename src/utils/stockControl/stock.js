@@ -1,4 +1,4 @@
-const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stockItemsModel");
+const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stock/stockItemsModel");
 const {reduceRecipeUnit, addRecipeUnit} = require("./recipeUnit");
 
 const calculateStock = async (transactionItem, voidSlip) => {

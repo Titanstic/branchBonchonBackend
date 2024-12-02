@@ -1,7 +1,7 @@
 const {fetchWithTimeOut} = require("../../misc/fetchApi");
 const {v4: uuidv4} = require("uuid");
-const {addTransitionItems} = require("../models/transactionItemModel");
-const {updateTransition} = require("../models/transactionModel");
+const {addTransitionItems} = require("../models/transaction/transactionItemModel");
+const {updateTransition} = require("../models/transaction/transactionModel");
 
 const fetchOnlineDbTransition = async (data, id) => {
     await fetchWithTimeOut("onlineTransition", {timeout: 10000, method: "POST", body: JSON.stringify(data)})
