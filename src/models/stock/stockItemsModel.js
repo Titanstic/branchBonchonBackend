@@ -8,11 +8,9 @@ const getStockItemAndRecipeByMenuId = async (menuId, takeAway) => {
             stock_items.purchase_qty AS s_purchase_qty,
             stock_items.inventory_qty AS s_inventory_qty,
             stock_items.recipe_qty AS s_recipe_qty,
-            uom.purchase_qty AS uom_purchase_qty,
+            stock_items.current_qty,
             uom.purchase_unit AS uom_purchase_unit,
-            uom.inventory_qty AS uom_inventory_qty,
             uom.inventory_unit AS uom_inventory_unit,
-            uom.recipe_qty AS uom_recipe_qty,
             uom.recipe_unit AS uom_recipe_unit,
             recipe_items.qty AS used_recipe_qty,
             CASE 
@@ -48,11 +46,9 @@ const findStockItemById = async (stockId) => {
             sitem.purchase_qty as s_purchase_qty,
             sitem.inventory_qty as s_inventory_qty,
             sitem.recipe_qty as s_recipe_qty,
-            uom.purchase_qty,
+            sitem.current_qty,
             uom.purchase_unit,
-            uom.inventory_qty,
             uom.inventory_unit,
-            uom.recipe_qty,
             uom.recipe_unit
         FROM stock_items AS sitem
         LEFT JOIN unit_of_measurement AS uom
@@ -68,13 +64,13 @@ const findStockItemById = async (stockId) => {
     return stockItemData[0];
 }
 
-const updateStockQtyById = async (purchaseQty, inventoryQty, recipeQty, stockItemId) => {
+const updateStockQtyById = async (currentQty, stockItemId) => {
     const { rowCount } = await poolQuery(`
             UPDATE stock_items
-            SET purchase_qty = $1, inventory_qty = $2, recipe_qty = $3
-            WHERE id = $4
+            SET current_qty = $1
+            WHERE id = $2
         `,
-        [purchaseQty, inventoryQty, recipeQty, stockItemId]
+        [currentQty, stockItemId]
     );
 
     if(rowCount === 0) {

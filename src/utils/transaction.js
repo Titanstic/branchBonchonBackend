@@ -4,7 +4,7 @@ const {addTransitionItems} = require("../models/transaction/transactionItemModel
 const {updateTransition} = require("../models/transaction/transactionModel");
 
 const fetchOnlineDbTransition = async (data, id) => {
-    await fetchWithTimeOut("onlineTransition", {timeout: 10000, method: "POST", body: JSON.stringify(data)})
+    await fetchWithTimeOut("onlineTransition", {method: "POST", body: JSON.stringify(data)})
         .then(res => res.json())
         .then(data => {
             console.log("[Transition Routes] fetchOnlineDbTransition : ", data);

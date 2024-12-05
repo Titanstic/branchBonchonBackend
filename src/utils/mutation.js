@@ -88,18 +88,35 @@ const executeCentralMutation = async ( query, variables, branch, event) => {
 };
 
 const executeCentralMutationWithoutEvent = async ( query, variables) => {
-    const { controller, timeOutId } = abortApiFun();
     const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
         query,
         variables
-    }, { headers: centralHeaders, signal: controller.signal});
-    clearTimeout(timeOutId);
+    }, { headers: centralHeaders});
 
     if(response.data.errors){
         throw new Error(response.data.errors[0].message);
     }
 
-    console.log("[utils] executeCentralMutationWithoutEvent: ", response.data);
+    console.log("[utils] executeCentralMutationWithoutEvent: ", response.data.data);
+    return response.data.data;
+};
+
+const bonchonAppHeaders  = {
+    'Content-Type': 'application/json',
+    'x-hasura-admin-secret': '9r834utj938juev3984ugj9283gji4u3gj',
+};
+
+const executeBonchonApp = async ( query, variables) => {
+    const response = await axios.post(`https://api.bonchon.axra.app/v1/graphql`, {
+        query,
+        variables
+    }, { headers: bonchonAppHeaders});
+
+    if(response.data.errors){
+        throw new Error(response.data.errors[0].message);
+    }
+
+    console.log("[utils] executeBonchonApp: ", response.data.data);
     return response.data.data;
 };
 
@@ -121,4 +138,4 @@ const filterSyncTable = async (query, variables, branch, event, columnId) => {
     }
 }
 
-module.exports = { delay, checkOperation, executeCentralMutation, executeCentralMutationWithoutEvent };
+module.exports = { delay, checkOperation, executeCentralMutation, executeCentralMutationWithoutEvent, executeBonchonApp };

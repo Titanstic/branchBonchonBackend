@@ -10,9 +10,9 @@ const calculateStock = async (transactionItem, voidSlip) => {
             console.log(`utils stock [calculateStock] stockItemData:`, stockItemData);
 
             for (const item of stockItemData) {
-                const {currentPurchaseQty, currentInventoryQty, currentRecipeQty} = voidSlip ? addRecipeUnit(item) : reduceRecipeUnit(item);
+                const currentQty = voidSlip ? addRecipeUnit(item) : reduceRecipeUnit(item);
 
-                await updateStockQtyById(currentPurchaseQty, currentInventoryQty, currentRecipeQty, item.stock_id);
+                await updateStockQtyById(currentQty, item.stock_id);
             }
         }
     }

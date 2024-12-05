@@ -23,6 +23,7 @@ const twoTableHasuraSyncRouter = require("./src/controllers/sync/twoTableSyncCon
 const notificationRouter = require("./src/controllers/notificationController");
 const inventoryRouter = require("./src/controllers/stock/inventoryController");
 const transferInOutRouter = require("./src/controllers/stock/transferInOutController");
+const couponRouter = require("./src/controllers/couponController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -37,6 +38,7 @@ app.use("/central", twoTableHasuraSyncRouter);
 app.use("/notification", notificationRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/transferInOut", transferInOutRouter);
+app.use("/coupon", couponRouter);
 // End API CALL
 
 // Start Frontend Static

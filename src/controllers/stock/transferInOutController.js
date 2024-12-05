@@ -1,5 +1,5 @@
 const express = require("express");
-const {checkOperationForTransfer, branchDataForTransfer, filterCalculateStock} = require("../../utils/stockControl/transferInOut");
+const {checkOperationForTransfer, branchDataForTransfer, filterCalculateStock, getTransferOutDoc} = require("../../utils/stockControl/transferInOut");
 const {executeCentralMutationWithoutEvent} = require("../../utils/mutation");
 const poolQuery = require("../../../misc/poolQuery");
 const transferInOutController = express.Router();
@@ -30,6 +30,21 @@ transferInOutController.post("/:action/:tableName", async (req, res) => {
     }
 });
 
+transferInOutController.post("/getTransferOutInput", async (req, res) => {
+    const { branchInId } = req.body.input ?? req.body;
+
+    try{
+        const {query, variables} = getTransferOutDoc(branchInId);
+        const {transfer_out} = await executeCentralMutationWithoutEvent(query, variables);
+
+        console.log(`transferInOutController [transferOutInput]: transferOutInput Data get successfully`);
+        res.status(200).json({ error: 0, message: `transferOutInput Data get successfully`, transferOut: transfer_out });
+    }catch (e) {
+        console.error(`transferInOutController [transferOutInput] error: ${e.message}`);
+        res.status(200).json({ error: 1, message: e.message });
+    }
+})
+
 transferInOutController.post("/branch", async (req, res) => {
     const { branchId } = req.body.input ?? req.body;
 
@@ -45,8 +60,9 @@ transferInOutController.post("/branch", async (req, res) => {
         res.status(200).json({ error: 0, branchData: branches });
     }catch (e) {
         console.error(`transferInOutController error: ${e.message}`);
-        res.status(500).json({ error: 1, message: e.message });
+        res.status(200).json({ error: 1, message: e.message });
     }
 });
+
 
 module.exports = transferInOutController;

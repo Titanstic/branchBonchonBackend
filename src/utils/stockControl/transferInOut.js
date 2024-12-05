@@ -1,5 +1,6 @@
 const {addInventoryUnit, reduceInventoryUnit} = require("./inventoryUnit");
 const {updateStockQtyById, findStockItemById} = require("../../models/stock/stockItemsModel");
+
 const checkOperationForTransfer =  (tableName, operation, data) => {
     let query = "";
     let variables = {};
@@ -16,7 +17,6 @@ const checkOperationForTransfer =  (tableName, operation, data) => {
                         created_at
                         doc_no
                         id
-                        invoice_no
                         note
                         ref_no
                         status
@@ -46,7 +46,6 @@ const checkOperationForTransfer =  (tableName, operation, data) => {
                             branch_in_name
                             branch_out_name
                             created_at
-                            do_no
                             doc_no
                             id
                             note
@@ -136,15 +135,44 @@ const filterCalculateStock = async (tableName, inputData, stockItemData) => {
         for (const item of stockItem) {
             const stockItemData = await findStockItemById(item.stock_id);
 
-            const { currentPurchaseQty, currentInventoryQty, currentRecipeQty } = inventoryOperation(stockItemData, Number(item.qty));
-            await updateStockQtyById(currentPurchaseQty, currentInventoryQty, currentRecipeQty, item.stock_id);
+            const currentQty = inventoryOperation(stockItemData, Number(item.qty));
+            await updateStockQtyById(currentQty, item.stock_id);
         }
     } else {
         const stockItemData = await findStockItemById(stockItem.stock_id);
 
-        const { currentPurchaseQty, currentInventoryQty, currentRecipeQty } = inventoryOperation(stockItemData, Number(inputData.qty));
-        await updateStockQtyById(currentPurchaseQty, currentInventoryQty, currentRecipeQty, inputData.stock_id);
+        const currentQty =  inventoryOperation(stockItemData, Number(inputData.qty));
+        await updateStockQtyById(currentQty, inputData.stock_id);
     }
 };
 
-module.exports = { checkOperationForTransfer, branchDataForTransfer, filterCalculateStock };
+const getTransferOutDoc = (branchInId) => {
+    const query =`
+    query MyQuery($branchInId: uuid!) {
+          transfer_out(where: {branch_in_id: {_eq: $branchInId}, used: {_eq: false}}) {
+                doc_no
+                ref_no
+                transfer_out_items {
+                      id
+                      qty
+                      stock_id
+                      updated_at
+                      stock_item {
+                            name
+                            purchase_qty
+                            inventory_qty
+                            recipe_qty
+                      }
+                }
+                branch_in_id
+                branch_out_id
+          }
+    }
+    `;
+
+    const variables = { branchInId };
+
+    return { query, variables };
+}
+
+module.exports = { checkOperationForTransfer, branchDataForTransfer, filterCalculateStock, getTransferOutDoc };

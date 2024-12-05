@@ -13,14 +13,11 @@ const centralHeaders  = {
 };
 
 const executeCentralMutation = async ( query, variables) => {
-    const { controller, timeOutId } = abortApiFun();
-
     try{
         const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
             query,
             variables
-        }, { headers: centralHeaders, signal: controller.signal });
-        clearTimeout(timeOutId);
+        }, { headers: centralHeaders });
 
         console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
         return response.data.data;
@@ -40,7 +37,7 @@ const executeBranchMutation = async ( query, variables, branch) => {
         const response = await axios.post(`https://${branch.ip_address}/v1/graphql`, {
             query,
             variables
-        }, { headers: branchHeaders});
+        }, { headers: branchHeaders });
 
         console.log("[utils] executeBranchMutation: ", response.data);
         return response.data;
