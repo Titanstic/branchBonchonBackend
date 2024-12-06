@@ -1,56 +1,30 @@
-name: CI/CD Pipeline
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+env:
+  CI: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build Docker image
-      run: docker build -t earic/bonchon-offline-backend:latest .
-
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-
-    - name: Push Docker image to Docker Hub
-      run: docker push earic/bonchon-offline-backend:latest
-
-    - name: SSH and Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        # key: ${{ secrets.SERVER_KEY }}
-        # passphrase: ${{ secrets.SERVER_PASSPHRASE }}
-        port: 22
-        script: |
-          # Navigate to the deployment directory
-          cd offiline-bonchon-erp
-
-          # Pull the latest Docker image from Docker Hub
-          docker pull earic/bonchon-offline-backend:latest
-
-          # Build any Docker images defined in docker-compose.yml (optional)
-          docker-compose build
-
-          # Start or restart the containers defined in docker-compose.yml
-          docker-compose up -d
-
-          # Clean up unused Docker data
-          docker system prune -af
+      - name: SSH into Server and Run Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            cd offiline-bonchon-erp/bonchon-offline-backend
+            git pull https://${{ secrets.SERVER_GIT_USERNAME }}:${{ secrets.SERVER_TOKEN }}@github.com/AxraTech/bonchon-offline-backend.git
+            cd ../
+            docker compose build
+            docker compose up -d
+            docker system prune -af
