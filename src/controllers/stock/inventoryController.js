@@ -6,6 +6,7 @@ const {reduceInventoryUnit, addInventoryUnit} = require("../../utils/stockContro
 const {findWasteTypeById} = require("../../models/stock/wasteModal");
 const {insertInventoryTransaction} = require("../../models/stock/inventoryTransactionModel");
 const poolQuery = require("../../../misc/poolQuery");
+const {filterInventoryReport} = require("../../utils/stockControl/inventory");
 
 inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
     const event = req.body.event;
@@ -19,8 +20,9 @@ inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
         const current_qty = addPurchaseUnit(stockItemData, inputData.qty);
 
         await poolQuery(`BEGIN`);
-            await updateStockQtyById(current_qty, inputData.stock_id);
-            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, current_qty, tableName, inputData.id, inputData.qty);
+            // await updateStockQtyById(current_qty, inputData.stock_id);
+            // await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, current_qty, tableName, inputData.id, inputData.qty);
+            await filterInventoryReport(inputData.stock_id, tableName, stockItemData.current_qty);
         await poolQuery(`COMMIT`);
 
         console.log(`inventoryController :`, `Updated Stock item for ${tableName} successfully`);
