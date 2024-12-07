@@ -18,7 +18,7 @@ inventoryController.post("/getReport", async (req, res) => {
         console.log(inventoryReport);
 
         console.log(`inventoryController [getReport] :`, `Get Inventory Report Successfully`);
-        res.status(200).json({ error: 0, message: `Get Inventory Report Successfully` });
+        res.status(200).json({ error: 0, message: `Get Inventory Report Successfully`, data: inventoryReport });
     }catch (e) {
         console.error(`inventoryController [goodReceivedItem] error: `, e.message);
         res.status(200).json({ error: 1, message: e.message});
