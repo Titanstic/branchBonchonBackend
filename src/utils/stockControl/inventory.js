@@ -7,6 +7,8 @@ const {reduceRecipeUnit} = require("./recipeUnit");
 
 const filterInventoryReport = async (stockId, tableName, initialSale, newInventoryQty) => {
     const getInventoryReport = await findInventoryReportItemByDate(stockId, tableName);
+    initialSale = initialSale.toFixed(2);
+    newInventoryQty = newInventoryQty.toFixed(2);
 
     if(getInventoryReport.length > 0) {
         console.log(getInventoryReport[0]);
@@ -17,7 +19,7 @@ const filterInventoryReport = async (stockId, tableName, initialSale, newInvento
 };
 
 const insertInventoryReport = async (tableName, getInventoryReport, initialSale, newInventoryQty, stockId) => {
-    let newClosingSale = getInventoryReport.length > 0 ? getInventoryReport[0].closing : initialSale;
+    let newClosingSale = initialSale;
 
     switch (tableName) {
         case "good_received_item":
@@ -128,8 +130,8 @@ const calculateFinishStockItem = async (normalMenuId, isTakeAway, tableName, men
         await updateStockQtyById(currentQty, item.stock_id);
 
         //    add or update inventory report
-        const openingSale = item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty;
-        const inventoryQty = -(item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty);
+        const openingSale = (item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty).toFixed(2);
+        const inventoryQty = -(item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty).toFixed(2);
 
         await filterInventoryReport(item.stock_id, tableName, openingSale, inventoryQty);
     }
