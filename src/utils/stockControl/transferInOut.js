@@ -177,6 +177,9 @@ const getTransferOutDoc = (branchInId) => {
                 }
                 branch_in_id
                 branch_out_id
+                branch {
+                        branch_name
+                }
           }
     }
     `;
