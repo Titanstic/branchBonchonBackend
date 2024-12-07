@@ -20,7 +20,7 @@ const addPurchaseUnit = (stockItemData, purchaseQty) => {
     const currentQty = stockItemData.current_qty + (stockItemData.recipe_unit ? addRecipeQty : addInventoryQty);
     console.log(`[addPurchaseUnit] current_qty: `, currentQty);
 
-    return currentQty;
+    return {addInventoryQty, currentQty};
 
     // Delete later
     // stockItemData.s_purchase_qty += inputData.qty;
@@ -72,7 +72,7 @@ const reducePurchaseUnit = (stockItemData, purchaseQty) => {
     const currentQty = stockItemData.current_qty - (stockItemData.recipe_unit ? reduceRecipeQty : reduceInventoryQty);
     console.log(`[reducePurchaseUnit] current_qty: `, currentQty);
 
-    return currentQty;
+    return { reduceInventoryQty, currentQty };
 
     // stockItemData.s_purchase_qty -= inputData.qty;
     // console.log(`[reducePurchaseUnit] currentPurchaseQty: `, stockItemData.s_purchase_qty);

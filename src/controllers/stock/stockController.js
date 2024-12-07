@@ -3,7 +3,7 @@ const stockController = express.Router();
 const {findTransactionItemsByTransactionId} = require("../../models/transaction/transactionItemModel");
 const {getComboSetByTransactionId} = require("../../models/transaction/transactionComboSetModel");
 const {calculateStock} = require("../../utils/stockControl/stock");
-const {getLastDocNo} = require("../../models/stock/purchaseOrderModel");
+const {getLastDocNo} = require("../../models/stock/inventoryModel");
 const {findBranch} = require("../../models/branchModel");
 
 stockController.post("/calculate", async (req, res) => {
@@ -11,6 +11,7 @@ stockController.post("/calculate", async (req, res) => {
     const transitionData = event.data.new;
 
     try{
+        // TODO: `Consider For batch and Fix calculation
         // 1. find transaction item or combo set
         const transactionItem = await findTransactionItemsByTransactionId(transitionData.id);
         console.log(`stockController transactionItem: `, transactionItem);
@@ -64,4 +65,5 @@ stockController.post("/generateDocNo", async (req, res) => {
         res.status(200).json({ success: 1, message: e.message});
     }
 });
+
 module.exports = stockController;

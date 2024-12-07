@@ -37,7 +37,8 @@ const findTransactionAndEmployee = async (id) => {
             payment_types.payment_name AS payment_type_name, 
             transactions.order_no,
             transactions.promotion_amount,
-            transactions.void
+            transactions.void,
+            transactions.cashier_drawer_id
         FROM transactions
         LEFT JOIN employees ON transactions.employee_id = employees.id
         LEFT JOIN dinner_tables ON transactions.dinner_table_id = dinner_tables.id
@@ -129,17 +130,18 @@ const findTransactionItem = async (transactionId) => {
     }
 };
 
-const addTransition = async (id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion = 0) => {
+const addTransition = async (id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion = 0, cashierDrawerId) => {
     console.log("transitionRouter [addTransition]: ", orderNo);
     const result = await poolQuery(`
-            INSERT INTO transactions(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, order_no, customer_count, promotion_amount)
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+            INSERT INTO transactions(id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, order_no, customer_count, promotion_amount, cashier_drawer_id)
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
             RETURNING *;
         `, [
-        id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion
+        id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, dinner_table_id, add_on, inclusive, point, employee_id, rounding, orderNo, customer_count, promotion, cashierDrawerId
     ]);
 
     if (result.rows.length > 0) {
+        console.log("dfdfdfdfdf-------", result.rows[0])
         return result.rows[0];
     } else {
         throw new Error("transitionRouter [addTransition] error: No data returned after insert.");

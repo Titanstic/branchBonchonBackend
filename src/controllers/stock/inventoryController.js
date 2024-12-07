@@ -15,19 +15,21 @@ inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_id);
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
 
         // add stockControl in branch
-        const current_qty = addPurchaseUnit(stockItemData, inputData.qty);
+        const { addInventoryQty, currentQty } = addPurchaseUnit(stockItemData, inputData.qty);
 
         await poolQuery(`BEGIN`);
-            // await updateStockQtyById(current_qty, inputData.stock_id);
-            // await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, current_qty, tableName, inputData.id, inputData.qty);
-            await filterInventoryReport(inputData.stock_id, tableName, stockItemData.current_qty);
+            await updateStockQtyById(currentQty, inputData.stock_id);
+            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, currentQty, tableName, inputData.id, inputData.qty);
+            await filterInventoryReport(inputData.stock_id, tableName, openingSale, addInventoryQty);
         await poolQuery(`COMMIT`);
 
-        console.log(`inventoryController :`, `Updated Stock item for ${tableName} successfully`);
+        console.log(`inventoryController [goodReceivedItem] :`, `Updated Stock item for ${tableName} successfully`);
         res.status(200).json({ success: true, message: `Updated Stock item for ${tableName} successfully` });
     }catch (e) {
+        console.error(`inventoryController [goodReceivedItem] error: `, e.message);
         res.status(500).json({ success: false, message: e.message});
     }
 });
@@ -39,17 +41,20 @@ inventoryController.post("/goodReturnItem/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_id);
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
 
         // add stockControl in branch
-        const current_qty = reducePurchaseUnit(stockItemData, inputData.qty);
+        const {reduceInventoryQty, currentQty} = reducePurchaseUnit(stockItemData, inputData.qty);
         await poolQuery(`BEGIN`);
-            await updateStockQtyById(current_qty, inputData.stock_id);
-            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, current_qty, tableName, inputData.id, inputData.qty);
+            await updateStockQtyById(currentQty, inputData.stock_id);
+            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, currentQty, tableName, inputData.id, inputData.qty);
+            await filterInventoryReport(inputData.stock_id, tableName, openingSale, -reduceInventoryQty);
         await poolQuery(`COMMIT`);
 
-        console.log(`goodReturnItemController: `, `Updated Stock item for ${tableName} successfully`);
+        console.log(`goodReturnItemController [goodReturnItem]: `, `Updated Stock item for ${tableName} successfully`);
         res.status(200).json({ success: true, message: `Updated Stock item for ${tableName} successfully` });
     }catch (e) {
+        console.error(`inventoryController [goodReturnItem] error: `, e.message);
         res.status(500).json({ success: true, message: e.message});
     }
 });
@@ -61,30 +66,44 @@ inventoryController.post("/wasteDetails/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_item_id);
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
 
         const { waste_type } = await findWasteTypeById(inputData.wastes_id);
-        const currentQty = waste_type === "adjustment" ?
-                (
-                    Math.sign(Number(inputData.qty)) > 0 ?
-                        addInventoryUnit(stockItemData, Number(inputData.qty))
-                    :
-                        reduceInventoryUnit(stockItemData, Number(inputData.qty))
-                )
-                :
-                (
-                    action === "INSERT" ?
-                        reduceInventoryUnit(stockItemData, Number(inputData.qty))
-                        :
-                        addInventoryUnit(stockItemData, Number(inputData.qty))
-                )
-        ;
+
+        // TODO: `Add Finish Waste Function
         await poolQuery(`BEGIN`);
-            await updateStockQtyById(currentQty, inputData.stock_item_id);
-            await insertInventoryTransaction(inputData.stock_item_id, stockItemData.current_qty, currentQty, waste_type, inputData.id, inputData.qty);
+            const wasteType = ["adjustment", "raw", "usage"];
+            if(wasteType.includes(waste_type)){
+                const currentQty = waste_type === "adjustment" ?
+                        (
+                            Math.sign(Number(inputData.qty)) > 0 ?
+                                addInventoryUnit(stockItemData, Number(inputData.qty))
+                            :
+                                reduceInventoryUnit(stockItemData, Number(inputData.qty))
+                        )
+                        :
+                        (
+                            action === "INSERT" ?
+                                reduceInventoryUnit(stockItemData, Number(inputData.qty))
+                                :
+                                addInventoryUnit(stockItemData, Number(inputData.qty))
+                        )
+                ;
+                await updateStockQtyById(currentQty, inputData.stock_item_id);
+                await insertInventoryTransaction(inputData.stock_item_id, stockItemData.current_qty, currentQty, waste_type, inputData.id, inputData.qty);
+            }else{
+                console.log("finish");
+            }
+
+            // add or update inventory report
+            const inventoryQty = waste_type === "adjustment" ? Number(inputData.qty) : -Number(inputData.qty);
+            await filterInventoryReport(inputData.stock_item_id, waste_type, openingSale, inventoryQty);
         await poolQuery(`COMMIT`);
 
+        console.log(`goodReturnItemController [wasteDetails]: `, `stock item id - ${inputData.stock_item_id} for ${waste_type} successfully`);
         res.status(200).json({ success: true, message: `stock item id - ${inputData.stock_item_id} for ${waste_type} successfully` });
     }catch (e) {
+        console.error(`inventoryController [wasteDetails] error: `, e.message);
         res.status(500).json({ success: true, message: e.message});
     }
 });

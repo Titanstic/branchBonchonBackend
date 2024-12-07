@@ -10,7 +10,7 @@ twoTableHasuraSyncRouter.post("/hasura-sync", async (req, res) => {
     const event = req.body.event;
     const tableName = req.body.table.name;
 
-    const delayedTables = ["good_received_item", "good_return_item", "purchase_order_item", "transfer_in_items", "transfer_out_items" , "waste_details", "cashier_drawer_details" ];
+    const delayedTables = ["good_received_item", "good_return_item", "purchase_order_item", "transfer_in_items", "transfer_out_items" , "waste_details", "cashier_drawer_details", "transaction_combo_set", "transaction_items" ];
     if(delayedTables.includes(tableName) && event.op === "INSERT"){
         await delay(3000);
     }

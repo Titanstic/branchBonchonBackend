@@ -47,12 +47,16 @@ const findStockItemById = async (stockId) => {
             sitem.inventory_qty as s_inventory_qty,
             sitem.recipe_qty as s_recipe_qty,
             sitem.current_qty,
-            uom.purchase_unit AS purchase_unit,
-            uom.inventory_unit AS inventory_unit,
-            uom.recipe_unit AS recipe_unit
+            pu.purchase_name AS purchase_unit,
+            iu.inventory_name AS inventory_unit,
+            rc.recipe_name AS recipe_unit
         FROM stock_items AS sitem
-        LEFT JOIN unit_of_measurement AS uom
-            ON sitem.unit_id = uom.id
+        LEFT JOIN purchase_units AS pu
+            ON sitem.purchase_unit_id = pu.id
+        LEFT JOIN inventory_units AS iu
+            ON sitem.inventory_unit_id = iu.id
+        LEFT JOIN recipe_units AS rc
+            ON sitem.recipe_unit_id = rc.id
         WHERE sitem.id = $1;
     `, [stockId]);
 

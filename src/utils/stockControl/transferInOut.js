@@ -1,5 +1,6 @@
 const {addInventoryUnit, reduceInventoryUnit} = require("./inventoryUnit");
 const {updateStockQtyById, findStockItemById} = require("../../models/stock/stockItemsModel");
+const {filterInventoryReport} = require("./inventory");
 
 const checkOperationForTransfer =  (tableName, operation, data) => {
     let query = "";
@@ -122,7 +123,7 @@ const branchDataForTransfer = (id) => {
     return { query, variables };
 }
 
-const filterCalculateStock = async (tableName, inputData, stockItemData) => {
+const filterCalculateStock = async (tableName, inputData) => {
     const isTransferIn = tableName.includes("transfer_in");
     const stockItem = isTransferIn
         ? (tableName === "transfer_in" ? inputData.transfer_in_items.data : inputData)
@@ -134,15 +135,25 @@ const filterCalculateStock = async (tableName, inputData, stockItemData) => {
     if (Array.isArray(stockItem)) {
         for (const item of stockItem) {
             const stockItemData = await findStockItemById(item.stock_id);
+            const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
 
             const currentQty = inventoryOperation(stockItemData, Number(item.qty));
             await updateStockQtyById(currentQty, item.stock_id);
+
+            // insert or update inventory report
+            const inventoryQty = isTransferIn ? Number(item.qty) : -Number(item.qty);
+            await filterInventoryReport(item.stock_id, tableName, openingSale, inventoryQty);
         }
     } else {
         const stockItemData = await findStockItemById(stockItem.stock_id);
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
 
         const currentQty =  inventoryOperation(stockItemData, Number(inputData.qty));
         await updateStockQtyById(currentQty, inputData.stock_id);
+
+        // insert or update inventory report
+        const inventoryQty = isTransferIn ? Number(inputData.qty) : -Number(inputData.qty);
+        await filterInventoryReport(inputData.stock_id, tableName, openingSale, inventoryQty);
     }
 };
 

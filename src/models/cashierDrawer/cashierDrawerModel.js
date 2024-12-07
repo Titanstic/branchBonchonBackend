@@ -2,15 +2,15 @@ const poolQuery = require("../../../misc/poolQuery");
 const {calculateDrawerAmount} = require("../../utils/cashierDrawer");
 const {updateDrawerDetail} = require("./cashierDrawerDetailModel");
 
-const findCashierDrawerByTodayDate = async (pos_ip_address) => {
+const findCashierDrawerByTodayDate = async (cashierDrawerId) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`
         SELECT * FROM cashier_drawer 
-        WHERE DATE(created_at) = CURRENT_DATE AND pick_up_date_time IS NULL AND pos_ip_address = $1;
-        `, [pos_ip_address]
+        WHERE id = $1;
+        `, [cashierDrawerId]
     );
 
     if(currentCashierDrawerData.length === 0){
-        throw  new Error("Cashier Drawer Not found in current date");
+        throw  new Error("Cashier Drawer Not found by id");
     }
 
     return currentCashierDrawerData[0];
@@ -31,11 +31,11 @@ const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     }
 };
 
-const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, pos_ip_address, customer_count, promotion = 0, discount) => {
+const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion = 0, discount) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`
         SELECT * FROM cashier_drawer 
-        WHERE DATE(created_at) = CURRENT_DATE AND pick_up_date_time IS NULL AND pos_ip_address = $1;
-        `, [pos_ip_address]
+        WHERE id = $1;
+        `, [cashierDrawerId]
     );
 
     if(currentCashierDrawerData.length > 0){
@@ -49,7 +49,7 @@ const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total
 
         await updateDrawerDetail(grand_total_amount, payment_type_name, currentCashierDrawerData[0].id)
     }else {
-        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by pos_ip_address");
+        throw new Error("transitionRouter [addCashierDrawer] error: currentCashierDrawerData doesn't found by cashierDrawerId");
     }
 
 };
@@ -122,6 +122,7 @@ const findCashierDrawerById = async (id) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         SELECT 
             cashier_drawer.total_amount,
+            cashier_drawer.other_sale,
             cashier_drawer.discount,
             cashier_drawer.promotion,
             cashier_drawer.net_sales,
