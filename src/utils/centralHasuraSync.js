@@ -19,6 +19,10 @@ const executeCentralMutation = async ( query, variables) => {
             variables
         }, { headers: centralHeaders });
 
+        if(response.data.errors){
+            throw new Error(response.data.errors[0].message);
+        }
+
         console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
         return response.data.data;
     }catch (e) {
@@ -38,6 +42,10 @@ const executeBranchMutation = async ( query, variables, branch) => {
             query,
             variables
         }, { headers: branchHeaders });
+
+        if(response.data.errors){
+            throw new Error(response.data.errors[0].message);
+        }
 
         console.log("[utils] executeBranchMutation: ", response.data);
         return response.data;
