@@ -1,12 +1,29 @@
 const express = require("express");
 const inventoryController = express.Router();
-const {findStockItemById, updateStockQtyById} = require("../../models/stock/stockItemsModel");
+const {findStockItemById, updateStockQtyById, getStockItemAndRecipeByMenuId} = require("../../models/stock/stockItemsModel");
 const {addPurchaseUnit, reducePurchaseUnit} = require("../../utils/stockControl/purchaseUnit");
 const {reduceInventoryUnit, addInventoryUnit} = require("../../utils/stockControl/inventoryUnit");
 const {findWasteTypeById} = require("../../models/stock/wasteModal");
 const {insertInventoryTransaction} = require("../../models/stock/inventoryTransactionModel");
 const poolQuery = require("../../../misc/poolQuery");
-const {filterInventoryReport} = require("../../utils/stockControl/inventory");
+const {filterInventoryReport, calculateFinishStockItem} = require("../../utils/stockControl/inventory");
+const {getNormalMenuItemByComboId} = require("../../models/stock/comboSetModel");
+const {getInventoryReportByDate} = require("../../models/stock/inventoryModel");
+
+inventoryController.post("/getReport", async (req, res) => {
+    const { startDate, endDate } = req.body.input ?? req.body;
+
+    try{
+        const inventoryReport = await getInventoryReportByDate(startDate, endDate);
+        console.log(inventoryReport);
+
+        console.log(`inventoryController [getReport] :`, `Get Inventory Report Successfully`);
+        res.status(200).json({ error: 0, message: `Get Inventory Report Successfully` });
+    }catch (e) {
+        console.error(`inventoryController [goodReceivedItem] error: `, e.message);
+        res.status(200).json({ error: 1, message: e.message});
+    }
+})
 
 inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
     const event = req.body.event;
@@ -70,30 +87,24 @@ inventoryController.post("/wasteDetails/trigger", async (req, res) => {
 
         const { waste_type } = await findWasteTypeById(inputData.wastes_id);
 
-        // TODO: `Add Finish Waste Function
         await poolQuery(`BEGIN`);
-            const wasteType = ["adjustment", "raw", "usage"];
-            if(wasteType.includes(waste_type)){
-                const currentQty = waste_type === "adjustment" ?
-                        (
-                            Math.sign(Number(inputData.qty)) > 0 ?
-                                addInventoryUnit(stockItemData, Number(inputData.qty))
-                            :
-                                reduceInventoryUnit(stockItemData, Number(inputData.qty))
-                        )
+            const currentQty = waste_type === "adjustment" ?
+                (
+                    Math.sign(Number(inputData.qty)) > 0 ?
+                        addInventoryUnit(stockItemData, Number(inputData.qty))
                         :
-                        (
-                            action === "INSERT" ?
-                                reduceInventoryUnit(stockItemData, Number(inputData.qty))
-                                :
-                                addInventoryUnit(stockItemData, Number(inputData.qty))
-                        )
-                ;
-                await updateStockQtyById(currentQty, inputData.stock_item_id);
-                await insertInventoryTransaction(inputData.stock_item_id, stockItemData.current_qty, currentQty, waste_type, inputData.id, inputData.qty);
-            }else{
-                console.log("finish");
-            }
+                        reduceInventoryUnit(stockItemData, Number(inputData.qty))
+                )
+                :
+                (
+                    action === "INSERT" ?
+                        reduceInventoryUnit(stockItemData, Number(inputData.qty))
+                        :
+                        addInventoryUnit(stockItemData, Number(inputData.qty))
+                )
+            ;
+            await updateStockQtyById(currentQty, inputData.stock_item_id);
+            await insertInventoryTransaction(inputData.stock_item_id, stockItemData.current_qty, currentQty, waste_type, inputData.id, inputData.qty);
 
             // add or update inventory report
             const inventoryQty = waste_type === "adjustment" ? Number(inputData.qty) : -Number(inputData.qty);
@@ -104,6 +115,34 @@ inventoryController.post("/wasteDetails/trigger", async (req, res) => {
         res.status(200).json({ success: true, message: `stock item id - ${inputData.stock_item_id} for ${waste_type} successfully` });
     }catch (e) {
         console.error(`inventoryController [wasteDetails] error: `, e.message);
+        res.status(500).json({ success: true, message: e.message});
+    }
+});
+
+inventoryController.post("/finishWasteDetails/trigger", async (req, res) => {
+    const event = req.body.event;
+    const action = event.op;
+    const inputData = event.data.new ?? event.data.old;
+    const tableName = req.body.table.name;
+
+    try{
+        const isTakeAway = inputData.takeaway ? "takeaway" : "dine_in";
+
+        if(inputData.normal_menu_id){
+            await calculateFinishStockItem(inputData.normal_menu_id, isTakeAway, "finish", inputData.qty);
+        }else{
+            const normalMenuItem = await getNormalMenuItemByComboId(inputData.combo_set_id);
+
+            for (const item of normalMenuItem) {
+                const totalQty = inputData.qty * item.qty;
+                await calculateFinishStockItem(item.id, isTakeAway, "finish", totalQty);
+            }
+        }
+
+        console.log(`goodReturnItemController [finishWasteDetails]: `, `Finish Waste successfully`);
+        res.status(200).json({ success: true, message: `Finish Waste successfully` });
+    }catch (e) {
+        console.error(`inventoryController [finishWasteDetails] error: `, e.message);
         res.status(500).json({ success: true, message: e.message});
     }
 });

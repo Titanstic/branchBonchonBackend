@@ -1,4 +1,4 @@
-const reduceRecipeUnit = (stockItemData) => {
+const reduceRecipeUnit = (stockItemData, menuQty) => {
     return stockItemData.current_qty - stockItemData.used_recipe_qty;
 
     // if(stockItemData.uom_recipe_unit){

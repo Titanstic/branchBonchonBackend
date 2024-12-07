@@ -1,5 +1,30 @@
 const poolQuery = require("../../../misc/poolQuery");
 
+const getInventoryReportByDate = async (startDate, endDate) => {
+    const { rows: inventoryReport } = await poolQuery(`
+        SELECT 
+            si.name AS stock_name,
+            SUM(ir.opening_sale) AS opening_sale,
+            SUM(ir.receiving_sale) AS receiving_sale,
+            SUM(ir.good_return)  AS good_return,
+            SUM(ir.transfer_in) AS transfer_in,
+            SUM(ir.sales) AS sales,
+            SUM(ir.usage) AS usage,
+            SUM(ir.transfer_out) AS transfer_out,
+            SUM(ir.finish) AS finish,
+            SUM(ir.adjustment) AS adjustment,
+            SUM(ir.raw) AS raw,
+            SUM(ir.closing)  AS closing
+        FROM inventory_reports AS ir
+        LEFT JOIN stock_items AS si
+            ON ir.stock_id = si.id
+        WHERE DATE(ir.created_at) BETWEEN $1 AND $2
+        GROUP BY si.name;
+    `, [startDate, endDate]);
+
+    return inventoryReport;
+}
+
 const getLastDocNo = async (tableName) => {
     const { rows: inventory } = await poolQuery(`
         SELECT doc_no, created_at FROM ${tableName}
@@ -16,4 +41,4 @@ const getLastDocNo = async (tableName) => {
     }
 };
 
-module.exports = { getLastDocNo };
+module.exports = { getInventoryReportByDate, getLastDocNo };

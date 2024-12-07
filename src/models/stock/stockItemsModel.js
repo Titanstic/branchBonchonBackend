@@ -1,6 +1,6 @@
 const poolQuery = require("../../../misc/poolQuery");
 
-const getStockItemAndRecipeByMenuId = async (menuId, takeAway) => {
+const getStockItemAndRecipeByMenuId = async (menuId, takeAway, menuQty) => {
     const { rows: stockItemData } = await poolQuery(`
         SELECT 
             stock_items.id AS stock_id,
@@ -9,18 +9,22 @@ const getStockItemAndRecipeByMenuId = async (menuId, takeAway) => {
             stock_items.inventory_qty AS s_inventory_qty,
             stock_items.recipe_qty AS s_recipe_qty,
             stock_items.current_qty,
-            uom.purchase_unit AS uom_purchase_unit,
-            uom.inventory_unit AS uom_inventory_unit,
-            uom.recipe_unit AS uom_recipe_unit,
-            recipe_items.qty AS used_recipe_qty,
+            pu.purchase_name AS uom_purchase_unit,
+            iu.inventory_name AS uom_inventory_unit,
+            rc.recipe_name AS uom_recipe_unit,
+            (recipe_items.qty * ${menuQty}) AS used_recipe_qty,
             CASE 
                 WHEN recipe_items.type = 'dine_in' THEN false
                 ELSE true
             END AS takeaway,
             recipes.sale_type
         FROM stock_items
-        LEFT JOIN unit_of_measurement AS uom
-            ON stock_items.unit_id = uom.id
+        LEFT JOIN purchase_units AS pu
+            ON stock_items.purchase_unit_id = pu.id
+        LEFT JOIN inventory_units AS iu
+            ON stock_items.inventory_unit_id = iu.id
+        LEFT JOIN recipe_units AS rc
+            ON stock_items.recipe_unit_id = rc.id
         LEFT JOIN recipe_items
             ON stock_items.id = recipe_items.stock_items_id
         LEFT JOIN recipes

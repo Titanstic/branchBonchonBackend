@@ -1,4 +1,9 @@
 const {findInventoryReportItemByDate, insertInventoryReportItem, updateInventoryReportItem} = require("../../models/stock/inventoryReportsModel");
+const {findTransactionItemsByTransactionId} = require("../../models/transaction/transactionItemModel");
+const {calculateStock} = require("./stock");
+const {getComboSetByTransactionId} = require("../../models/transaction/transactionComboSetModel");
+const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stock/stockItemsModel");
+const {reduceRecipeUnit} = require("./recipeUnit");
 
 const filterInventoryReport = async (stockId, tableName, initialSale, newInventoryQty) => {
     const getInventoryReport = await findInventoryReportItemByDate(stockId, tableName);
@@ -44,6 +49,16 @@ const insertInventoryReport = async (tableName, getInventoryReport, initialSale,
                 : newClosingSale -  Math.abs(newInventoryQty);
             await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale);
             break;
+        case "sales" :
+            newClosingSale = newInventoryQty > 0
+                ? newClosingSale +  Math.abs(newInventoryQty)
+                : newClosingSale -  Math.abs(newInventoryQty);
+            await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale);
+            break;
+        case "finish":
+            newClosingSale -= Math.abs(newInventoryQty);
+            await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale);
+            break;
     }
 }
 
@@ -86,7 +101,38 @@ const updateInventoryReport = async (tableName, getInventoryReport, initialSale,
                 : newClosingSale -  Math.abs(newInventoryQty);
             await updateInventoryReportItem(tableName, newAdjustmentSale, newClosingSale, getInventoryReport[0].id);
             break;
+        case "sales":
+            const newSale =  newInventoryQty > 0
+                ? getInventoryReport[0][tableName] + Math.abs(newInventoryQty)
+                : getInventoryReport[0][tableName] - Math.abs(newInventoryQty);
+            newClosingSale = newInventoryQty > 0
+                ? newClosingSale +  Math.abs(newInventoryQty)
+                : newClosingSale -  Math.abs(newInventoryQty);
+            await updateInventoryReportItem(tableName, newSale, newClosingSale, getInventoryReport[0].id);
+            break;
+        case "finish":
+            const newFinishWasteSale = getInventoryReport[0][tableName] + newInventoryQty;
+            newClosingSale -= Math.abs(newInventoryQty);
+            await updateInventoryReportItem(tableName, newFinishWasteSale, newClosingSale, getInventoryReport[0].id);
+            break;
     }
+};
+
+const calculateFinishStockItem = async (normalMenuId, isTakeAway, tableName, menuQty ) => {
+    const stockItemData = await getStockItemAndRecipeByMenuId(normalMenuId, isTakeAway, menuQty);
+    console.log(`utils inventory [calculateStockItem] stockItemData:`, stockItemData);
+
+    // for (const item of stockItemData) {
+    //     const currentQty = reduceRecipeUnit(item);
+    //
+    //     await updateStockQtyById(currentQty, item.stock_id);
+    //
+    //     //    add or update inventory report
+    //     const openingSale = item.current_qty;
+    //     const inventoryQty = -item.used_recipe_qty;
+    //
+    //     await filterInventoryReport(item.stock_id, tableName, openingSale, inventoryQty);
+    // }
 }
 
-module.exports = { filterInventoryReport };
+module.exports = { filterInventoryReport, calculateFinishStockItem };

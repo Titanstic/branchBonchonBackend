@@ -1,5 +1,18 @@
 const poolQuery = require("../../../misc/poolQuery");
 
+const findItemAndComboSetByTid = async (transactionId) => {
+    const { rows: itemAndComboSet } = await poolQuery(`
+        SELECT 
+            ti.* 
+        FROM transaction_items AS ti
+        LEFT JOIN transaction_combo_set AS tcs
+            on ti.transition_combo_set_id = tcs.id
+        WHERE tcs.transaction_id = $1 OR ti.transaction_id = $1;
+    `, [transactionId])
+
+    return itemAndComboSet;
+}
+
 const findTransactionById = async (transactionId) => {
     const { rows: transactionData } = await poolQuery(`
         SELECT * FROM transactions 
@@ -178,4 +191,5 @@ const updateTransactionVoidById = async (transactionId) => {
     }
     console.log(`tranasctionModel [updateTransactionVoidById] rowCount: `, rowCount);
 }
-module.exports = { findTransactionById, findTransactionAndEmployee, findTransactionItem, addTransition, updateTransition, findOrderNo, updateTransactionVoidById };
+
+module.exports = { findItemAndComboSetByTid, findTransactionById, findTransactionAndEmployee, findTransactionItem, addTransition, updateTransition, findOrderNo, updateTransactionVoidById };

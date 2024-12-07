@@ -12,7 +12,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.discount += discount;
     cashierDrawerData.promotion += promotion;
     cashierDrawerData.net_sales += grand_total_amount;
-    cashierDrawerData.tax_add_on += add_on + tax_amount;
+    cashierDrawerData.tax_add_on += (add_on + tax_amount);
     cashierDrawerData.rounding = `${Number(cashierDrawerData.rounding) + Number(rounding)}`;
 
     cashierDrawerData.guest_count += customer_count;
