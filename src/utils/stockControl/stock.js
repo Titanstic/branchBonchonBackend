@@ -15,8 +15,8 @@ const calculateStock = async (transactionItem, voidSlip) => {
                 await updateStockQtyById(currentQty, item.stock_id);
 
             //    add or update inventory report
-                const openingSale = (item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty).toFixed(2);
-                const usedInventoryQty = (item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty).toFixed(2);
+                const openingSale = item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty;
+                const usedInventoryQty = item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty;
                 const inventoryQty = voidSlip ? usedInventoryQty : -usedInventoryQty;
 
                 await filterInventoryReport(item.stock_id, "sales", openingSale, inventoryQty);
