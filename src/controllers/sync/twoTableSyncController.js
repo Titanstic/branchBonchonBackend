@@ -18,7 +18,7 @@ twoTableHasuraSyncRouter.post("/hasura-sync", async (req, res) => {
     // need to add data in stockControl
     const branchData = await findCurrentBranch();
     if(!delayedTables.includes(tableName)){
-        event.data.new["branch_id"] =  branchData.id;
+        event.data.new.branch_id =  branchData.id;
     }
     console.log(`[twoTableHasuraSyncRouter] event:`,  event.data.new);
 
