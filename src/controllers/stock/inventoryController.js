@@ -32,7 +32,7 @@ inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_id);
-        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_recipe_qty : stockItemData.current_qty;
 
         // add stockControl in branch
         const { addInventoryQty, currentQty } = addPurchaseUnit(stockItemData, inputData.qty);
@@ -58,7 +58,7 @@ inventoryController.post("/goodReturnItem/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_id);
-        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_recipe_qty : stockItemData.current_qty;
 
         // add stockControl in branch
         const {reduceInventoryQty, currentQty} = reducePurchaseUnit(stockItemData, inputData.qty);
@@ -83,7 +83,7 @@ inventoryController.post("/wasteDetails/trigger", async (req, res) => {
 
     try{
         const stockItemData = await findStockItemById(inputData.stock_item_id);
-        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_inventory_qty : stockItemData.current_qty;
+        const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_recipe_qty : stockItemData.current_qty;
 
         const { waste_type } = await findWasteTypeById(inputData.wastes_id);
 

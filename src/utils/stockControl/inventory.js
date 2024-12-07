@@ -122,17 +122,17 @@ const calculateFinishStockItem = async (normalMenuId, isTakeAway, tableName, men
     const stockItemData = await getStockItemAndRecipeByMenuId(normalMenuId, isTakeAway, menuQty);
     console.log(`utils inventory [calculateStockItem] stockItemData:`, stockItemData);
 
-    // for (const item of stockItemData) {
-    //     const currentQty = reduceRecipeUnit(item);
-    //
-    //     await updateStockQtyById(currentQty, item.stock_id);
-    //
-    //     //    add or update inventory report
-    //     const openingSale = item.current_qty;
-    //     const inventoryQty = -item.used_recipe_qty;
-    //
-    //     await filterInventoryReport(item.stock_id, tableName, openingSale, inventoryQty);
-    // }
+    for (const item of stockItemData) {
+        const currentQty = reduceRecipeUnit(item);
+
+        await updateStockQtyById(currentQty, item.stock_id);
+
+        //    add or update inventory report
+        const openingSale = item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty;
+        const inventoryQty = -(item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty);
+
+        await filterInventoryReport(item.stock_id, tableName, openingSale, inventoryQty);
+    }
 }
 
 module.exports = { filterInventoryReport, calculateFinishStockItem };
