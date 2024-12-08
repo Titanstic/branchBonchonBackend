@@ -188,6 +188,15 @@ const getTransferOutDoc = (branchInId) => {
                             purchase_qty
                             inventory_qty
                             recipe_qty
+                            inventory_unit {
+                                inventory_name
+                            }
+                            purchase_unit {
+                                purchase_name
+                            }
+                            recipe_unit {
+                                recipe_name
+                            }
                       }
                 }
                 branch_in_id
