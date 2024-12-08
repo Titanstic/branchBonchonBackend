@@ -5,6 +5,11 @@ const getInventoryReportByDate = async (startDate, endDate) => {
     const { rows: inventoryReport } = await poolQuery(`
         SELECT 
             si.name AS stock_name,
+            si.code_no,
+            sid.name,
+            sig.name,
+            sit.name,
+            iu.inventory_name,
             SUM(ir.opening_sale) AS opening_sale,
             SUM(ir.receiving_sale) AS receiving_sale,
             SUM(ir.good_return)  AS good_return,
@@ -19,8 +24,16 @@ const getInventoryReportByDate = async (startDate, endDate) => {
         FROM inventory_reports AS ir
         LEFT JOIN stock_items AS si
             ON ir.stock_id = si.id
+        LEFT JOIN stock_items_department AS sid
+            ON si.department_id = sid.id
+        LEFT JOIN stock_items_group AS sig
+            ON si.group_id = sig.id
+        LEFT JOIN stock_items_type AS sit
+            ON si.type_id = sit.id
+        LEFT JOIN inventory_units AS iu
+            ON si.inventory_unit_id = iu.id
         WHERE DATE(ir.created_at) BETWEEN $1 AND $2
-        GROUP BY si.name;
+        GROUP BY si.name, si.code_no, sid.name, sig.name, sit.name, iu.inventory_name;
     `, [startDate, endDate]);
 
     return inventoryReport;
