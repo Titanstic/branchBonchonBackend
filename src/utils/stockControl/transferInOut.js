@@ -72,14 +72,29 @@ const checkOperationForTransfer =  (tableName, operation, data) => {
             variables = { ...data };
             break;
         case "create":
-            query = `
+            query = tableName === "transfer_in"
+                ? `
+                    mutation InsertData($input: ${tableName}_insert_input!, $doc_no: String!) {
+                        insert_${tableName}_one(object: $input) {
+                            id
+                        }
+                        update_transfer_out(where: {doc_no: {_eq: $doc_no}}, _set: {used: true}) {
+                            affected_rows
+                        }
+                    }
+                `
+                : `
                     mutation InsertData($input: ${tableName}_insert_input!) {
                         insert_${tableName}_one(object: $input) {
                             id
                         }
                     }
-                `;
-            variables= { input: { ...data } };
+                `
+            ;
+            variables= tableName === "transfer_in"
+                ?  { input: { ...data }, doc_no:  data.transfer_out_doc_no }
+                :  { input: { ...data } }
+            ;
             break;
         case "update":
             const primaryKey = 'id';

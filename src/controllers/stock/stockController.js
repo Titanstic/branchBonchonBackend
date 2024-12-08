@@ -44,7 +44,7 @@ stockController.post("/generateDocNo", async (req, res) => {
         const serialNo = getBranchData.serial_no.toString().padStart(2, '0');
         console.log(`stockController [generateDocNo] serialNo: ${serialNo}`);
 
-        const newDocNo = await getLastDocNo(tableName);
+        const newDocNo = await getLastDocNo(tableName, getBranchData.id);
         switch (tableName) {
             case "purchase_order":
                 latestDocNo = `PO ${serialNo}${newDocNo}`;

@@ -4,6 +4,7 @@ const findBranch = async () => {
     const result =  await poolQuery(`SELECT * FROM branches `);
 
     if(result.rows.length > 0) {
+        console.log(`[utils] findBranch : ${result.rows[0]}`);
         return result.rows[0];
     }else{
         throw new Error("No Branch Data");

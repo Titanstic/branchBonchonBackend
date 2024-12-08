@@ -1,4 +1,5 @@
 const poolQuery = require("../../../misc/poolQuery");
+const {executeCentralMutationWithoutEvent} = require("../../utils/mutation");
 
 const getInventoryReportByDate = async (startDate, endDate) => {
     const { rows: inventoryReport } = await poolQuery(`
@@ -25,11 +26,36 @@ const getInventoryReportByDate = async (startDate, endDate) => {
     return inventoryReport;
 }
 
-const getLastDocNo = async (tableName) => {
-    const { rows: inventory } = await poolQuery(`
-        SELECT doc_no, created_at FROM ${tableName}
-        ORDER BY created_at DESC LIMIT 1;
-    `);
+const getLastDocNo = async (tableName, branchId) => {
+    let inventory = [];
+
+    if(tableName === "transfer_in" || tableName === "transfer_out"){
+        const query = tableName === "transfer_in"
+            ? `
+            query MyQuery($branchId: uuid!) {
+                  transfer_in(order_by: {created_at: desc}, limit: 1, where: {branch_in_id: {_eq: $branchId}}) {
+                        doc_no
+                  }
+            }`
+            : `
+            query MyQuery($branchId: uuid!) {
+                  transfer_out(order_by: {created_at: desc}, limit: 1, where: {branch_out_id: {_eq: $branchId}}) {
+                        doc_no
+                  }
+            }
+            `
+        ;
+        const variables = { branchId };
+        const resData = await executeCentralMutationWithoutEvent(query, variables);
+        inventory = resData[tableName];
+    }else{
+        const { rows: docNoRes } = await poolQuery(`
+            SELECT doc_no, created_at FROM ${tableName}
+            ORDER BY created_at DESC LIMIT 1;
+        `);
+        inventory = docNoRes;
+    }
+
 
     if(inventory.length > 0){
         const newDocNo = Number(inventory[0].doc_no.split(" ")[1].slice(2)) + 1;
