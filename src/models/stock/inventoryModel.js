@@ -6,9 +6,9 @@ const getInventoryReportByDate = async (startDate, endDate) => {
         SELECT 
             si.name AS stock_name,
             si.code_no,
-            sid.name,
-            sig.name,
-            sit.name,
+            sid.name AS department_name,
+            sig.name AS group_name,
+            sit.name AS type_name,
             iu.inventory_name,
             SUM(ir.opening_sale) AS opening_sale,
             SUM(ir.receiving_sale) AS receiving_sale,
