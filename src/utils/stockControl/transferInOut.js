@@ -29,13 +29,25 @@ const checkOperationForTransfer =  (tableName, operation, data) => {
                             stock_id                              
                             stock_item {
                                 name
+                                inventory_qty
+                                inventory_unit {
+                                    inventory_name
+                                }
+                                purchase_qty
+                                purchase_unit {
+                                    purchase_name
+                                }
+                                recipe_qty
+                                recipe_unit {
+                                    recipe_name
+                                }
                             }
                             transfer_in_id
                             transfer_qty
                             uom
                             updated_at
                         }
-                        transfer_out_do_no
+                        transfer_out_doc_no
                         updated_at
                     }
                 }`
@@ -53,15 +65,28 @@ const checkOperationForTransfer =  (tableName, operation, data) => {
                             ref_no
                             status
                             transfer_out_items {
-                              created_at
-                              id
-                              qty
-                              stock_id
-                              transfer_out_id
-                              updated_at
-                              stock_item {
-                                name
-                              }
+                                  created_at
+                                  id
+                                  qty
+                                  stock_id
+                                  transfer_out_id
+                                  updated_at
+                                  stock_item {
+                                        name
+                                        name
+                                        inventory_qty
+                                        inventory_unit {
+                                            inventory_name
+                                        }
+                                        purchase_qty
+                                        purchase_unit {
+                                            purchase_name
+                                        }
+                                        recipe_qty
+                                        recipe_unit {
+                                            recipe_name
+                                        }
+                                  }
                             }
                             transfrer_out_date
                             updated_at
