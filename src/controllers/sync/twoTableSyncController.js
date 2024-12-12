@@ -10,14 +10,18 @@ twoTableHasuraSyncRouter.post("/hasura-sync", async (req, res) => {
     const event = req.body.event;
     const tableName = req.body.table.name;
 
-    const delayedTables = ["good_received_item", "good_return_item", "purchase_order_item", "transfer_in_items", "transfer_out_items" , "waste_details", "cashier_drawer_details", "transaction_combo_set", "transaction_items" ];
+    const delayedTables = ["good_received_item", "good_return_item", "purchase_order_item", "transfer_in_items", "transfer_out_items" , "waste_details", "cashier_drawer_details", "transaction_combo_set", "transaction_items", "transaction_details" ];
     if(delayedTables.includes(tableName) && event.op === "INSERT"){
         await delay(3000);
     }
 
+    if(tableName === "transactions"){
+        delete event.data.new.sync;
+    }
+
     // need to add data in stockControl
-    const branchData = await findCurrentBranch();
     if(!delayedTables.includes(tableName)){
+        const branchData = await findCurrentBranch();
         event.data.new = { ...event.data.new, "branch_id": branchData.id};
     }
     console.log(`[twoTableHasuraSyncRouter] event:`,  event.data.new);

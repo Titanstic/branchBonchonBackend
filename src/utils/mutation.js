@@ -106,6 +106,7 @@ const bonchonAppHeaders  = {
     'x-hasura-admin-secret': '9r834utj938juev3984ugj9283gji4u3gj',
 };
 
+
 const executeBonchonApp = async ( query, variables) => {
     const response = await axios.post(`https://api.bonchon.axra.app/v1/graphql`, {
         query,

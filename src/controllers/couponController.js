@@ -8,7 +8,7 @@ couponController.post("/getData", async (req, res) => {
 
     const currentDate = new Date().toLocaleDateString();
     const {query, variables } = getCouponQuery(userCouponId, currentDate);
-    console.log(`couponController [getData] querys: `, query);
+    console.log(`couponController [getData] query: `, query);
     console.log(`couponController [getData] variables: `, variables);
 
     try {

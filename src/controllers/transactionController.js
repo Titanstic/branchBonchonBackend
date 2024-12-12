@@ -15,10 +15,11 @@ const {findDetailByCashierDrawerIdAndType, updateCashierDrawerDetailsById, delet
 const {rowBackDrawerAmount} = require("../utils/cashierDrawer");
 const {findTransactionItemsByTransactionId} = require("../models/transaction/transactionItemModel");
 const {addReduceStockQty} = require("../utils/stockControl/inventory");
+const {insertTransactionDetail} = require("../models/transaction/transactionDetailModel");
 
 transactionController.post("/", async (req, res) => {
     try {
-        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, cashierDrawerId, promotion} = req.body.input ? req.body.input : req.body;
+        const {id, rounding, payment_type_name, table_name, employee_id, employee_name, employee_printer, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, items, customer_count, cashierDrawerId, promotion, appName, appAmount, couponId, memberId} = req.body.input ? req.body.input : req.body;
 
         const orderNo = await findOrderNo();
         console.log("transitionRouter order NO:", orderNo);
@@ -30,6 +31,9 @@ transactionController.post("/", async (req, res) => {
         const { parsedItems, kitchenPrintItem, itemResults } = await transitionItems(id, items);
         transitionResult.items = JSON.stringify(itemResults);
         transitionResult.branch_id = branch_id;
+        if(couponId || memberId){
+            await insertTransactionDetail(appName, appAmount, couponId, memberId, id);
+        }
         // insert cashier drawer
         await addCashierDrawer(grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion, discount_amount);
         await poolQuery('COMMIT');
@@ -45,7 +49,7 @@ transactionController.post("/", async (req, res) => {
         await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType);
 
         // Synchronous with online database
-       await fetchOnlineDbTransition(transitionResult);
+       // await fetchOnlineDbTransition(transitionResult);
 
         console.log("transitionRouter :", "Transition Successfully");
         res.json({ error: 0, message: transitionResult.id});
