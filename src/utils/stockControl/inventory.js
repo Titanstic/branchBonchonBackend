@@ -1,7 +1,4 @@
 const {findInventoryReportItemByDate, insertInventoryReportItem, updateInventoryReportItem} = require("../../models/stock/inventoryReportsModel");
-const {findTransactionItemsByTransactionId} = require("../../models/transaction/transactionItemModel");
-const {calculateStock} = require("./stock");
-const {getComboSetByTransactionId} = require("../../models/transaction/transactionComboSetModel");
 const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stock/stockItemsModel");
 const {reduceRecipeUnit} = require("./recipeUnit");
 

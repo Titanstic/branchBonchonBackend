@@ -121,9 +121,7 @@ inventoryController.post("/wasteDetails/trigger", async (req, res) => {
 
 inventoryController.post("/finishWasteDetails/trigger", async (req, res) => {
     const event = req.body.event;
-    const action = event.op;
     const inputData = event.data.new ?? event.data.old;
-    const tableName = req.body.table.name;
 
     try{
         const isTakeAway = inputData.takeaway ? "takeaway" : "dine_in";

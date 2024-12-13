@@ -58,6 +58,9 @@ const findCashierDrawerByTwoId = async (morningId, eveningId) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         SELECT 
             DATE(created_at) AS date,
+            SUM(total_amount) AS total_amount,
+            SUM(discount) AS discount,
+            SUM(promotion) AS promotion,
             SUM(net_sales) AS net_sales,
             SUM(tax_add_on) AS tax_add_on, 
             SUM(CAST(rounding AS INTEGER)) AS rounding,
@@ -74,7 +77,7 @@ const findCashierDrawerByTwoId = async (morningId, eveningId) => {
             SUM(total_revenue_count) AS total_revenue_count,
             SUM(void_count) AS void_count
         FROM cashier_drawer 
-        WHERE pick_up_date_time IS NOT NULL AND finished = true AND id = $1 OR id = $2
+        WHERE id = $1 OR id = $2
         GROUP BY DATE(created_at)
         `, [morningId, eveningId]);
 
@@ -90,6 +93,9 @@ const  findCashierDrawerByDate = async (date) => {
     const { rows: cashierDrawerData } = await poolQuery(`
         SELECT 
             DATE(created_at) AS date,
+            SUM(total_amount) AS total_amount,
+            SUM(discount) AS discount,
+            SUM(promotion) AS promotion,
             SUM(net_sales) AS net_sales,
             SUM(tax_add_on) AS tax_add_on, 
             SUM(CAST(rounding AS INTEGER)) AS rounding,
@@ -145,9 +151,9 @@ const findCashierDrawerById = async (id) => {
             openingEmployee.username AS openEmployeeName
         FROM cashier_drawer 
         LEFT JOIN employees AS pickUpEmployee
-        ON cashier_drawer.pick_employee_id = pickUpEmployee.id
+            ON cashier_drawer.pick_employee_id = pickUpEmployee.id
         LEFT JOIN employees AS openingEmployee
-        ON cashier_drawer.opening_employee_id = openingEmployee.id
+            ON cashier_drawer.opening_employee_id = openingEmployee.id
         WHERE cashier_drawer.id = $1;
         `, [id]);
 

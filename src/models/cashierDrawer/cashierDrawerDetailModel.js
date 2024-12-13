@@ -1,7 +1,14 @@
 const poolQuery = require("../../../misc/poolQuery");
 
 const findDetailByCashierDrawerId = async (cashierDrawerId) => {
-    const { rows: cashierDrawerDetails } = await poolQuery(`SELECT id, payment_type, sale_amount FROM cashier_drawer_details WHERE cashier_drawer_id = $1;`, [cashierDrawerId]);
+    const { rows: cashierDrawerDetails } = await poolQuery(`
+        SELECT 
+            id, 
+            payment_type, 
+            sale_amount 
+        FROM cashier_drawer_details 
+        WHERE cashier_drawer_id = $1;
+    `, [cashierDrawerId]);
 
     if(cashierDrawerDetails.length > 0) {
         console.log(`cashierDrawerController [findDetailByCashierDrawerId] cashierDrawerDetails: `, cashierDrawerDetails);
@@ -31,9 +38,11 @@ const findDetailByCashierDrawerIdAndType = async (cashierDrawerId, payment_type)
 
 const findDetailByTwoId = async (morningId, eveningId) => {
     const { rows: cashierDrawerDetails } = await poolQuery(`
-        SELECT payment_type, SUM(sale_amount) AS sale_amount 
+        SELECT 
+            payment_type, 
+            SUM(sale_amount) AS sale_amount 
         FROM cashier_drawer_details
-        WHERE cashier_drawer_id = $1 OR id = $2
+        WHERE cashier_drawer_id = $1 OR cashier_drawer_id = $2
         GROUP BY payment_type
         ;`, [morningId, eveningId]);
 

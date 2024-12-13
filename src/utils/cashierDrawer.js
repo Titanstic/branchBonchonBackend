@@ -12,16 +12,16 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.discount += discount;
     cashierDrawerData.promotion += promotion;
     cashierDrawerData.net_sales += grand_total_amount;
-    cashierDrawerData.tax_add_on += (add_on + tax_amount);
+    cashierDrawerData.tax_add_on += (tax_amount);
     cashierDrawerData.rounding = `${Number(cashierDrawerData.rounding) + Number(rounding)}`;
 
     cashierDrawerData.guest_count += customer_count;
 
     parsedItems.forEach((eachItem) => {
         if(eachItem.is_take_away && type === "self"){
-            cashierDrawerData.die_in += eachItem.total_amount;
-        }else if(!eachItem.is_take_away && type === "self"){
             cashierDrawerData.self_take_away += eachItem.total_amount;
+        }else if(!eachItem.is_take_away){
+            cashierDrawerData.die_in += eachItem.total_amount;
         }else{
             cashierDrawerData.delivery += eachItem.total_amount;
         }

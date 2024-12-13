@@ -34,7 +34,6 @@ stockController.post("/calculate", async (req, res) => {
     }
 });
 
-
 stockController.post("/generateDocNo", async (req, res) => {
     const { tableName } = req.body.input ?? req.body;
     let latestDocNo = "";
