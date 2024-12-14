@@ -20,7 +20,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     parsedItems.forEach((eachItem) => {
         if(eachItem.is_take_away && type === "self"){
             cashierDrawerData.self_take_away += eachItem.total_amount;
-        }else if(!eachItemis_take_away){
+        }else if(!eachItem.is_take_away){
             cashierDrawerData.die_in += eachItem.total_amount;
         }else{
             cashierDrawerData.delivery += eachItem.total_amount;
