@@ -63,7 +63,7 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
     cashierDrawerData.discount -= transactionData.discount_amount;
     cashierDrawerData.promotion -= transactionData.promotion_amount;
     cashierDrawerData.net_sales -= transactionData.grand_total_amount;
-    cashierDrawerData.tax_add_on -= transactionData.add_on + transactionData.tax_amount;
+    cashierDrawerData.tax_add_on -= transactionData.tax_amount;
     cashierDrawerData.rounding = `${Number(cashierDrawerData.rounding) - Number(transactionData.rounding)}`;
 
     cashierDrawerData.void += transactionData.grand_total_amount;
@@ -72,9 +72,9 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
     cashierDrawerData.guest_count -= transactionData.customer_count;
 
     parsedItems.forEach((eachItem) => {
-        if(eachItem.is_take_away && paymentTypeData.type === "self"){
+        if(!eachItem.is_take_away){
             cashierDrawerData.die_in -= eachItem.total_amount;
-        }else if(!eachItem.is_take_away && paymentTypeData.type === "self"){
+        }else if(eachItem.is_take_away && paymentTypeData.type === "self"){
             cashierDrawerData.self_take_away -= eachItem.total_amount;
         }else{
             cashierDrawerData.delivery -= eachItem.total_amount;

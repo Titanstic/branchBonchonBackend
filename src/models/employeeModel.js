@@ -1,10 +1,21 @@
 const poolQuery = require("../../misc/poolQuery");
 const bcrypt = require("bcryptjs");
 const {jwtCreator} = require("../utils/employee");
+const {getPermissionByRoleId} = require("./permissionModel");
 
 const generateToken = async(username,password)=>{
     try{
-        const result = await poolQuery(`SELECT * FROM employees WHERE username = $1 and active = true `, [username]);
+        const result = await poolQuery(`
+            SELECT
+                e.*,
+                r.id AS role_id,
+                r.name AS role_name
+            FROM employees AS e
+            LEFT JOIN roles AS r
+                ON e.role_id = r.id
+            WHERE e.username = $1 and e.active = true;
+        `, [username]);
+
         if (result.rowCount === 0){
             throw new Error("username  is not registered or user is suspended");
         }
@@ -16,8 +27,9 @@ const generateToken = async(username,password)=>{
             throw new Error("wrong password");
         }
 
+        const permissions = await getPermissionByRoleId(result.rows[0].role_id);
         const branchResult = await poolQuery(`SELECT * FROM branches`);
-        const token = await jwtCreator(userId,result.rows[0].level, branchResult.rows[0].id, branchResult.rows[0].branch_name);
+        const token = await jwtCreator(userId, "admin", branchResult.rows[0].id, branchResult.rows[0].branch_name, permissions);
         return token;
     }catch(e){
         throw new Error(e.message);
