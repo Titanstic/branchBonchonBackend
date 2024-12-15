@@ -4,7 +4,7 @@ const express = require("express");
 const transactionController = express.Router();
 
 const {PrintSlip} = require("../../printer/Print");
-const {findOrderNo, addTransition, updateTransition, findTransactionAndEmployee, findTransactionItem,
+const {findOrderNo, addTransition, findTransactionAndEmployee, findTransactionItem,
     findTransactionById, updateTransactionVoidById, findItemAndComboSetByTid
 } = require("../models/transaction/transactionModel");
 const {findBranchById, findBranch} = require("../models/branchModel");
@@ -13,9 +13,7 @@ const {fetchOnlineDbTransition, filterKitchenItem, transitionItems} = require(".
 const {findPaymentTypeById} = require("../models/paymentTypeModel");
 const {findDetailByCashierDrawerIdAndType, updateCashierDrawerDetailsById, deleteCashierDrawerDetailsById} = require("../models/cashierDrawer/cashierDrawerDetailModel");
 const {rowBackDrawerAmount} = require("../utils/cashierDrawer");
-const {findTransactionItemsByTransactionId} = require("../models/transaction/transactionItemModel");
-const {addReduceStockQty} = require("../utils/stockControl/inventory");
-const {insertTransactionDetail} = require("../models/transaction/transactionDetailModel");
+const {insertTransactionDetail, getAmountTransactionDetailsByTId} = require("../models/transaction/transactionDetailModel");
 
 transactionController.post("/", async (req, res) => {
     try {
@@ -46,7 +44,7 @@ transactionController.post("/", async (req, res) => {
             branchData = branchResult.rows[0];
         }
         const slipType = "sale";
-        await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType);
+        await PrintSlip(employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType, appAmount);
 
         // Synchronous with online database
        // await fetchOnlineDbTransition(transitionResult);
@@ -70,9 +68,11 @@ transactionController.post("/reprint", async (req, res) => {
         const transactionItemRes =  await findTransactionItem(transaction_id);
         const {kitchenPrintItem, filterItem} = filterKitchenItem(transactionItemRes);
 
+        const appDisAmount = await getAmountTransactionDetailsByTId(transaction_id);
+
         const slipType = transactionRes.void ? "Void" : "reprint";
         console.log("transitionRouter reprint :", slipType);
-        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem, transactionRes.promotion_amount, slipType);
+        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem, transactionRes.promotion_amount, slipType, appDisAmount);
 
         res.json( {error: 0, message: transaction_id });
     }catch (e) {

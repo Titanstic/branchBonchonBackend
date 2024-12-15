@@ -3,9 +3,9 @@ const {networkPrinterPrint} = require("./networkPrinterPrint");
 const kitchenPrintSlipBuffer = require("./ui/kitchenPrintUi");
 const cashierDrawerPrintSlipBuffer = require("./ui/cashierDrawerPrintUi");
 
-const PrintSlip = async (employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType) => {
+const PrintSlip = async (employee_name, employee_printer, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, orderNo, parsedItems, kitchenPrintItem, promotion, slipType, appAmount) => {
     //  printer state
-    const cashierSlipBuffer = await cashierPrintSlipBuffer(employee_name, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, parsedItems, orderNo, promotion, slipType);
+    const cashierSlipBuffer = await cashierPrintSlipBuffer(employee_name, branchData, table_name, id, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, parsedItems, orderNo, promotion, slipType, appAmount);
     networkPrinterPrint(cashierSlipBuffer, employee_printer);
 
     for (const each of kitchenPrintItem) {

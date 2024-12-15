@@ -33,7 +33,7 @@ const getStockItemAndRecipeByMenuId = async (menuId, takeAway, menuQty) => {
             ON recipes.id = menu_recipe_items.recipe_id
         LEFT JOIN normal_menu_items
             ON menu_recipe_items.menu_id = normal_menu_items.id
-        WHERE normal_menu_items.id = $1 AND recipe_items.type = $2;
+        WHERE normal_menu_items.id = $1 AND recipe_items.type = "dine_in" OR recipe_items.type = $2;
     `, [menuId, takeAway]);
 
     if(stockItemData.length === 0){

@@ -2,7 +2,7 @@ const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const QRCode = require("qrcode");
 const fs = require("fs");
 
-const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion, slipType) => {
+const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion, slipType, appAmount) => {
   const currentDate = new Date();
   const date = currentDate.toLocaleDateString(),
       time = currentDate.toLocaleTimeString();
@@ -12,7 +12,7 @@ const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, tra
   const { finishHeaderLineH } = await  headerUi(ctx, canvas, branchData, startLineHeight);
   const { finishInfoLineH } = informationUi(ctx, canvas, employee_name, table_name, date, time, orderNo, slipType, finishHeaderLineH);
   const { finishBuyItemLineH } = buyItemUi(ctx, canvas, data, finishInfoLineH);
-  const { finishPaymentInfoLineHeight } = paymentInformationUi(ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point);
+  const { finishPaymentInfoLineHeight } = paymentInformationUi(ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point, appAmount);
 
   footerStartLineHeight = finishPaymentInfoLineHeight;
   if (point > 0) {
@@ -56,11 +56,11 @@ const slipHeight = (data, point) => {
     }
   });
 
-  const originalHeight = point > 0 ? 1000 : 800;
+  const originalHeight = point > 0 ? 1200 : 900;
   let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "white";
 
   const startLineHeight = 0;
   const footerStartLineHeight = 0;
@@ -208,11 +208,12 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
   return { finishBuyItemLineH };
 };
 
-const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point) => {
+const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point, appAmount) => {
   const subTotalHeight = finishBuyItemLineH + 20;
   const discountHeight = subTotalHeight + 30;
   const taxHeight = discountHeight + 30;
-  const firstLineHeight = taxHeight + 20;
+  const appDisHeight = taxHeight + 30;
+  const firstLineHeight = appDisHeight + 20;
 
   ctx.font = "24px Myanmar Text";
   ctx.textAlign = "start";
@@ -229,6 +230,11 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   ctx.fillText("Tax ( 5% )", 30, taxHeight);
   ctx.textAlign = "right";
   ctx.fillText(Number(tax_amount).toLocaleString("en-US"), canvas.width - 10, taxHeight);
+
+  ctx.textAlign = "start";
+  ctx.fillText("App Dis", 30, appDisHeight);
+  ctx.textAlign = "right";
+  ctx.fillText(Number(appAmount ? -appAmount : 0).toLocaleString("en-US"), canvas.width - 10, appDisHeight);
 
   ctx.textAlign = "start";
   ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, firstLineHeight);
