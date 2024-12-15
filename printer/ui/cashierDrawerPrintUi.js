@@ -84,8 +84,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     const totalAmountLineHeight = finishHeaderLineHeight + 20;
     const discountLineHeight = totalAmountLineHeight + 30;
     const promotionLineHeight = discountLineHeight + 30;
-    const netSaleLineHeight = promotionLineHeight + 30;
-    const taxAddOnLineHeight = netSaleLineHeight + 30;
+    const taxAddOnLineHeight = promotionLineHeight + 30;
     const roundingLineHeight = taxAddOnLineHeight + 30;
     const totalRevenueLineHeight = roundingLineHeight + 30;
     const firstLineHeight = totalRevenueLineHeight + 20;
@@ -106,17 +105,6 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.fillText(`${Number(cashierDrawer.promotion).toLocaleString("en-US")}`, canvas.width - 30, promotionLineHeight);
 
     ctx.textAlign = "start";
-    ctx.fillText(`Net Sale`, 30, netSaleLineHeight);
-    ctx.textAlign = "right";
-    ctx.fillText(`${Number(cashierDrawer.net_sales).toLocaleString("en-US")}`, canvas.width - 30, netSaleLineHeight);
-
-
-    ctx.textAlign = "start";
-    ctx.fillText(`Net Sale`, 30, netSaleLineHeight);
-    ctx.textAlign = "right";
-    ctx.fillText(`${Number(cashierDrawer.net_sales).toLocaleString("en-US")}`, canvas.width - 30, netSaleLineHeight);
-
-    ctx.textAlign = "start";
     ctx.fillText(`Tax Add On`, 30, taxAddOnLineHeight);
     ctx.textAlign = "right";
     ctx.fillText(`${Number(cashierDrawer.tax_add_on).toLocaleString("en-US")}`, canvas.width - 30, taxAddOnLineHeight);
@@ -127,7 +115,7 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.fillText(`${Number(cashierDrawer.rounding).toLocaleString("en-US")}`, canvas.width - 30, roundingLineHeight);
 
     ctx.textAlign = "start";
-    ctx.fillText(`Total Revenue`, 30, totalRevenueLineHeight);
+    ctx.fillText(`Net Sales`, 30, totalRevenueLineHeight);
     ctx.fillText(`${Number(cashierDrawer.total_revenue_count).toLocaleString("en-US")}`, canvas.width/2, totalRevenueLineHeight);
     ctx.textAlign = "right";
     ctx.fillText(`${Number(cashierDrawer.total_revenue).toLocaleString("en-US")}`, canvas.width - 30, totalRevenueLineHeight);
