@@ -10,13 +10,12 @@ const {findBranch} = require("../../models/branchModel");
 stockController.post("/calculate", async (req, res) => {
     const event = req.body.event;
     const transitionData = event.data.new;
-    console.log(`stockController transactionItem: `, transitionData);
 
     const currentDate = new Date().toLocaleDateString("en-US", { timeZone: "Asia/Yangon" });
     const transactionDate = new Date(transitionData.created_at).toLocaleDateString("en-US", { timeZone: "Asia/Yangon" })
 
     try{
-        // if(currentDate === transactionDate) {
+        if(currentDate === transactionDate) {
             const transactionItem = await findTransactionItemsByTransactionId(transitionData.id);
             console.log(`stockController transactionItem: `, transactionItem);
             await calculateStock(transactionItem, transitionData.void);
@@ -24,7 +23,7 @@ stockController.post("/calculate", async (req, res) => {
             const transactionComboSet = await getComboSetByTransactionId(transitionData.id);
             console.log(`stockController transactionComboSet: `, transactionComboSet);
             await calculateStock(transactionComboSet, transitionData.void);
-        // }
+        }
 
         // const resMessage = await poolQuery(`SELECT * FROM public.stock_reduce($1);`, [transitionId]);
         console.log(`stockController Successfully calculated stock items`);

@@ -51,7 +51,7 @@ const insertInventoryReport = async (tableName, getInventoryReport, initialSale,
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            await insertInventoryReportItem(tableName, stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem(tableName, stockId, Number(initialSale).toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
             break;
         case "finish":
             newClosingSale -= Math.abs(newInventoryQty);

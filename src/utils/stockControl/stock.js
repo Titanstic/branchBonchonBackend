@@ -5,21 +5,26 @@ const {filterInventoryReport} = require("./inventory");
 const calculateStock = async (transactionItem, voidSlip) => {
     if (transactionItem.length > 0) {
         for (const each of transactionItem) {
-            const isTakeAway = each.is_take_away ? "takeaway" : "dine_in";
-            const stockItemData = await getStockItemAndRecipeByMenuId(each.normal_menu_item_id, isTakeAway, each.quantity);
+            let updateStockItemData;
+
+            const stockItemData = await getStockItemAndRecipeByMenuId(each.normal_menu_item_id, each.quantity, voidSlip);
             console.log(`utils stock [calculateStock] stockItemData:`, stockItemData);
 
-            for (const item of stockItemData) {
-                const currentQty = voidSlip ? addRecipeUnit(item) : reduceRecipeUnit(item);
+            console.log(each.is_take_away);
+            if(each.is_take_away){
+                updateStockItemData = stockItemData;
+            }else{
+                updateStockItemData = stockItemData.filter(item => item.takeaway !== true);
+            }
+            console.log(`updateStockItemData:`, updateStockItemData);
 
-                await updateStockQtyById(currentQty, item.stock_id);
+            console.log(`---------------------------------------------`);
 
-            //    add or update inventory report
-                const openingSale = item.uom_recipe_unit ? item.current_qty / item.s_recipe_qty : item.current_qty;
-                const usedInventoryQty = item.uom_recipe_unit ? item.used_recipe_qty / item.s_recipe_qty : item.used_recipe_qty;
-                const inventoryQty = voidSlip ? usedInventoryQty : -usedInventoryQty;
+            for (const item of updateStockItemData) {
+                await updateStockQtyById(item.update_current_qty, item.stock_id);
 
-                await filterInventoryReport(item.stock_id, "sales", openingSale, inventoryQty);
+                const inventoryQty = voidSlip ? Number(item.used_inventory_qty) : -item.used_inventory_qty;
+                await filterInventoryReport(item.stock_id, "sales", item.opening_sale, inventoryQty);
             }
         }
     }
