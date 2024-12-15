@@ -16,7 +16,7 @@ const dashboardQuery = (type) => {
 
     const dieInTakeAwayQuery = `
         SELECT 
-            SUM(total_amount + container_charges) AS grand_total_amount,
+            SUM (total_amount) AS grand_total_amount,
             CASE 
                 WHEN is_take_away = true THEN 'takeaway'
                 ELSE 'dine_in'
