@@ -15,7 +15,7 @@ inventoryController.post("/getReport", async (req, res) => {
 
     try{
         const inventoryReport = await getInventoryReportByDate(startDate, endDate);
-        console.log(inventoryReport);
+        console.table(inventoryReport);
 
         console.log(`inventoryController [getReport] :`, `Get Inventory Report Successfully`);
         res.status(200).json({ error: 0, message: `Get Inventory Report Successfully`, data: inventoryReport });

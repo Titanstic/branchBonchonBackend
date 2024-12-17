@@ -3,38 +3,62 @@ const {executeCentralMutationWithoutEvent} = require("../../utils/mutation");
 
 const getInventoryReportByDate = async (startDate, endDate) => {
     const { rows: inventoryReport } = await poolQuery(`
-        SELECT 
+        WITH aggregated_sales AS (
+            SELECT
+                ir.stock_id,
+                SUM(ir.receiving_sale) AS receiving_sale,
+                SUM(ir.good_return) AS good_return,
+                SUM(ir.transfer_in) AS transfer_in,
+                SUM(ir.sales) AS sales,
+                SUM(ir.usage) AS usage,
+            SUM(ir.transfer_out) AS transfer_out,
+            SUM(ir.finish) AS finish,
+            SUM(ir.adjustment) AS adjustment,
+            SUM(ir.raw) AS raw
+        FROM inventory_reports AS ir
+        WHERE DATE(ir.created_at) BETWEEN $1 AND $2
+        GROUP BY ir.stock_id
+            ),
+            opening_closing AS (
+        SELECT DISTINCT ON (ir.stock_id)
+            ir.stock_id,
+            FIRST_VALUE(ir.opening_sale) OVER (
+            PARTITION BY ir.stock_id ORDER BY ir.created_at ASC
+            ) AS opening_sale,
+            FIRST_VALUE(ir.closing) OVER (
+            PARTITION BY ir.stock_id ORDER BY ir.created_at DESC
+            ) AS closing
+        FROM inventory_reports AS ir
+        WHERE DATE(ir.created_at) BETWEEN $3 AND $4
+            )
+        SELECT DISTINCT
             si.name AS stock_name,
             si.code_no,
             sid.name AS department_name,
             sig.name AS group_name,
             sit.name AS type_name,
             iu.inventory_name,
-            SUM(ir.opening_sale) AS opening_sale,
-            SUM(ir.receiving_sale) AS receiving_sale,
-            SUM(ir.good_return)  AS good_return,
-            SUM(ir.transfer_in) AS transfer_in,
-            SUM(ir.sales) AS sales,
-            SUM(ir.usage) AS usage,
-            SUM(ir.transfer_out) AS transfer_out,
-            SUM(ir.finish) AS finish,
-            SUM(ir.adjustment) AS adjustment,
-            SUM(ir.raw) AS raw,
-            SUM(ir.closing)  AS closing
-        FROM inventory_reports AS ir
-        LEFT JOIN stock_items AS si
-            ON ir.stock_id = si.id
-        LEFT JOIN stock_items_department AS sid
-            ON si.department_id = sid.id
-        LEFT JOIN stock_items_group AS sig
-            ON si.group_id = sig.id
-        LEFT JOIN stock_items_type AS sit
-            ON si.type_id = sit.id
-        LEFT JOIN inventory_units AS iu
-            ON si.inventory_unit_id = iu.id
-        WHERE DATE(ir.created_at) BETWEEN $1 AND $2
-        GROUP BY si.name, si.code_no, sid.name, sig.name, sit.name, iu.inventory_name;
-    `, [startDate, endDate]);
+            oc.opening_sale,
+            ags.good_return,
+            ags.receiving_sale,
+            ags.transfer_in,
+            ags.sales,
+            ags.usage,
+            ags.transfer_out,
+            ags.finish,
+            ags.adjustment,
+            ags.raw,
+            oc.closing
+        FROM stock_items AS si
+                 LEFT JOIN aggregated_sales AS ags ON si.id = ags.stock_id
+                 LEFT JOIN opening_closing AS oc ON si.id = oc.stock_id
+                 LEFT JOIN stock_items_department AS sid ON si.department_id = sid.id
+                 LEFT JOIN stock_items_group AS sig ON si.group_id = sig.id
+                 LEFT JOIN stock_items_type AS sit ON si.type_id = sit.id
+                 LEFT JOIN inventory_units AS iu ON si.inventory_unit_id = iu.id
+        WHERE oc.opening_sale IS NOT NULL OR oc.closing IS NOT NULL
+        ORDER BY si.name ASC;
+    `, [startDate, endDate, startDate, endDate]);
 
     return inventoryReport;
 }
