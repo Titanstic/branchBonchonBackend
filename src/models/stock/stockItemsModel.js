@@ -1,38 +1,71 @@
 const poolQuery = require("../../../misc/poolQuery");
 
-const getStockItemAndRecipeByMenuId = async (menuId, menuQty, voidSlip) => {
-    const { rows: stockItemData } = await poolQuery(`
-        SELECT
-            si.id AS stock_id,
-            si.name AS stock_name,
-            CASE
-                WHEN ${voidSlip} = true
-                    THEN si.current_qty + (ri.qty * ${menuQty})
-                ELSE si.current_qty - (ri.qty * ${menuQty})
+const getStockItemAndRecipeByMenuId = async (menuId, menuQty, voidSlip, isTakeAway) => {
+    let query;
+    console.log(isTakeAway);
+    if(isTakeAway){
+        query = `
+            SELECT
+                si.id AS stock_id,
+                si.name AS stock_name,
+                CASE
+                    WHEN ${voidSlip} = true
+                        THEN si.current_qty + (SUM(ri.qty) * ${menuQty})
+                    ELSE si.current_qty - (SUM(ri.qty) * ${menuQty})
                 END AS update_current_qty,
-            CASE
-                WHEN si.recipe_qty IS NOT NULL
-                    THEN CAST(si.current_qty AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
-                ELSE CAST(si.current_qty AS DECIMAL)
+                CASE
+                    WHEN si.recipe_qty IS NOT NULL
+                        THEN CAST(si.current_qty AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                    ELSE CAST(si.current_qty AS DECIMAL)
                 END AS opening_sale,
-            CASE
-                WHEN si.recipe_qty IS NOT NULL
-                    THEN CAST((ri.qty * ${menuQty}) AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
-                ELSE CAST((ri.qty * ${menuQty}) AS DECIMAL)
-                END AS used_inventory_qty,
-            CASE
-                WHEN ri.type = 'dine_in' THEN false
-                ELSE true
-            END AS takeaway
-        FROM stock_items AS si
-        LEFT JOIN recipe_items AS ri
-            ON si.id = ri.stock_items_id
-        LEFT JOIN recipes AS r
-            ON ri.recipe_id = r.id
-        LEFT JOIN menu_recipe_items AS mri
-            ON r.id = mri.recipe_id
-        WHERE mri.menu_id = $1
-    `, [menuId]);
+                CASE
+                    WHEN si.recipe_qty IS NOT NULL
+                        THEN CAST((SUM(ri.qty) * ${menuQty}) AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                    ELSE CAST((SUM(ri.qty) * ${menuQty}) AS DECIMAL)
+                END AS used_inventory_qty
+            FROM stock_items AS si
+            LEFT JOIN recipe_items AS ri
+                ON si.id = ri.stock_items_id
+            LEFT JOIN recipes AS r
+                ON ri.recipe_id = r.id
+            LEFT JOIN menu_recipe_items AS mri
+                ON r.id = mri.recipe_id
+            WHERE mri.menu_id = $1
+            GROUP BY si.id
+        `;
+    }else{
+        query = `
+            SELECT
+                si.id AS stock_id,
+                si.name AS stock_name,
+                CASE
+                    WHEN ${voidSlip} = true
+                        THEN si.current_qty + (SUM(ri.qty) * ${menuQty})
+                    ELSE si.current_qty - (SUM(ri.qty) * ${menuQty})
+                END AS update_current_qty,
+                CASE
+                    WHEN si.recipe_qty IS NOT NULL
+                        THEN CAST(si.current_qty AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                    ELSE CAST(si.current_qty AS DECIMAL)
+                END AS opening_sale,
+                CASE
+                    WHEN si.recipe_qty IS NOT NULL
+                        THEN CAST((SUM(ri.qty) * ${menuQty}) AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                    ELSE CAST((SUM(ri.qty) * ${menuQty}) AS DECIMAL)
+                END AS used_inventory_qty
+            FROM stock_items AS si
+            LEFT JOIN recipe_items AS ri
+                ON si.id = ri.stock_items_id
+            LEFT JOIN recipes AS r
+                ON ri.recipe_id = r.id
+            LEFT JOIN menu_recipe_items AS mri
+                ON r.id = mri.recipe_id
+            WHERE mri.menu_id = $1 AND ri.type = 'dine_in'
+            GROUP BY si.id
+        `;
+    }
+
+    const { rows: stockItemData } = await poolQuery(query, [menuId]);
 
     if(stockItemData.length === 0){
         throw new Error("No getStockItemAndRecipeByMenuId data found.");

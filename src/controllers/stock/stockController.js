@@ -7,6 +7,7 @@ const {getLastDocNo} = require("../../models/stock/inventoryModel");
 const {findBranch} = require("../../models/branchModel");
 
 // TODO: `Consider For batch
+
 stockController.post("/calculate", async (req, res) => {
     const event = req.body.event;
     const transitionData = event.data.new;
@@ -25,7 +26,6 @@ stockController.post("/calculate", async (req, res) => {
             await calculateStock(transactionComboSet, transitionData.void);
         }
 
-        // const resMessage = await poolQuery(`SELECT * FROM public.stock_reduce($1);`, [transitionId]);
         console.log(`stockController Successfully calculated stock items`);
         res.status(200).json({ success: true, message: "Successfully calculated stockControl items" });
     }catch (e) {
