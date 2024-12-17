@@ -5,9 +5,10 @@ const {getComboSetByTransactionId} = require("../../models/transaction/transacti
 const {calculateStock} = require("../../utils/stockControl/stock");
 const {getLastDocNo} = require("../../models/stock/inventoryModel");
 const {findBranch} = require("../../models/branchModel");
+const {getAllStockItem} = require("../../models/stock/stockItemsModel");
+const {findInventoryReportItemByCurrentDate, insertOpenCloseInventoryReport} = require("../../models/stock/inventoryReportsModel");
 
 // TODO: `Consider For batch
-
 stockController.post("/calculate", async (req, res) => {
     const event = req.body.event;
     const transitionData = event.data.new;
@@ -28,6 +29,28 @@ stockController.post("/calculate", async (req, res) => {
 
         console.log(`stockController Successfully calculated stock items`);
         res.status(200).json({ success: true, message: "Successfully calculated stockControl items" });
+    }catch (e) {
+        res.status(500).json({ success: false, message: e.message});
+    }
+});
+
+stockController.post("/checkInventoryReport", async (req, res) => {
+    try{
+        const inventoryReports = await findInventoryReportItemByCurrentDate();
+        const stockItemData = await getAllStockItem();
+
+        if(inventoryReports.length === 0){
+            await insertOpenCloseInventoryReport(stockItemData);
+        }
+        if(inventoryReports.length !== stockItemData.length){
+            const updateStockItemData = stockItemData.filter(item1 =>
+                !inventoryReports.some(item2 => item1.id === item2.stock_id)
+            );
+            await insertOpenCloseInventoryReport(updateStockItemData);
+        }
+
+        console.log(`stockController Successfully checkInventoryReport`);
+        res.status(200).json({ success: true, message: "stockController Successfully checkInventoryReport" });
     }catch (e) {
         res.status(500).json({ success: false, message: e.message});
     }

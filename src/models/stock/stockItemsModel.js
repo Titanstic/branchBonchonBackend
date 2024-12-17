@@ -2,7 +2,6 @@ const poolQuery = require("../../../misc/poolQuery");
 
 const getStockItemAndRecipeByMenuId = async (menuId, menuQty, voidSlip, isTakeAway) => {
     let query;
-    console.log(isTakeAway);
     if(isTakeAway){
         query = `
             SELECT
@@ -74,6 +73,30 @@ const getStockItemAndRecipeByMenuId = async (menuId, menuQty, voidSlip, isTakeAw
     return stockItemData;
 }
 
+const getAllStockItem = async () => {
+    const { rows: stockItemData } = await poolQuery(`
+        SELECT
+            sitem.id,
+            sitem.name,
+            sitem.recipe_qty as s_recipe_qty,
+            sitem.current_qty,
+            CASE
+                WHEN sitem.recipe_qty IS NOT NULL
+                    THEN CAST(sitem.current_qty AS DECIMAL) / CAST(sitem.recipe_qty AS DECIMAL)
+                ELSE CAST(sitem.current_qty AS DECIMAL)
+            END AS inventory_sale
+        FROM stock_items AS sitem
+        LEFT JOIN recipe_units AS rc
+            ON sitem.recipe_unit_id = rc.id
+    `);
+
+    if(stockItemData.length === 0){
+        throw new Error(`stockItem doesn't found`);
+    }
+
+    // console.log(`stockItemsModel [getAllStockItem] stockItemData: `, stockItemData);
+    return stockItemData;
+}
 
 const findStockItemById = async (stockId) => {
     const { rows: stockItemData } = await poolQuery(`
@@ -99,7 +122,7 @@ const findStockItemById = async (stockId) => {
         throw new Error(`stockItem id ${stockId} not found`);
     }
 
-    console.log(`purchaseOrderModel [findStockItemById] stockItemData: `, stockItemData[0]);
+    console.log(`stockItemsModel [findStockItemById] stockItemData: `, stockItemData[0]);
     return stockItemData[0];
 }
 
@@ -119,4 +142,4 @@ const updateStockQtyById = async (currentQty, stockItemId) => {
     console.log(`purchaseOrderModel [updateStockQtyById] updateStockQty: successfully`);
 };
 
-module.exports = { getStockItemAndRecipeByMenuId, findStockItemById, updateStockQtyById };
+module.exports = { getStockItemAndRecipeByMenuId, getAllStockItem, findStockItemById, updateStockQtyById };

@@ -1,9 +1,9 @@
-const {findInventoryReportItemByDate, insertInventoryReportItem, updateInventoryReportItem} = require("../../models/stock/inventoryReportsModel");
+const {findInventoryReportItemByDateAndStockId, insertInventoryReportItem, updateInventoryReportItem} = require("../../models/stock/inventoryReportsModel");
 const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stock/stockItemsModel");
 const {reduceRecipeUnit} = require("./recipeUnit");
 
 const filterInventoryReport = async (stockId, tableName, initialSale, newInventoryQty) => {
-    const getInventoryReport = await findInventoryReportItemByDate(stockId, tableName);
+    const getInventoryReport = await findInventoryReportItemByDateAndStockId(stockId, tableName);
 
     if(getInventoryReport.length > 0) {
         console.log(getInventoryReport[0]);
