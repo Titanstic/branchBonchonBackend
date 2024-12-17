@@ -18,12 +18,16 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.guest_count += customer_count;
 
     parsedItems.forEach((eachItem) => {
+        // each.total_amount include promotion, discount
+        const totalAmount = eachItem.total_amount + (eachItem.total_amount * 0.05);
+        const { roundedValue } = roundedValueCalcLogic(totalAmount);
+
         if(eachItem.is_take_away && type === "self"){
-            cashierDrawerData.self_take_away += eachItem.total_amount + (eachItem.total_amount * 0.05);
+            cashierDrawerData.self_take_away += roundedValue ;
         }else if(!eachItem.is_take_away){
-            cashierDrawerData.die_in += eachItem.total_amount+ (eachItem.total_amount * 0.05);
+            cashierDrawerData.die_in += roundedValue;
         }else{
-            cashierDrawerData.delivery += eachItem.total_amount+ (eachItem.total_amount * 0.05);
+            cashierDrawerData.delivery += roundedValue;
         }
     })
 
@@ -72,12 +76,14 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
     cashierDrawerData.guest_count -= transactionData.customer_count;
 
     parsedItems.forEach((eachItem) => {
+        const { roundedValue } = roundedValueCalcLogic(eachItem.total_amount);
+
         if(!eachItem.is_take_away){
-            cashierDrawerData.die_in -= eachItem.total_amount;
+            cashierDrawerData.die_in -= roundedValue;
         }else if(eachItem.is_take_away && paymentTypeData.type === "self"){
-            cashierDrawerData.self_take_away -= eachItem.total_amount;
+            cashierDrawerData.self_take_away -= roundedValue;
         }else{
-            cashierDrawerData.delivery -= eachItem.total_amount;
+            cashierDrawerData.delivery -= roundedValue;
         }
     })
 
@@ -102,6 +108,24 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
 
     console.log("utils [calculateDrawerAmount]: " , setCashierDrawerData)
     return { setCashierDrawerData };
+};
+
+
+const roundedValueCalcLogic = (value) => {
+    // Find the nearest multiple of 50
+    const remainder = value % 50;
+
+    let roundedValue;
+    if (remainder < 25) {
+        roundedValue = value - remainder; // round down
+    } else {
+        roundedValue = value + (50 - remainder); // round up
+    }
+
+    // Calculate the rounding value
+    const roundingValue = roundedValue - value;
+
+    return { roundedValue, roundingValue };
 };
 module.exports = { calculateDrawerAmount, rowBackDrawerAmount };
 
