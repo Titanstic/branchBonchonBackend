@@ -14,7 +14,6 @@ const calculateStock = async (transactionItem, voidSlip) => {
                 const inventoryQty = voidSlip ? Number(item.used_inventory_qty) : -item.used_inventory_qty;
                 await filterInventoryReport(item.stock_id, "sales", item.opening_sale, inventoryQty);
             }
-            console.log(`---------------------------------------------`);
         }
     }
 };
