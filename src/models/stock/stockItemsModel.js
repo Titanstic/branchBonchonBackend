@@ -12,18 +12,18 @@ const getStockItemAndRecipeByMenuId = async (menuId, menuQty, voidSlip) => {
                 END AS update_current_qty,
             CASE
                 WHEN si.recipe_qty IS NOT NULL
-                    THEN ROUND(CAST(si.current_qty AS DECIMAL(10,3)) / CAST(si.recipe_qty AS DECIMAL(10,3)), 3)
-                ELSE ROUND(CAST(si.current_qty AS DECIMAL(10,3)), 3)
+                    THEN CAST(si.current_qty AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                ELSE CAST(si.current_qty AS DECIMAL)
                 END AS opening_sale,
             CASE
                 WHEN si.recipe_qty IS NOT NULL
-                    THEN ROUND(CAST((ri.qty * ${menuQty}) AS DECIMAL(10,3)) / CAST(si.recipe_qty AS DECIMAL(10,3)), 3)
-                ELSE ROUND(CAST((ri.qty * ${menuQty}) AS DECIMAL(10,3)), 3)
+                    THEN CAST((ri.qty * ${menuQty}) AS DECIMAL) / CAST(si.recipe_qty AS DECIMAL)
+                ELSE CAST((ri.qty * ${menuQty}) AS DECIMAL)
                 END AS used_inventory_qty,
             CASE
                 WHEN ri.type = 'dine_in' THEN false
                 ELSE true
-                END AS takeaway
+            END AS takeaway
         FROM stock_items AS si
         LEFT JOIN recipe_items AS ri
             ON si.id = ri.stock_items_id

@@ -20,42 +20,42 @@ const insertInventoryReport = async (tableName, getInventoryReport, initialSale,
         case "good_received_item":
             newClosingSale += newInventoryQty;
             console.log(newClosingSale);
-            await insertInventoryReportItem("receiving_sale", stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem("receiving_sale", stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "good_return_item":
             newClosingSale -= Math.abs(newInventoryQty);
-            await insertInventoryReportItem("good_return", stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem("good_return", stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "transfer_in" :
         case "transfer_in_items" :
             newClosingSale += Math.abs(newInventoryQty);
-            await insertInventoryReportItem("transfer_in", stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem("transfer_in", stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "transfer_out" :
         case "transfer_out_items":
             newClosingSale -= Math.abs(newInventoryQty);
-            await insertInventoryReportItem("transfer_out", stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem("transfer_out", stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "usage" :
         case "raw":
             newClosingSale -= Math.abs(newInventoryQty);
-            await insertInventoryReportItem(tableName, stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "adjustment" :
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            await insertInventoryReportItem(tableName, stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "sales" :
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            await insertInventoryReportItem(tableName, stockId, Number(initialSale).toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem(tableName, stockId, Number(initialSale), newInventoryQty, newClosingSale.toFixed(2));
             break;
         case "finish":
             newClosingSale -= Math.abs(newInventoryQty);
-            await insertInventoryReportItem(tableName, stockId, initialSale.toFixed(2), newInventoryQty.toFixed(2), newClosingSale.toFixed(2));
+            await insertInventoryReportItem(tableName, stockId, initialSale, newInventoryQty, newClosingSale.toFixed(2));
             break;
     }
 }
@@ -67,37 +67,37 @@ const updateInventoryReport = async (tableName, getInventoryReport, initialSale,
         case "good_received_item":
             const newReceivingSale = Number(getInventoryReport[0].receiving_sale) + newInventoryQty;
             newClosingSale += newInventoryQty;
-            await updateInventoryReportItem("receiving_sale", newReceivingSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem("receiving_sale", newReceivingSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "good_return_item":
             const newReturnSale = Number(getInventoryReport[0].good_return) + newInventoryQty;
             newClosingSale -= Math.abs(newInventoryQty);
-            await updateInventoryReportItem("good_return", newReturnSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem("good_return", newReturnSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "transfer_in" :
         case "transfer_in_items" :
             const newTransferInSale = Number(getInventoryReport[0].transfer_in) + newInventoryQty;
             newClosingSale += Math.abs(newInventoryQty);
-            await updateInventoryReportItem("transfer_in", newTransferInSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem("transfer_in", newTransferInSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "transfer_out" :
         case "transfer_out_items":
             const newTransferOutSale = Number(getInventoryReport[0].transfer_out) + newInventoryQty;
             newClosingSale -= Math.abs(newInventoryQty);
-            await updateInventoryReportItem("transfer_out", newTransferOutSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem("transfer_out", newTransferOutSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "usage" :
         case "raw":
             const newWasteSale = Number(getInventoryReport[0][tableName]) + newInventoryQty;
             newClosingSale -= Math.abs(newInventoryQty);
-            await updateInventoryReportItem(tableName, newWasteSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem(tableName, newWasteSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "adjustment":
             const newAdjustmentSale = Number(getInventoryReport[0][tableName]) + newInventoryQty;
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            await updateInventoryReportItem(tableName, newAdjustmentSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem(tableName, newAdjustmentSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "sales":
             const newSale =  newInventoryQty > 0
@@ -106,12 +106,12 @@ const updateInventoryReport = async (tableName, getInventoryReport, initialSale,
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            await updateInventoryReportItem(tableName, newSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem(tableName, newSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "finish":
             const newFinishWasteSale = Number(getInventoryReport[0][tableName]) + newInventoryQty;
             newClosingSale -= Math.abs(newInventoryQty);
-            await updateInventoryReportItem(tableName, newFinishWasteSale.toFixed(2), newClosingSale.toFixed(2), getInventoryReport[0].id);
+            await updateInventoryReportItem(tableName, newFinishWasteSale, newClosingSale, getInventoryReport[0].id);
             break;
     }
 };
