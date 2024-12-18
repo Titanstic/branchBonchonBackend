@@ -53,7 +53,10 @@ const getDashboardTotalAmount = async (dashboardQuery) => {
 
     if(cashierDrawerData.length > 0){
         console.log(`transitionItemModal [getTransactionItemByDate] cashierDrawerData : `, cashierDrawerData[0]);
-        showDashboardData = cashierDrawerData[0];
+        showDashboardData.dieInAmount = cashierDrawerData[0].dieinamount;
+        showDashboardData.takeawayAmount = cashierDrawerData[0].takeawayamount;
+        showDashboardData.deliveryAmount = cashierDrawerData[0].deliveryamount;
+        showDashboardData.totalRevenueAmount = cashierDrawerData[0].totalrevenueamount;
     }
 
     return showDashboardData;
