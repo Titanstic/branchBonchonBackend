@@ -124,16 +124,14 @@ inventoryController.post("/finishWasteDetails/trigger", async (req, res) => {
     const inputData = event.data.new ?? event.data.old;
 
     try{
-        const isTakeAway = inputData.takeaway ? "takeaway" : "dine_in";
-
         if(inputData.normal_menu_id){
-            await calculateFinishStockItem(inputData.normal_menu_id, isTakeAway, "finish", inputData.qty);
+            await calculateFinishStockItem(inputData.normal_menu_id, inputData.takeaway, "finish", inputData.qty);
         }else{
             const normalMenuItem = await getNormalMenuItemByComboId(inputData.combo_set_id);
 
             for (const item of normalMenuItem) {
                 const totalQty = inputData.qty * item.qty;
-                await calculateFinishStockItem(item.id, isTakeAway, "finish", totalQty);
+                await calculateFinishStockItem(item.id, inputData.takeaway, "finish", totalQty);
             }
         }
 
