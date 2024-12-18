@@ -46,37 +46,15 @@ const addTransitionItems = async (value, comboSetValue) => {
     }
 }
 
-const getDashboardTotalAmount = async (dieInTakeAwayQuery, deliveryAndTotalRevQuery) => {
-    const showDashboardData = { "dieInAmount": 0, "takeawayAmount": 0, "deliveryAmount": 0, "totalRevenueAmount": 0 }
+const getDashboardTotalAmount = async (dashboardQuery) => {
+    let showDashboardData = { "dieInAmount": 0, "takeawayAmount": 0, "deliveryAmount": 0, "totalRevenueAmount": 0 }
 
-    // CURRENT_DATE
-    const { rows: transactionItemsData } = await poolQuery(dieInTakeAwayQuery);
-    console.log(`transitionItemModal [getTransactionItemByDate] transactionItemsData : `, transactionItemsData);
-    transactionItemsData.forEach(each => {
-        switch (each.type){
-            case "dine_in":
-                showDashboardData.dieInAmount = Number(each.grand_total_amount);
-                break;
-            case "takeaway":
-                showDashboardData.takeawayAmount = Number(each.grand_total_amount);
-                break;
-        }
-    })
+    const { rows: cashierDrawerData } = await poolQuery(dashboardQuery);
 
-    const { rows: transitionData } = await poolQuery(deliveryAndTotalRevQuery);
-    console.log(`transitionItemModal [getTransactionItemByDate] transitionData : `, transitionData);
-
-    transitionData.forEach(each => {
-        switch (each.type){
-            case "delivery":
-                showDashboardData.deliveryAmount = Number(each.total_revenue);
-                showDashboardData.totalRevenueAmount += Number(each.total_revenue);
-                break;
-            case "self":
-                showDashboardData.totalRevenueAmount += Number(each.total_revenue);
-                break;
-        }
-    })
+    if(cashierDrawerData.length > 0){
+        console.log(`transitionItemModal [getTransactionItemByDate] cashierDrawerData : `, cashierDrawerData[0]);
+        showDashboardData = cashierDrawerData[0];
+    }
 
     return showDashboardData;
 }

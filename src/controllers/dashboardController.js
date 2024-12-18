@@ -9,9 +9,8 @@ dashboardController.post("/", async (req, res) => {
     const { dateFormat } = req.body.input ? req.body.input : req.body;
 
     try{
-        const { dieInTakeAwayQuery, deliveryAndTotalRevQuery, besetSellerItemQuery } = dashboardQuery(dateFormat);
-
-        const showDashboardData = await getDashboardTotalAmount(dieInTakeAwayQuery, deliveryAndTotalRevQuery);
+        const { dashboardTotalAmountQuery, besetSellerItemQuery } = dashboardQuery(dateFormat);
+        const showDashboardData = await getDashboardTotalAmount(dashboardTotalAmountQuery);
         console.log("dashboardRouter :", showDashboardData);
 
         showDashboardData.bestSellerItems = await getBestSellerItems(besetSellerItemQuery);

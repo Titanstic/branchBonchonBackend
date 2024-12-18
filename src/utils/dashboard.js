@@ -12,30 +12,16 @@ const dashboardQuery = (type) => {
             const { firstDate, lastDate} = getFirstAndLastDateOfMonth();
             whereCondition = `BETWEEN '${firstDate}' AND '${lastDate}'`
             break;
-    }
+    };
 
-    const dieInTakeAwayQuery = `
-        SELECT 
-            SUM (total_amount) AS grand_total_amount,
-            CASE 
-                WHEN is_take_away = true THEN 'takeaway'
-                ELSE 'dine_in'
-            END AS type
-        FROM transaction_items
-        WHERE DATE(created_at) ${whereCondition}
-        GROUP BY is_take_away;
-    `;
-
-    const deliveryAndTotalRevQuery = `
-        SELECT 
-            SUM(grand_total_amount) AS total_revenue,
-            payment_types.type
-        FROM transactions
-        LEFT JOIN payment_types
-            ON transactions.payment_type_id = payment_types.id
-        WHERE DATE(transactions.created_at) ${whereCondition}
-        GROUP BY payment_types.type 
-            HAVING payment_types.type IN ('self', 'delivery')
+    const dashboardTotalAmountQuery = `
+        SELECT
+            SUM(die_in) AS dieInAmount,
+            SUM(self_take_away) AS takeawayAmount,
+            SUM(delivery) AS deliveryAmount,
+            SUM(net_sales) AS totalRevenueAmount
+        FROM cashier_drawer
+        WHERE DATE(created_at) ${whereCondition};
     `;
 
     const besetSellerItemQuery = `
@@ -56,7 +42,7 @@ const dashboardQuery = (type) => {
         WHERE row_num <= 10;
     `;
 
-    return { dieInTakeAwayQuery, deliveryAndTotalRevQuery, besetSellerItemQuery };
+    return { dashboardTotalAmountQuery, besetSellerItemQuery };
 }
 
 
