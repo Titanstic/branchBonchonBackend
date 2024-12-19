@@ -1,6 +1,6 @@
 const {findInventoryReportItemByDateAndStockId, insertInventoryReportItem, updateInventoryReportItem} = require("../../models/stock/inventoryReportsModel");
 const {getStockItemAndRecipeByMenuId, updateStockQtyById} = require("../../models/stock/stockItemsModel");
-const {reduceRecipeUnit} = require("./recipeUnit");
+
 
 const filterInventoryReport = async (stockId, tableName, initialSale, newInventoryQty) => {
     const getInventoryReport = await findInventoryReportItemByDateAndStockId(stockId, tableName);
@@ -107,7 +107,6 @@ const updateInventoryReport = async (tableName, getInventoryReport, initialSale,
             newClosingSale = newInventoryQty > 0
                 ? newClosingSale +  Math.abs(newInventoryQty)
                 : newClosingSale -  Math.abs(newInventoryQty);
-            console.log(`new closing sale`, newClosingSale);
             await updateInventoryReportItem(tableName, newSale, newClosingSale, getInventoryReport[0].id);
             break;
         case "finish":

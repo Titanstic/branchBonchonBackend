@@ -1,6 +1,6 @@
 const express = require("express");
-const {getCouponQuery, updateStatusForUserCouponById} = require("../utils/coupon");
-const {executeBonchonApp} = require("../utils/mutation");
+const {getCouponQuery, updateStatusForUserCouponById} = require("../../utils/application/coupon");
+const {executeBonchonApp} = require("../../utils/mutation");
 const couponController = express.Router();
 
 couponController.post("/getData", async (req, res) => {
