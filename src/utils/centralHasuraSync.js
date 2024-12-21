@@ -13,22 +13,17 @@ const centralHeaders  = {
 };
 
 const executeCentralMutation = async ( query, variables) => {
-    try{
-        const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
-            query,
-            variables
-        }, { headers: centralHeaders });
+    const response = await axios.post(`https://api.erp.bonchon.axra.app/v1/graphql`, {
+        query,
+        variables
+    }, { headers: centralHeaders });
 
-        if(response.data.errors){
-            throw new Error(response.data.errors[0].message);
-        }
-
-        console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
-        return response.data.data;
-    }catch (e) {
-        console.error("[utils] executeCentralMutation Error: ", e.message);
-        throw new Error(e.message);
+    if(response.data.errors){
+        throw new Error(response.data.errors[0].message);
     }
+
+    console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
+    return response.data.data;
 };
 
 const branchHeaders  = {

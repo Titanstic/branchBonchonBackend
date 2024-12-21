@@ -60,7 +60,7 @@ const slipHeight = (data, point) => {
   let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
 
   const startLineHeight = 0;
   const footerStartLineHeight = 0;

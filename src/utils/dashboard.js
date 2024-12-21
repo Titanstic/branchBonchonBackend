@@ -33,10 +33,12 @@ const dashboardQuery = (type) => {
             SELECT 
                 item_name,
                 SUM(quantity) AS quantity,
-                SUM(total_amount) AS total_amount,
+                SUM(price * quantity) AS total_amount,
                 ROW_NUMBER() OVER (ORDER BY SUM(quantity) DESC) AS row_num
             FROM transaction_items
-            WHERE DATE(created_at) ${whereCondition}
+            LEFT JOIN transactions
+                ON transaction_items.transaction_id = transactions.id
+            WHERE transactions.void = false AND DATE(transaction_items.created_at) ${whereCondition}
             GROUP BY item_name
         ) AS ranked_items
         WHERE row_num <= 10;

@@ -11,6 +11,7 @@ groupSaleReportRouter.post("/", async (req, res) => {
     console.log('groupSaleReportRouter :', startDate, endDate, offset);
 
     try{
+        // TODO: check getGroupSaleReport query
         const { groupSaleReports, totalGroupSaleReports } = await getGroupSaleReport(startDate, endDate, offset);
         const dataReport = [ { pages: Math.ceil(totalGroupSaleReports.length/10)}, { groupSaleReports }];
 

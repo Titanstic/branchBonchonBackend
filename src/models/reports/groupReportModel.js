@@ -2,13 +2,13 @@ const poolQuery = require("../../../misc/poolQuery");
 
 const getGroupDetailSaleReport = async(startDate, endDate, offset) => {
     const groupDetailSaleQuery = `
-            SELECT 
+            SELECT
                 family_group.family_name,
                 normal_menu_items.code_name,
                 normal_menu_items.name,
                 sum(transaction_items.price) AS originalPrice,
                 sum(transaction_items.quantity) AS qty,
-                sum(transaction_items.price) * sum(transaction_items.quantity) AS amount,
+                sum(transaction_items.price * transaction_items.quantity) AS amount,
                 sum(transaction_items.discount_price) AS discountPrice,
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.total_amount) AS netAmount
@@ -32,11 +32,10 @@ const getGroupDetailSaleReport = async(startDate, endDate, offset) => {
 
 const getGroupSaleReport = async(startDate, endDate, offset) => {
     const groupSaleQuery = `
-            SELECT 
+            SELECT
                 family_group.family_name,
-                sum(transaction_items.price) AS originalPrice,
+                sum(transaction_items.price * transaction_items.quantity) AS amount,
                 sum(transaction_items.quantity) AS qty,
-                sum(transaction_items.price) * sum(transaction_items.quantity) AS amount,
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.discount_price) AS discountPrice,
                 sum(transaction_items.total_amount) AS netAmount
