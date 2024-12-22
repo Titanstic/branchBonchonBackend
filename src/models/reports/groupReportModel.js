@@ -12,12 +12,14 @@ const getGroupDetailSaleReport = async(startDate, endDate, offset) => {
                 sum(transaction_items.discount_price) AS discountPrice,
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.total_amount) AS netAmount
-            FROM transaction_items 
+            FROM transaction_items
+            LEFT JOIN transactions
+                ON transaction_items.transaction_id = transactions.id
             LEFT JOIN normal_menu_items
                 ON transaction_items.normal_menu_item_id = normal_menu_items.id
             LEFT JOIN family_group
                 ON normal_menu_items.family_group_id = family_group.id
-            WHERE transaction_items.created_at BETWEEN $1 AND $2
+            WHERE transactions.void = false AND  transaction_items.created_at BETWEEN $1 AND $2
             GROUP BY family_group.family_name, normal_menu_items.id
             `;
 
@@ -39,12 +41,14 @@ const getGroupSaleReport = async(startDate, endDate, offset) => {
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.discount_price) AS discountPrice,
                 sum(transaction_items.total_amount) AS netAmount
-            FROM transaction_items 
+            FROM transaction_items
+            LEFT JOIN transactions
+                ON transaction_items.transaction_id = transactions.id
             LEFT JOIN normal_menu_items
                 ON transaction_items.normal_menu_item_id = normal_menu_items.id
             LEFT JOIN family_group
                 ON normal_menu_items.family_group_id = family_group.id
-            WHERE transaction_items.created_at BETWEEN $1 AND $2
+            WHERE transactions.void = false AND  transaction_items.created_at BETWEEN $1 AND $2
             GROUP BY family_group.family_name
             `;
 
