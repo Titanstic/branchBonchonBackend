@@ -1,6 +1,6 @@
 const express = require("express");
 const {checkOperation, delay} = require("../../utils/mutation");
-const {executeCentralMutation} = require("../../utils/centralHasuraSync");
+const {executeCentralMutation, executeBranchMutation} = require("../../utils/centralHasuraSync");
 const {filterSyncHistory} = require("../../utils/syncHistory");
 const {findCurrentBranch, findBranch} = require("../../models/branchModel");
 
@@ -65,6 +65,64 @@ twoTableHasuraSyncRouter.post("/branchStock", async (req, res) => {
         console.error(`[twoTableHasuraSyncRouter] branchStock Error:`, e.message);
         res.status(500).json({ success: false, message: e.message });
     }
-})
+});
+
+
+twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
+    try{
+        const syncCentralId = [];
+
+        const branchData = await findBranch();
+
+        const query = `
+            query MyQuery($branchId: uuid!) {
+                  sync_history(where: {branch_id: {_eq: $branchId}}, order_by: {created_at: asc}) {
+                        branch_id
+                        action
+                        column_id
+                        created_at
+                        id
+                        query
+                        updated_at
+                        variables
+                  }
+            }
+        `;
+        const variables = { branchId: branchData.id };
+        const { sync_history }  = await executeCentralMutation(query, variables);
+
+        for (const eachSync of sync_history) {
+            const branchRes = await executeBranchMutation(eachSync.query, JSON.parse(eachSync.variables), branchData);
+
+            if(!branchRes){
+                syncCentralId.push(eachSync.id);
+            }
+        }
+
+        console.log(`[twoTableHasuraSyncRouter] syncCentralId:`, syncCentralId);
+
+        if(syncCentralId.length > 0){
+            const deleteSyncQuery = `
+                mutation MyMutation($ids: [uuid!]!) {
+                      delete_sync_history(where: {id: {_in: $ids}}) {
+                            affected_rows
+                      }
+                }
+            `;
+
+            const deleteVariables = { ids: syncCentralId };
+            const { delete_sync_history }  = await executeCentralMutation(deleteSyncQuery, deleteVariables);
+            console.log(`[twoTableHasuraSyncRouter] delete_sync_history:`, delete_sync_history.affected_rows);
+        }
+
+
+        console.log(`[twoTableHasuraSyncRouter] :`, "Central Sync Successfully");
+        res.status(200).json({ success: true, message: "Central Sync Successfully" });
+    }catch (e) {
+        console.error(`[twoTableHasuraSyncRouter] Error:`, e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 
 module.exports = twoTableHasuraSyncRouter;

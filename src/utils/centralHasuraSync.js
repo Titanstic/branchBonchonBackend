@@ -22,7 +22,7 @@ const executeCentralMutation = async ( query, variables) => {
         throw new Error(response.data.errors[0].message);
     }
 
-    console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data));
+    console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
     return response.data.data;
 };
 
