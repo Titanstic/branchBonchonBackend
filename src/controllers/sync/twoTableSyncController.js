@@ -94,7 +94,7 @@ twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
         for (const eachSync of sync_history) {
             const branchRes = await executeBranchMutation(eachSync.query, JSON.parse(eachSync.variables), branchData);
 
-            if(!branchRes){
+            if(branchRes){
                 syncCentralId.push(eachSync.id);
             }
         }
