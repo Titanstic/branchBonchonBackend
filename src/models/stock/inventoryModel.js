@@ -15,18 +15,18 @@ const getInventoryReportByDate = async (startDate, endDate) => {
             SUM(ir.finish) AS finish,
             SUM(ir.adjustment) AS adjustment,
             SUM(ir.raw) AS raw
-        FROM inventory_reports AS ir
-        WHERE DATE(ir.created_at) BETWEEN $1 AND $2
-        GROUP BY ir.stock_id
+            FROM inventory_reports AS ir
+            WHERE DATE(ir.created_at) BETWEEN $1 AND $2
+            GROUP BY ir.stock_id
             ),
             opening_closing AS (
-        SELECT DISTINCT ON (ir.stock_id)
-            ir.stock_id,
-            FIRST_VALUE(ir.opening_sale) OVER (
-            PARTITION BY ir.stock_id ORDER BY ir.created_at ASC
-            ) AS opening_sale,
-            FIRST_VALUE(ir.closing) OVER (
-            PARTITION BY ir.stock_id ORDER BY ir.created_at DESC
+            SELECT DISTINCT ON (ir.stock_id)
+                ir.stock_id,
+                FIRST_VALUE(ir.opening_sale) OVER (
+                PARTITION BY ir.stock_id ORDER BY ir.created_at ASC
+                ) AS opening_sale,
+                FIRST_VALUE(ir.closing) OVER (
+                PARTITION BY ir.stock_id ORDER BY ir.created_at DESC
             ) AS closing
         FROM inventory_reports AS ir
         WHERE DATE(ir.created_at) BETWEEN $3 AND $4

@@ -12,7 +12,7 @@ const dashboardQuery = (type) => {
             const { firstDate, lastDate} = getFirstAndLastDateOfMonth();
             whereCondition = `BETWEEN '${firstDate}' AND '${lastDate}'`
             break;
-    };
+    }
 
     const dashboardTotalAmountQuery = `
         SELECT

@@ -41,8 +41,7 @@ stockController.post("/checkInventoryReport", async (req, res) => {
 
         if(inventoryReports.length === 0){
             await insertOpenCloseInventoryReport(stockItemData);
-        }
-        if(inventoryReports.length !== stockItemData.length){
+        }else if(inventoryReports.length !== stockItemData.length){
             const updateStockItemData = stockItemData.filter(item1 =>
                 !inventoryReports.some(item2 => item1.id === item2.stock_id)
             );
