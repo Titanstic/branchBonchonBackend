@@ -71,6 +71,7 @@ twoTableHasuraSyncRouter.post("/branchStock", async (req, res) => {
 twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
     try{
         const syncCentralId = [];
+        let affectedCount = 0;
 
         const branchData = await findBranch();
 
@@ -112,12 +113,13 @@ twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
 
             const deleteVariables = { ids: syncCentralId };
             const { delete_sync_history }  = await executeCentralMutation(deleteSyncQuery, deleteVariables);
+            affectedCount = delete_sync_history.affected_rows;
             console.log(`[twoTableHasuraSyncRouter] delete_sync_history:`, delete_sync_history.affected_rows);
         }
 
 
-        console.log(`[twoTableHasuraSyncRouter] :`, "Central Sync Successfully");
-        res.status(200).json({ success: true, message: "Central Sync Successfully" });
+        console.log(`[twoTableHasuraSyncRouter] :`, `Central Sync Count ${affectedCount} Successfully`);
+        res.status(200).json({ success: true, message: `Central Sync Count ${affectedCount} Successfully`});
     }catch (e) {
         console.error(`[twoTableHasuraSyncRouter] Error:`, e.message);
         res.status(500).json({ success: false, message: e.message });
