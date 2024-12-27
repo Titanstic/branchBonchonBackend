@@ -24,7 +24,7 @@ couponController.post("/getData", async (req, res) => {
         const couponData = {
             couponId: user_coupons[0].coupon_id,
             couponName: user_coupons[0].coupon.coupon_name,
-            amount: user_coupons[0].coupon.point,
+            amount: (user_coupons[0].coupon.point * 100),
             userCouponId: user_coupons[0].id
         }
 
