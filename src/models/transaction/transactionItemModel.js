@@ -48,16 +48,13 @@ const addTransitionItems = async (value, comboSetValue) => {
 
 const getDashboardTotalAmount = async (dashboardQuery) => {
     let showDashboardData = { "dieInAmount": 0, "takeawayAmount": 0, "deliveryAmount": 0, "totalRevenueAmount": 0 }
-
     const { rows: cashierDrawerData } = await poolQuery(dashboardQuery);
 
-    if(cashierDrawerData.length > 0){
-        console.log(`transitionItemModal [getTransactionItemByDate] cashierDrawerData : `, cashierDrawerData[0]);
-        showDashboardData.dieInAmount = cashierDrawerData[0].dieinamount;
-        showDashboardData.takeawayAmount = cashierDrawerData[0].takeawayamount;
-        showDashboardData.deliveryAmount = cashierDrawerData[0].deliveryamount;
-        showDashboardData.totalRevenueAmount = cashierDrawerData[0].totalrevenueamount;
-    }
+    console.log(`transitionItemModal [getTransactionItemByDate] cashierDrawerData : `, cashierDrawerData[0]);
+    showDashboardData.dieInAmount = cashierDrawerData[0].dieinamount ?? 0;
+    showDashboardData.takeawayAmount = cashierDrawerData[0].takeawayamount ?? 0;
+    showDashboardData.deliveryAmount = cashierDrawerData[0].deliveryamount ?? 0;
+    showDashboardData.totalRevenueAmount = cashierDrawerData[0].totalrevenueamount ?? 0;
 
     return showDashboardData;
 }

@@ -15,20 +15,25 @@ const getInventoryReportByDate = async (startDate, endDate) => {
             SUM(ir.finish) AS finish,
             SUM(ir.adjustment) AS adjustment,
             SUM(ir.raw) AS raw
-            FROM inventory_reports AS ir
-            WHERE DATE(ir.created_at) BETWEEN $1 AND $2
-            GROUP BY ir.stock_id
+        FROM inventory_reports AS ir
+            LEFT JOIN stock_items AS si
+        ON ir.stock_id = si.id
+        WHERE DATE(ir.created_at) BETWEEN $1 AND $2
+        GROUP BY ir.stock_id
             ),
             opening_closing AS (
-            SELECT DISTINCT ON (ir.stock_id)
-                ir.stock_id,
-                FIRST_VALUE(ir.opening_sale) OVER (
-                PARTITION BY ir.stock_id ORDER BY ir.created_at ASC
-                ) AS opening_sale,
-                FIRST_VALUE(ir.closing) OVER (
-                PARTITION BY ir.stock_id ORDER BY ir.created_at DESC
+        SELECT DISTINCT ON (ir.stock_id)
+            ir.stock_id,
+            CAST(si.last_purchase_price AS float) / CAST(si.inventory_qty AS float) AS inventory_price,
+            FIRST_VALUE(ir.opening_sale) OVER (
+            PARTITION BY ir.stock_id ORDER BY ir.created_at ASC
+            ) AS opening_sale,
+            FIRST_VALUE(ir.closing) OVER (
+            PARTITION BY ir.stock_id ORDER BY ir.created_at DESC
             ) AS closing
         FROM inventory_reports AS ir
+            LEFT JOIN stock_items AS si
+        ON ir.stock_id = si.id
         WHERE DATE(ir.created_at) BETWEEN $3 AND $4
             )
         SELECT DISTINCT
@@ -39,16 +44,27 @@ const getInventoryReportByDate = async (startDate, endDate) => {
             sit.name AS type_name,
             iu.inventory_name,
             oc.opening_sale,
+            oc.opening_sale * oc.inventory_price AS opening_sale_price,
             ags.good_return,
+            ags.good_return * oc.inventory_price AS good_return_price,
             ags.receiving_sale,
+            ags.receiving_sale * oc.inventory_price AS receiving_sale_price,
             ags.transfer_in,
+            ags.transfer_in * oc.inventory_price AS transfer_in_price,
             ags.sales,
+            ags.sales * oc.inventory_price AS sales_price,
             ags.usage,
+            ags.usage * oc.inventory_price AS usage_price,
             ags.transfer_out,
+            ags.transfer_out * oc.inventory_price AS transfer_out_price,
             ags.finish,
+            ags.finish * oc.inventory_price AS finish_price,
             ags.adjustment,
+            ags.adjustment * oc.inventory_price AS adjustment_price,
             ags.raw,
-            oc.closing
+            ags.raw * oc.inventory_price AS raw_price,
+            oc.closing,
+            oc.closing * oc.inventory_price AS closing_price
         FROM stock_items AS si
                  LEFT JOIN aggregated_sales AS ags ON si.id = ags.stock_id
                  LEFT JOIN opening_closing AS oc ON si.id = oc.stock_id

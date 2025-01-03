@@ -16,6 +16,8 @@ services:
   #     - "9002:9002"
   postgres:
     image: postgres:15
+    ports:
+      - "5432:5432"
     restart: always
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -30,7 +32,10 @@ services:
     ports:
       - "9090:9090"
     restart: always
+    extra_hosts: 
+     - host.docker.internal:host-gateway
     environment:
+      ENV_VAR: host.docker.internal:3002
       HASURA_GRAPHQL_SERVER_PORT: 9090
       ## postgres database to store Hasura metadata
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgrespassword@postgres:5432/postgres
@@ -45,7 +50,7 @@ services:
       # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
       ## uncomment next line to set an admin secret
       HASURA_GRAPHQL_ADMIN_SECRET: axra_48b59ff9b4139e7d
-      HASURA_GRAPHQL_DISABLE_CORS: "true"
+      HASURA_GRAPHQL_DISABLE_CORS: "false"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_METADATA_DEFAULTS: '{"backend_configs":{"dataconnector":{"athena":{"uri":"http://data-connector-agent:8081/api/v1/athena"},"mariadb":{"uri":"http://data-connector-agent:8081/api/v1/mariadb"},"mysql8":{"uri":"http://data-connector-agent:8081/api/v1/mysql"},"oracle":{"uri":"http://data-connector-agent:8081/api/v1/oracle"},"snowflake":{"uri":"http://data-connector-agent:8081/api/v1/snowflake"}}}}'
       HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"Cast from ten bronze cannons, it was unveiled on April 19, 1875, during the centennial celebration of the Battle of Concord"}'
