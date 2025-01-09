@@ -25,6 +25,7 @@ const inventoryRouter = require("./src/controllers/stock/inventoryController");
 const transferInOutRouter = require("./src/controllers/stock/transferInOutController");
 const couponRouter = require("./src/controllers/application/couponController");
 const memberRouter = require("./src/controllers/application/memberController");
+const dbCleanRouter = require("./src/controllers/dbCleanController");
 
 app.use("/signin", signInRouter);
 app.use("/transition", transitionRouter);
@@ -41,6 +42,7 @@ app.use("/inventory", inventoryRouter);
 app.use("/transferInOut", transferInOutRouter);
 app.use("/coupon", couponRouter);
 app.use("/member", memberRouter);
+app.use("/database", dbCleanRouter);
 // End API CALL
 
 // Start Frontend Static
