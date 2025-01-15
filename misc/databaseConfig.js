@@ -1,6 +1,7 @@
 const { Pool } = require("pg");
 
 const {databaseHost,databaseName,databasePassword,databaseUsername} = require("../config")
+console.log(databaseHost, databaseName, databasePassword, databaseUsername)
 
 const pool = new Pool({
     host : databaseHost,

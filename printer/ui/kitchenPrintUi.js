@@ -39,7 +39,7 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo, s
 
     const { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH, dateTimeH, tableNoH} = slipHeightData(dieInItems, takeAwayItems, flavourTypeLength);
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "black";
     ctx.font = "24px Myanmar Text";
     checkNoUi(ctx, canvas, transitionId, checkNoH, checkLineH, orderNo, slipType );
     const currentDate = new Date();

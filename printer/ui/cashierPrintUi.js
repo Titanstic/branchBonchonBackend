@@ -60,7 +60,7 @@ const slipHeight = (data, point) => {
   let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
 
   const startLineHeight = 0;
   const footerStartLineHeight = 0;
@@ -211,9 +211,9 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point, appAmount) => {
   const subTotalHeight = finishBuyItemLineH + 20;
   const discountHeight = subTotalHeight + 30;
-  const taxHeight = discountHeight + 30;
-  const appDisHeight = taxHeight + 30;
-  const firstLineHeight = appDisHeight + 20;
+  const appDisHeight = discountHeight + 30;
+  const taxHeight = appDisHeight + 30;
+  const firstLineHeight = taxHeight + 20;
 
   ctx.font = "24px Myanmar Text";
   ctx.textAlign = "start";
@@ -227,14 +227,14 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   ctx.fillText((Number(discount_amount) + Number(promotion)).toLocaleString("en-US"), canvas.width - 10, discountHeight);
 
   ctx.textAlign = "start";
-  ctx.fillText("Tax ( 5% )", 30, taxHeight);
-  ctx.textAlign = "right";
-  ctx.fillText(Number(tax_amount).toLocaleString("en-US"), canvas.width - 10, taxHeight);
-
-  ctx.textAlign = "start";
   ctx.fillText("App Dis", 30, appDisHeight);
   ctx.textAlign = "right";
   ctx.fillText(Number(appAmount ? -appAmount : 0).toLocaleString("en-US"), canvas.width - 10, appDisHeight);
+
+  ctx.textAlign = "start";
+  ctx.fillText("Tax ( 5% )", 30, taxHeight);
+  ctx.textAlign = "right";
+  ctx.fillText(Number(tax_amount).toLocaleString("en-US"), canvas.width - 10, taxHeight);
 
   ctx.textAlign = "start";
   ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, firstLineHeight);
