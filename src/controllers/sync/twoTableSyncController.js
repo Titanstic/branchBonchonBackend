@@ -3,6 +3,7 @@ const {checkOperation, delay} = require("../../utils/mutation");
 const {executeCentralMutation, executeBranchMutation} = require("../../utils/centralHasuraSync");
 const {filterSyncHistory} = require("../../utils/syncHistory");
 const {findCurrentBranch, findBranch} = require("../../models/branchModel");
+const {getRecipeItemsQuery} = require("../../utils/stockControl/recipeItems");
 
 const twoTableHasuraSyncRouter = express.Router();
 
@@ -67,7 +68,6 @@ twoTableHasuraSyncRouter.post("/branchStock", async (req, res) => {
     }
 });
 
-
 twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
     try{
         const syncCentralId = [];
@@ -126,5 +126,51 @@ twoTableHasuraSyncRouter.post("/syncData", async (req, res) => {
     }
 });
 
+
+twoTableHasuraSyncRouter.post("/recipeItems", async (req, res) => {
+    try{
+        const currentDate = new Date();
+        const date7DaysAgo = new Date(currentDate);
+        date7DaysAgo.setDate(currentDate.getDate() - 7);
+
+        const { query, variables } = getRecipeItemsQuery(date7DaysAgo, currentDate);
+
+        const { recipe_items: centralRecipeItems} = await executeCentralMutation(query, variables);
+        console.log(`[twoTableHasuraSyncRouter] centralRecipeItems:`, centralRecipeItems.length);
+
+        const branchData = await findBranch();
+        const { data: branchRecipeItems } = await executeBranchMutation(query, variables, branchData);
+        console.log(`[twoTableHasuraSyncRouter] branchRecipeItems:`, branchRecipeItems.recipe_items.length);
+
+        const uniqueCentralRecipeItems = centralRecipeItems.filter(centralItem => {
+            return !branchRecipeItems.recipe_items.some(branchItem => branchItem.id === centralItem.id);
+        });
+        console.log(`[twoTableHasuraSyncRouter] uniqueCentralRecipeItems:`, uniqueCentralRecipeItems.length);
+
+        if (uniqueCentralRecipeItems.length > 0) {
+            const insertQuery = `
+                mutation InsertRecipeItems($objects: [recipe_items_insert_input!]!) {
+                    insert_recipe_items(objects: $objects) {
+                        affected_rows
+                    }
+                }
+            `;
+            const insertVariables = {
+                objects: uniqueCentralRecipeItems
+            };
+
+            const insertResponse = await executeBranchMutation(insertQuery, insertVariables, branchData);
+            console.log(`[twoTableHasuraSyncRouter] Inserted Items Count:`, insertResponse.data.insert_recipe_items.affected_rows);
+        } else {
+            console.log(`[twoTableHasuraSyncRouter] No new items to insert.`);
+        }
+
+        console.log(`[twoTableHasuraSyncRouter] :`, `Recipe Items Count ${uniqueCentralRecipeItems.length} Successfully`);
+        res.status(200).json({ success: true, message: `Recipe Items Count ${uniqueCentralRecipeItems.length} Successfully`});
+    }catch (e) {
+        console.error(`[twoTableHasuraSyncRouter] Error:`, e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
 
 module.exports = twoTableHasuraSyncRouter;

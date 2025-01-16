@@ -38,7 +38,8 @@ stockController.post("/checkInventoryReport", async (req, res) => {
     try{
         const inventoryReports = await findInventoryReportItemByCurrentDate();
         const stockItemData = await getAllStockItem();
-
+        console.log(inventoryReports.length);
+        console.log(stockItemData.length);
         if(inventoryReports.length === 0){
             await insertOpenCloseInventoryReport(stockItemData);
         }else if(inventoryReports.length !== stockItemData.length){

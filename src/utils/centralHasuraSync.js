@@ -22,7 +22,7 @@ const executeCentralMutation = async ( query, variables) => {
         throw new Error(response.data.errors[0].message);
     }
 
-    console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
+    // console.log("[utils] executeCentralMutation: ", JSON.stringify(response.data.data));
     return response.data.data;
 };
 
@@ -42,7 +42,7 @@ const executeBranchMutation = async ( query, variables, branch) => {
             throw new Error(response.data.errors[0].message);
         }
 
-        console.log("[utils] executeBranchMutation: ", response.data);
+        // console.log("[utils] executeBranchMutation: ", response.data);
         return response.data;
     }catch (e) {
         console.error("[utils] executeBranchMutation Error: ", e.message);
