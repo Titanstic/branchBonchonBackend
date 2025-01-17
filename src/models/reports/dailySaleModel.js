@@ -71,7 +71,7 @@ const getDiscountDataReport = async (startDate, endDate, offset) => {
         SELECT 
             DATE(transaction_items.created_at),
             transaction_items.item_name,
-            SUM(transaction_items.discount_price) AS grand_discount_amount
+            SUM(transaction_items.quantity * transaction_items.discount_price) AS grand_discount_amount
         FROM transaction_items
         LEFT JOIN transactions
             ON transaction_items.transaction_id = transactions.id
@@ -86,7 +86,7 @@ const getDiscountDataReport = async (startDate, endDate, offset) => {
                 SELECT
                     DATE(transaction_items.created_at),
                     transaction_items.item_name,
-                    SUM(transaction_items.discount_price) AS grand_discount_amount
+                    SUM(transaction_items.quantity * transaction_items.discount_price) AS grand_discount_amount
                 FROM transaction_items
                 LEFT JOIN transactions
                     ON transaction_items.transaction_id = transactions.id

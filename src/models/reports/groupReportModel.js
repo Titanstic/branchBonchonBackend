@@ -9,7 +9,7 @@ const getGroupDetailSaleReport = async(startDate, endDate, offset) => {
                 sum(transaction_items.price) AS originalPrice,
                 sum(transaction_items.quantity) AS qty,
                 sum(transaction_items.price * transaction_items.quantity) AS amount,
-                sum(transaction_items.discount_price) AS discountPrice,
+                sum(transaction_items.discount_price * transaction_items.quantity) AS discountPrice,
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.total_amount) AS netAmount
             FROM transaction_items
@@ -39,7 +39,7 @@ const getGroupSaleReport = async(startDate, endDate, offset) => {
                 sum(transaction_items.price * transaction_items.quantity) AS amount,
                 sum(transaction_items.quantity) AS qty,
                 sum(transaction_items.container_charges) AS containerCharges,
-                sum(transaction_items.discount_price) AS discountPrice,
+                sum(transaction_items.discount_price * transaction_items.quantity) AS discountPrice,
                 sum(transaction_items.total_amount) AS netAmount
             FROM transaction_items
             LEFT JOIN transactions
