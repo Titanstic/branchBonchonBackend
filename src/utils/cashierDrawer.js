@@ -20,14 +20,14 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     parsedItems.forEach((eachItem) => {
         // each.total_amount include promotion, discount
         const totalAmount = eachItem.total_amount + (eachItem.total_amount * 0.05);
-        const { roundedValue } = roundedValueCalcLogic(totalAmount);
+        // const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(eachItem.is_take_away && type === "self"){
-            cashierDrawerData.self_take_away += roundedValue ;
+            cashierDrawerData.self_take_away += totalAmount ;
         }else if(!eachItem.is_take_away){
-            cashierDrawerData.die_in += roundedValue;
+            cashierDrawerData.die_in += totalAmount;
         }else{
-            cashierDrawerData.delivery += roundedValue;
+            cashierDrawerData.delivery += totalAmount;
         }
     })
 
