@@ -60,7 +60,7 @@ const slipHeight = (data, point) => {
   let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "white";
 
   const startLineHeight = 0;
   const footerStartLineHeight = 0;
@@ -163,7 +163,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 
     ctx.textAlign = "right";
     ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 150, flavourYPos);
-    ctx.fillText(productItem.price.toLocaleString("en-US"), canvas.width - 10, flavourYPos);
+    ctx.fillText((productItem.price * productItem.quantity).toLocaleString("en-US"), canvas.width - 10, flavourYPos);
 
     // need change
     if (productItem.combo_menu_items) {
@@ -224,7 +224,7 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   ctx.textAlign = "start";
   ctx.fillText("Discount", 30, discountHeight);
   ctx.textAlign = "right";
-  ctx.fillText((Number(discount_amount) + Number(promotion)).toLocaleString("en-US"), canvas.width - 10, discountHeight);
+  ctx.fillText(`-${(Number(discount_amount) + Number(promotion)).toLocaleString("en-US")}`, canvas.width - 10, discountHeight);
 
   ctx.textAlign = "start";
   ctx.fillText("App Dis", 30, appDisHeight);

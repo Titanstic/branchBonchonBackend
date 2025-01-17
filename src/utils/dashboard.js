@@ -19,7 +19,8 @@ const dashboardQuery = (type) => {
             SUM(die_in) AS dieInAmount,
             SUM(self_take_away) AS takeawayAmount,
             SUM(delivery) AS deliveryAmount,
-            SUM(net_sales) AS totalRevenueAmount
+            SUM(net_sales) AS totalRevenueAmount,
+            SUM(CAST(rounding AS INT))  AS roundingAmount
         FROM cashier_drawer
         WHERE DATE(created_at) ${whereCondition};
     `;
