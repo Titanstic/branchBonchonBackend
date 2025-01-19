@@ -32,7 +32,7 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
             SUM(t.discount_amount) AS discountTotal,
             CASE SUM(td.amount) IS NOT NULL
                 WHEN TRUE THEN SUM(td.amount)
-            END  AS total_app_dis_amount,
+            END  AS totalAppDisAmount,
             DATE(t.created_at),
             COUNT(t.*) AS transactionCount
         FROM transactions AS t
