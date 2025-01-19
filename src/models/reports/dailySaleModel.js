@@ -3,33 +3,43 @@ const poolQuery = require("../../../misc/poolQuery");
 const getSummaryDataReport = async (startDate, endDate, offset) => {
     const query = `
             SELECT 
-                SUM(grand_total_amount) AS grandTotal, 
-                SUM(sub_total_amount) AS subTotal, 
-                SUM(tax_amount) AS taxTotal, 
-                SUM(service_charge_amount) AS serviceChargeTotal, 
-                SUM(discount_amount) AS discountTotal,
-                DATE(created_at),
-                COUNT(*) AS transactionCount
-            FROM transactions 
-            WHERE void = false AND created_at BETWEEN $1 AND $2
-            GROUP BY DATE(created_at)
+                SUM(t.grand_total_amount) AS grandTotal, 
+                SUM(t.sub_total_amount) AS subTotal, 
+                SUM(t.tax_amount) AS taxTotal, 
+                SUM(t.service_charge_amount) AS serviceChargeTotal, 
+                SUM(t.discount_amount) AS discountTotal,
+                CASE SUM(td.amount) IS NOT NULL
+                    WHEN TRUE THEN SUM(td.amount)
+                END  AS total_app_dis_amount,
+                DATE(t.created_at),
+                COUNT(t.*) AS transactionCount
+            FROM transactions AS t
+            LEFT JOIN transaction_details AS td
+                ON t.id = td.transaction_id
+            WHERE t.void = false AND t.created_at BETWEEN $1 AND $2
+            GROUP BY DATE(t.created_at)
             ${offset >= 0 ? "LIMIT 10 OFFSET $3" : ""} ;`;
     const variables = offset >= 0 ? [startDate, endDate, offset]: [startDate, endDate];
     const summaryDataRes = await poolQuery(query, variables)
     console.log('dailySaleReportRouter [getSummaryDataReport] summaryDataRes:', summaryDataRes.rows);
 
     const totalSummaryDataRes = await poolQuery(`
-            SELECT 
-                SUM(grand_total_amount) AS grandTotal, 
-                SUM(sub_total_amount) AS subTotal, 
-                SUM(tax_amount) AS taxTotal, 
-                SUM(service_charge_amount) AS serviceChargeTotal, 
-                SUM(discount_amount) AS discountTotal,
-                DATE(created_at),
-                COUNT(*) AS transactionCount
-            FROM transactions 
-            WHERE void = false AND created_at BETWEEN $1 AND $2
-            GROUP BY DATE(created_at);`, [startDate, endDate])
+        SELECT
+            SUM(t.grand_total_amount) AS grandTotal,
+            SUM(t.sub_total_amount) AS subTotal,
+            SUM(t.tax_amount) AS taxTotal,
+            SUM(t.service_charge_amount) AS serviceChargeTotal,
+            SUM(t.discount_amount) AS discountTotal,
+            CASE SUM(td.amount) IS NOT NULL
+                WHEN TRUE THEN SUM(td.amount)
+            END  AS total_app_dis_amount,
+            DATE(t.created_at),
+            COUNT(t.*) AS transactionCount
+        FROM transactions AS t
+            LEFT JOIN transaction_details AS td
+        ON t.id = td.transaction_id
+        WHERE t.void = false AND t.created_at BETWEEN $1 AND $2
+        GROUP BY DATE(t.created_at);`, [startDate, endDate])
     console.log('dailySaleReportRouter [getSummaryDataReport] totalSummaryDataRes:', totalSummaryDataRes.rows);
     return { summaryReports: summaryDataRes.rows, totalSummaryReports: totalSummaryDataRes.rows };
 }

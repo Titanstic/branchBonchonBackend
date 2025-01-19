@@ -1,4 +1,4 @@
-const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, type, customer_count, promotion, discount) => {
+const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, type, customer_count, promotion, discount, appAmount) => {
     if(payment_type_name === "Cash"){
         cashierDrawerData.cash_sale += grand_total_amount;
         cashierDrawerData.cash_in_drawer += grand_total_amount;
@@ -10,6 +10,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
 
     cashierDrawerData.total_amount += (sub_total_amount - promotion);
     cashierDrawerData.discount += discount;
+    cashierDrawerData.app_discount += appAmount;
     cashierDrawerData.promotion += promotion;
     cashierDrawerData.net_sales += grand_total_amount;
     cashierDrawerData.tax_add_on += (tax_amount);
@@ -38,6 +39,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
         cash_in_drawer = ${cashierDrawerData.cash_in_drawer},
         total_amount = ${cashierDrawerData.total_amount},
         discount = ${cashierDrawerData.discount},
+        app_discount = ${cashierDrawerData.app_discount},
         promotion = ${cashierDrawerData.promotion},
         net_sales = ${cashierDrawerData.net_sales},
         tax_add_on = ${cashierDrawerData.tax_add_on},

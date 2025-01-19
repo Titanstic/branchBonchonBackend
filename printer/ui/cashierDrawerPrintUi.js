@@ -24,7 +24,7 @@ const slipHeight = (cashierDrawerDetail) => {
 
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "black";
     const startLineHeight = 0;
 
     return { canvas, ctx, startLineHeight }
@@ -83,7 +83,8 @@ const headerUi = (canvas, ctx, branchName, cashierDrawer, currentDate, currentTi
 const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     const totalAmountLineHeight = finishHeaderLineHeight + 20;
     const discountLineHeight = totalAmountLineHeight + 30;
-    const promotionLineHeight = discountLineHeight + 30;
+    const appDiscountLineHeight = discountLineHeight + 30;
+    const promotionLineHeight = appDiscountLineHeight + 30;
     const taxAddOnLineHeight = promotionLineHeight + 30;
     const roundingLineHeight = taxAddOnLineHeight + 30;
     const totalRevenueLineHeight = roundingLineHeight + 30;
@@ -97,12 +98,17 @@ const bodyUi = (canvas, ctx, cashierDrawer, finishHeaderLineHeight) => {
     ctx.textAlign = "start";
     ctx.fillText(`Discount`, 30, discountLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${Number(cashierDrawer.discount).toLocaleString("en-US")}`, canvas.width - 30, discountLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.discount > 0 ? -cashierDrawer.discount : 0).toLocaleString("en-US")}`, canvas.width - 30, discountLineHeight);
+
+    ctx.textAlign = "start";
+    ctx.fillText(`App Discount`, 30, appDiscountLineHeight);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Number(cashierDrawer.app_discount > 0 ? -cashierDrawer.app_discount : 0).toLocaleString("en-US")}`, canvas.width - 30, appDiscountLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Promotions`, 30, promotionLineHeight);
     ctx.textAlign = "right";
-    ctx.fillText(`${Number(cashierDrawer.promotion).toLocaleString("en-US")}`, canvas.width - 30, promotionLineHeight);
+    ctx.fillText(`${Number(cashierDrawer.promotion > 0 ? -cashierDrawer.promotion : 0).toLocaleString("en-US")}`, canvas.width - 30, promotionLineHeight);
 
     ctx.textAlign = "start";
     ctx.fillText(`Tax Add On`, 30, taxAddOnLineHeight);

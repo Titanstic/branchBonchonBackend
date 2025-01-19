@@ -5,6 +5,7 @@ escpos.USB = require("escpos-usb");
 
 const networkPrinterPrint = (buffer, Ipaddress) => {
     try {
+        console.log("--------------", Ipaddress);
         const networkDevice = new escpos.Network(Ipaddress);
         const networkPrinter = new escpos.Printer(networkDevice);
 

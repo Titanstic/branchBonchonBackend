@@ -25,13 +25,13 @@ function createWindow() {
     });
 
     // Disable DevTools in production mode
-    mainWindowDashboard.webContents.on('devtools-opened', () => {
-        mainWindowDashboard.webContents.closeDevTools();
-    });
+    // mainWindowDashboard.webContents.on('devtools-opened', () => {
+    //     mainWindowDashboard.webContents.closeDevTools();
+    // });
 
     mainWindowDashboard.loadURL(`http://localhost:5000`);
 
-    // mainWindowDashboard.webContents.openDevTools();
+    mainWindowDashboard.webContents.openDevTools();
 
     mainWindowDashboard.on('closed', () => {
         mainWindowDashboard = null;

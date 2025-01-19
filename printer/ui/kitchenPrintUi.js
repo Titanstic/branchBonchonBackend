@@ -33,7 +33,6 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo, s
     })
 
     let canvasHeight = 250 + data.length * 40 + flavourTypeLength * 50;
-    // console.log("-------------------------total height", canvasHeight);
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
 
@@ -46,7 +45,7 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo, s
     const date = currentDate.toLocaleDateString(),
         time = currentDate.toLocaleTimeString();
 
-    buyItemUi(ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, data[0].printer_name, table_name);
+    buyItemUi(ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, dieInItems, takeAwayLineH, takeAwayItems, date, time, data[0].kitchen_printer, table_name);
 
     const filename = fs.existsSync("./resources/app/orderImages/kitchen.png") ? "./resources/app/orderImages/kitchen.png" : "./orderImages/kitchen.png";
     const buffer = canvas.toBuffer("image/png");

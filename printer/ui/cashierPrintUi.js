@@ -1,8 +1,9 @@
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 const QRCode = require("qrcode");
 const fs = require("fs");
+const {encryptWithAES} = require("../../src/utils/qr");
 
-const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion, slipType, appAmount) => {
+const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, transitionId, grand_total_amount, sub_total_amount, tax_amount, service_charge_amount, discount_amount, discount_name, cash_back, payment, payment_type_id, branch_id, dinner_table_id, add_on, inclusive, point, payment_type_name, data, orderNo, promotion, slipType, appAmount, transitionVoid) => {
   const currentDate = new Date();
   const date = currentDate.toLocaleDateString(),
       time = currentDate.toLocaleTimeString();
@@ -16,7 +17,7 @@ const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, tra
 
   footerStartLineHeight = finishPaymentInfoLineHeight;
   if (point > 0) {
-    const { qrTextLineH } = await qrUi(transitionId, point, ctx, canvas, grand_total_amount, finishPaymentInfoLineHeight);
+    const { qrTextLineH } = await qrUi(transitionId, point, ctx, canvas, grand_total_amount, finishPaymentInfoLineHeight, currentDate);
     footerStartLineHeight = qrTextLineH;
   }
   footerUi(ctx, canvas, footerStartLineHeight);
@@ -60,7 +61,7 @@ const slipHeight = (data, point) => {
   let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "black";
 
   const startLineHeight = 0;
   const footerStartLineHeight = 0;
@@ -274,11 +275,12 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   return { finishPaymentInfoLineHeight };
 }
 
-const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finishBuyItemLineH) => {
+const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finishBuyItemLineH, currentDate) => {
   const qrLineH = finishBuyItemLineH + 10;
 
-  const data = { id: transitionId, point, amount: grand_total_amount };
-  const qrCodeData = await QRCode.toDataURL(JSON.stringify(data));
+  const data = { id: transitionId, point, amount: grand_total_amount, used_at: currentDate.toLocaleDateString() };
+  const encryptData = encryptWithAES(JSON.stringify(data));
+  const qrCodeData = await QRCode.toDataURL(JSON.stringify(encryptData));
 
   ctx.font = "24px Myanmar Text";
   ctx.textAlign = "center";

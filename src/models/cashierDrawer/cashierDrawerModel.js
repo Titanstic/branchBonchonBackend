@@ -31,7 +31,7 @@ const createCashierDrawer = async (posIpAddress, opening_cash, employee_id) => {
     }
 };
 
-const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion = 0, discount) => {
+const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion = 0, discount, appAmount = 0) => {
     const { rows: currentCashierDrawerData } = await poolQuery(`
         SELECT * FROM cashier_drawer 
         WHERE id = $1;
@@ -43,7 +43,7 @@ const addCashierDrawer = async (grand_total_amount, payment_type_name, sub_total
         // find payment type [self or delivery]
         const { rows: paymentTypeRes } = await poolQuery(`SELECT type FROM payment_types WHERE payment_name = $1;`, [payment_type_name]);
 
-        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type, customer_count, promotion, discount);
+        const { setCashierDrawerData } = calculateDrawerAmount(currentCashierDrawerData[0], grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, paymentTypeRes[0].type, customer_count, promotion, discount, appAmount);
         const updateCashierDrawerQuery = `UPDATE cashier_drawer ${setCashierDrawerData} WHERE id = $1;`
         await poolQuery(updateCashierDrawerQuery, [currentCashierDrawerData[0].id]);
 
@@ -130,6 +130,7 @@ const findCashierDrawerById = async (id) => {
             cashier_drawer.total_amount,
             cashier_drawer.other_sale,
             cashier_drawer.discount,
+            cashier_drawer.app_discount,
             cashier_drawer.promotion,
             cashier_drawer.net_sales,
             cashier_drawer.tax_add_on, 

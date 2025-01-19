@@ -33,7 +33,7 @@ transactionController.post("/", async (req, res) => {
             await insertTransactionDetail(appName, appAmount, couponId, memberId, id);
         }
         // insert cashier drawer
-        await addCashierDrawer(grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion, discount_amount);
+        await addCashierDrawer(grand_total_amount, payment_type_name, sub_total_amount, add_on, tax_amount, rounding, parsedItems, cashierDrawerId, customer_count, promotion, discount_amount, appAmount);
         await poolQuery('COMMIT');
 
        //  printer state
@@ -72,7 +72,7 @@ transactionController.post("/reprint", async (req, res) => {
 
         const slipType = transactionRes.void ? "Void" : "reprint";
         console.log("transitionRouter reprint :", slipType);
-        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, transactionRes.point, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem, transactionRes.promotion_amount, slipType, appDisAmount);
+        await PrintSlip(transactionRes.employee_name, transactionRes.employee_printer, branchRes, transactionRes.table_name, transactionRes.id, transactionRes.grand_total_amount, transactionRes.sub_total_amount, transactionRes.tax_amount, transactionRes.service_charge_amount, transactionRes.discount_amount, transactionRes.discount_name, transactionRes.cash_back, transactionRes.payment, transactionRes.payment_type_id, transactionRes.branch_id, transactionRes.dinner_table_id, transactionRes.add_on, transactionRes.inclusive, 0, transactionRes.payment_type_name, transactionRes.order_no, filterItem, kitchenPrintItem, transactionRes.promotion_amount, slipType, appDisAmount);
 
         res.json( {error: 0, message: transaction_id });
     }catch (e) {
