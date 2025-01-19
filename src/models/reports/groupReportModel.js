@@ -40,10 +40,15 @@ const getGroupSaleReport = async(startDate, endDate, offset) => {
                 sum(transaction_items.quantity) AS qty,
                 sum(transaction_items.container_charges) AS containerCharges,
                 sum(transaction_items.discount_price * transaction_items.quantity) AS discountPrice,
+                CASE SUM(transaction_details.amount) IS NOT NULL
+                    WHEN TRUE THEN SUM(transaction_details.amount)
+                END  AS appDisCount,
                 sum(transaction_items.total_amount) AS netAmount
             FROM transaction_items
             LEFT JOIN transactions
                 ON transaction_items.transaction_id = transactions.id
+            LEFT JOIN transaction_details 
+                      ON transactions.id = transaction_details.transaction_id
             LEFT JOIN normal_menu_items
                 ON transaction_items.normal_menu_item_id = normal_menu_items.id
             LEFT JOIN family_group
