@@ -8,7 +8,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.total_revenue += grand_total_amount;
     cashierDrawerData.total_revenue_count += 1;
 
-    cashierDrawerData.total_amount += (sub_total_amount - promotion);
+    cashierDrawerData.total_amount += sub_total_amount;
     cashierDrawerData.discount += discount;
     cashierDrawerData.app_discount += appAmount;
     cashierDrawerData.promotion += promotion;

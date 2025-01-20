@@ -8,7 +8,7 @@ const encryptWithAES = (text) => {
 const decryptWithAES = (ciphertext) => {
     const passphrase = 'bonchon_axra';
     const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 };
 
 module.exports = { encryptWithAES, decryptWithAES };
