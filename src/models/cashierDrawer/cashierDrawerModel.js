@@ -126,7 +126,7 @@ const  findCashierDrawerByDate = async (date) => {
 
 const findCashierDrawerById = async (id) => {
     const { rows: cashierDrawerData } = await poolQuery(`
-        SELECT 
+        SELECT
             cashier_drawer.total_amount,
             cashier_drawer.other_sale,
             cashier_drawer.discount,

@@ -19,6 +19,7 @@ const findDetailByCashierDrawerId = async (cashierDrawerId) => {
 };
 
 const findDetailByCashierDrawerIdAndType = async (cashierDrawerId, payment_type) => {
+    console.log(cashierDrawerId);
     const { rows: cashierDrawerDetails } = await poolQuery(`
         SELECT 
             id, 

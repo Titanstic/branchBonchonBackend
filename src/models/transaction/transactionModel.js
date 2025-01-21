@@ -15,8 +15,10 @@ const findItemAndComboSetByTid = async (transactionId) => {
 
 const findTransactionById = async (transactionId) => {
     const { rows: transactionData } = await poolQuery(`
-        SELECT * FROM transactions 
-        WHERE id = $1;
+        SELECT transactions.*, transaction_details.amount FROM transactions 
+        LEFT JOIN transaction_details
+            on transactions.id = transaction_details.transaction_id
+        WHERE transactions.id = $1;
         `, [transactionId]
     );
 
