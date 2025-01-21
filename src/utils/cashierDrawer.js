@@ -101,6 +101,7 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
         app_discount = ${cashierDrawerData.app_discount},
         promotion = ${cashierDrawerData.promotion},
         net_sales = ${cashierDrawerData.net_sales},
+        void = ${cashierDrawerData.void},
         tax_add_on = ${cashierDrawerData.tax_add_on},
         rounding = ${cashierDrawerData.rounding},
         die_in = ${cashierDrawerData.die_in},
