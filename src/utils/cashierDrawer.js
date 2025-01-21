@@ -8,7 +8,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
     cashierDrawerData.total_revenue += grand_total_amount;
     cashierDrawerData.total_revenue_count += 1;
 
-    cashierDrawerData.total_amount += sub_total_amount;
+    cashierDrawerData.total_amount += sub_total_amount + (sub_total_amount * 0.05);
     cashierDrawerData.discount += discount;
     cashierDrawerData.app_discount += appAmount;
     cashierDrawerData.promotion += promotion;
@@ -20,7 +20,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
 
     parsedItems.forEach((eachItem) => {
         // each.total_amount include promotion, discount
-        const totalAmount = eachItem.total_amount + (eachItem.total_amount * 0.05);
+        const totalAmount = (eachItem.price * eachItem.quantity) + ((eachItem.price * eachItem.quantity) * 0.05);
         // const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(eachItem.is_take_away && type === "self"){
