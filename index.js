@@ -48,6 +48,7 @@ app.use("/database", dbCleanRouter);
 // Start Frontend Static
 const frontendPosStatic = require("./FrontendPosStatic");
 const frontendDashboardStatic = require("./FrontendDashboardStatic");
+const {deleteHasuraEventLog} = require("./src/models/dbCleanModel");
 // End Frontend Static
 
 // const serverStart = async () => {

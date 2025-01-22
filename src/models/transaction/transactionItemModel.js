@@ -54,7 +54,6 @@ const getDashboardTotalAmount = async (dashboardQuery) => {
     showDashboardData.dieInAmount = cashierDrawerData[0].dieinamount ?? 0;
     showDashboardData.takeawayAmount = cashierDrawerData[0].takeawayamount ?? 0;
     showDashboardData.deliveryAmount = cashierDrawerData[0].deliveryamount ?? 0;
-    showDashboardData.roundingAmount = cashierDrawerData[0].roundingamount ?? 0;
     showDashboardData.totalRevenueAmount = cashierDrawerData[0].totalrevenueamount ?? 0;
 
     return showDashboardData;

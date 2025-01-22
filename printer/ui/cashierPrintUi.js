@@ -278,7 +278,11 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
 const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finishBuyItemLineH, currentDate) => {
   const qrLineH = finishBuyItemLineH + 10;
 
-  const data = { id: transitionId, point, amount: grand_total_amount, used_at: currentDate.toLocaleDateString() };
+  const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
+
+  const data = { id: transitionId, point, amount: grand_total_amount, used_at: formattedDate };
   const encryptData = encryptWithAES(JSON.stringify(data));
   const qrCodeData = await QRCode.toDataURL(JSON.stringify(encryptData));
 

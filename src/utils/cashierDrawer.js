@@ -20,7 +20,7 @@ const calculateDrawerAmount = (cashierDrawerData, grand_total_amount, payment_ty
 
     parsedItems.forEach((eachItem) => {
         // each.total_amount include promotion, discount
-        const totalAmount = (eachItem.price * eachItem.quantity) + ((eachItem.price * eachItem.quantity) * 0.05);
+        const totalAmount = ((eachItem.price + eachItem.container_charges) * eachItem.quantity) + (((eachItem.price + eachItem.container_charges) * eachItem.quantity) * 0.05);
         // const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(eachItem.is_take_away && type === "self"){
@@ -79,7 +79,7 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
     cashierDrawerData.guest_count -= transactionData.customer_count;
 
     parsedItems.forEach((eachItem) => {
-        const totalAmount = (eachItem.price * eachItem.quantity) + ((eachItem.price * eachItem.quantity) * 0.05);
+        const totalAmount = ((eachItem.price + eachItem.container_charges) * eachItem.quantity) + (((eachItem.price + eachItem.container_charges) * eachItem.quantity) * 0.05);
         const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(!eachItem.is_take_away){
