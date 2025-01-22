@@ -80,7 +80,7 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
 
     parsedItems.forEach((eachItem) => {
         const totalAmount = ((eachItem.price + eachItem.container_charges) * eachItem.quantity) + (((eachItem.price + eachItem.container_charges) * eachItem.quantity) * 0.05);
-        const { roundedValue } = roundedValueCalcLogic(totalAmount);
+        // const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(!eachItem.is_take_away){
             cashierDrawerData.die_in -= roundedValue;
