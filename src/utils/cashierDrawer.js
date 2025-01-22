@@ -83,11 +83,11 @@ const rowBackDrawerAmount = (cashierDrawerData, transactionData, parsedItems, pa
         // const { roundedValue } = roundedValueCalcLogic(totalAmount);
 
         if(!eachItem.is_take_away){
-            cashierDrawerData.die_in -= roundedValue;
+            cashierDrawerData.die_in -= totalAmount;
         }else if(eachItem.is_take_away && paymentTypeData.type === "self"){
-            cashierDrawerData.self_take_away -= roundedValue;
+            cashierDrawerData.self_take_away -= totalAmount;
         }else{
-            cashierDrawerData.delivery -= roundedValue;
+            cashierDrawerData.delivery -= totalAmount;
         }
     })
 
