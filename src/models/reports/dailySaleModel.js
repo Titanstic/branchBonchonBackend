@@ -8,6 +8,7 @@ const getSummaryDataReport = async (startDate, endDate, offset) => {
                 SUM(t.tax_amount) AS taxTotal, 
                 SUM(t.service_charge_amount) AS serviceChargeTotal, 
                 SUM(t.discount_amount) AS discountTotal,
+                SUM(t.promotion_amount) AS promotionTotal,
                 CASE SUM(td.amount) IS NOT NULL
                     WHEN TRUE THEN SUM(td.amount)
                 END  AS totalAppDisAmount,
