@@ -44,7 +44,27 @@ const dashboardQuery = (type) => {
         WHERE row_num <= 10;
     `;
 
-    return { dashboardTotalAmountQuery, besetSellerItemQuery };
+    const besetSellerComboItemQuery = `
+        SELECT 
+            item_name, 
+            quantity, 
+            total_amount
+        FROM (
+            SELECT
+                combo_set_name AS item_name,
+                SUM(quantity) AS quantity,
+                SUM(price * quantity) AS total_amount,
+                ROW_NUMBER() OVER (ORDER BY SUM(quantity) DESC) AS row_num
+            FROM transaction_combo_set
+            LEFT JOIN transactions
+                ON transaction_combo_set.transaction_id = transactions.id
+            WHERE transactions.void = false AND DATE(transaction_combo_set.created_at) ${whereCondition}
+            GROUP BY item_name
+        ) AS ranked_items
+        WHERE row_num <= 10;
+    `;
+
+    return { dashboardTotalAmountQuery, besetSellerItemQuery, besetSellerComboItemQuery };
 }
 
 

@@ -9,11 +9,11 @@ dashboardController.post("/", async (req, res) => {
     const { dateFormat } = req.body.input ? req.body.input : req.body;
 
     try{
-        const { dashboardTotalAmountQuery, besetSellerItemQuery } = dashboardQuery(dateFormat);
-        const showDashboardData = await getDashboardTotalAmount(dashboardTotalAmountQuery);
+        const { dashboardTotalAmountQuery, besetSellerItemQuery, besetSellerComboItemQuery } = dashboardQuery(dateFormat);
+        const showDashboardData = await getDashboardTotalAmount(dashboardTotalAmountQuery, besetSellerComboItemQuery);
         console.log("dashboardRouter :", showDashboardData);
 
-        showDashboardData.bestSellerItems = await getBestSellerItems(besetSellerItemQuery);
+        showDashboardData.bestSellerItems = await getBestSellerItems(besetSellerItemQuery, besetSellerComboItemQuery);
         console.log("dashboardRouter :", showDashboardData);
 
         res.json({ error: 0, message: JSON.stringify(showDashboardData) });

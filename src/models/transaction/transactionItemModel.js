@@ -59,11 +59,14 @@ const getDashboardTotalAmount = async (dashboardQuery) => {
     return showDashboardData;
 }
 
-const getBestSellerItems = async (besetSellerItemQuery) => {
-    const { rows: bestItemsData } = await poolQuery(besetSellerItemQuery)
-
+const getBestSellerItems = async (besetSellerItemQuery, besetSellerComboItemQuery) => {
+    const { rows: bestItemsData } = await poolQuery(besetSellerItemQuery);
     console.log(`transitionItemModal [getBestSellerItems] bestItemsData: `, bestItemsData);
-    return bestItemsData;
+
+    const { rows: besetComboSetData } = await poolQuery(besetSellerComboItemQuery);
+    console.log(`transitionItemModal [getBestSellerItems] besetComboSetData: `, besetComboSetData);
+
+    return [...bestItemsData, ...besetComboSetData].sort((a, b) => Number(b.quantity) - Number(a.quantity));
 }
 
 module.exports = { findTransactionItemsByTransactionId, addTransitionItems, getDashboardTotalAmount, getBestSellerItems };
