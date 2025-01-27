@@ -230,7 +230,7 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   ctx.textAlign = "start";
   ctx.fillText("App Dis", 30, appDisHeight);
   ctx.textAlign = "right";
-  ctx.fillText(Number(appAmount ? -appAmount : 0).toLocaleString("en-US"), canvas.width - 10, appDisHeight);
+  ctx.fillText(Number(appAmount ? -appAmount : -0).toLocaleString("en-US"), canvas.width - 10, appDisHeight);
 
   ctx.textAlign = "start";
   ctx.fillText("Tax ( 5% )", 30, taxHeight);
@@ -243,8 +243,9 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   const amountHeight = firstLineHeight + 20;
   const paymentTypeHeight = amountHeight + 30;
   const changeHeight = paymentTypeHeight + 30;
-  const pointHeight = changeHeight + 30;
-  const finishPaymentInfoLineHeight = point > 0 ?  pointHeight + 20 : changeHeight + 20;
+  const changeLineHeight = changeHeight + 30;
+  const pointHeight = changeLineHeight + 30;
+  const finishPaymentInfoLineHeight = point > 0 ?  pointHeight + 20 : changeLineHeight + 20;
 
   ctx.font = "28px Myanmar Text";
   ctx.textAlign = "start";
@@ -262,25 +263,32 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
   ctx.textAlign = "right";
   ctx.fillText(Number(cash_back).toLocaleString("en-US"), canvas.width - 10, changeHeight);
 
+  ctx.textAlign = "start";
+  ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, changeLineHeight);
+
   if(point > 0){
     ctx.textAlign = "start";
     ctx.fillText("Point", 30, pointHeight);
     ctx.textAlign = "right";
     ctx.fillText(Number(point).toLocaleString("en-US"), canvas.width - 10, pointHeight);
+
+    ctx.textAlign = "start";
+    ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, finishPaymentInfoLineHeight);
+
+    return { finishPaymentInfoLineHeight };
   }
 
-  ctx.textAlign = "start";
-  ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, finishPaymentInfoLineHeight);
-
-  return { finishPaymentInfoLineHeight };
+  return { changeLineHeight };
 }
 
 const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finishBuyItemLineH, currentDate) => {
   const qrLineH = finishBuyItemLineH + 10;
 
-  const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
+  // const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1)
+  //     .toString()
+  //     .padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
+
+  const formattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Yangon' });
 
   const data = { id: transitionId, point, amount: grand_total_amount, used_at: formattedDate };
   const encryptData = encryptWithAES(JSON.stringify(data));
@@ -289,7 +297,7 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finish
   ctx.font = "24px Myanmar Text";
   ctx.textAlign = "center";
   const qrImage = await loadImage(qrCodeData);
-  const qrWidth = 200;
+  const qrWidth = 280;
   const qrHeight = (qrWidth / qrImage.width) * qrImage.height;
   ctx.drawImage(qrImage, canvas.width / 2 - qrWidth / 2, qrLineH, qrWidth, qrHeight);
 

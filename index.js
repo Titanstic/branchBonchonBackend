@@ -55,7 +55,7 @@ const {deleteHasuraEventLog} = require("./src/models/dbCleanModel");
     app.listen((port || 3002) , () => {
         console.log(`Express server listening on ports ${port || 3002}`);
     })
-//
+
 //     frontendPosStatic.listen(posPort || 4000 , () => {
 //         console.log(`POS is running at port ${posPort}`);
 //     })

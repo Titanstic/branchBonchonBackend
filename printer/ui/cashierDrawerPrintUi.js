@@ -24,7 +24,7 @@ const slipHeight = (cashierDrawerDetail) => {
 
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "black";
     const startLineHeight = 0;
 
     return { canvas, ctx, startLineHeight }

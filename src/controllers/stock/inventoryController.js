@@ -35,7 +35,7 @@ inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
         const openingSale = stockItemData.recipe_unit ? stockItemData.current_qty / stockItemData.s_recipe_qty : stockItemData.current_qty;
 
         // add stockControl in branch
-        const { addInventoryQty, currentQty } = addPurchaseUnit(stockItemData, inputData.qty);
+        const { addInventoryQty, currentQty } = addPurchaseUnit(stockItemData, inputData.qty + inputData.foc);
 
         await poolQuery(`BEGIN`);
             await updateStockQtyById(currentQty, inputData.stock_id);
