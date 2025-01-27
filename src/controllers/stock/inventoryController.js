@@ -39,7 +39,7 @@ inventoryController.post("/goodReceivedItem/trigger", async (req, res) => {
 
         await poolQuery(`BEGIN`);
             await updateStockQtyById(currentQty, inputData.stock_id);
-            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, currentQty, tableName, inputData.id, inputData.qty);
+            await insertInventoryTransaction(inputData.stock_id, stockItemData.current_qty, currentQty, tableName, inputData.id, inputData.qty + inputData.foc);
             await filterInventoryReport(inputData.stock_id, tableName, openingSale, addInventoryQty);
         await poolQuery(`COMMIT`);
 
