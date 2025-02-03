@@ -48,6 +48,8 @@ transactionController.post("/", async (req, res) => {
 
         // Synchronous with online database
        // await fetchOnlineDbTransition(transitionResult);
+       //  branchData, orderNo, parsedItems, kitchenPrintItem, slipType
+
 
         console.log("transitionRouter :", "Transition Successfully");
         res.json({ error: 0, message: transitionResult.id});

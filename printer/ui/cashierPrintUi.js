@@ -289,6 +289,7 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finish
   //     .padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
 
   const formattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Yangon' });
+  console.log("formattedDate", formattedDate);
 
   const data = { id: transitionId, point, amount: grand_total_amount, used_at: formattedDate };
   const encryptData = encryptWithAES(JSON.stringify(data));
