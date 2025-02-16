@@ -14,29 +14,38 @@ const kitchenPrintSlipBuffer = async (data, table_name, transitionId, orderNo, s
         }else{
             dieInItems.push(each);
         }
+
         if(each.flavour_types){
-            flavourTypeLength += 1;
+            flavourTypeLength += 49;
         }
+
+        if(each.note){
+            const noteItems = typeof each.note == "string" ? JSON.parse(each.note) : each.note;
+            noteTypeLength += (noteItems.length * 30) + 19;
+        }
+
         if(each.combo_menu_items){
             const comboMenuItems = typeof each.combo_menu_items == "string" ? JSON.parse(each.combo_menu_items) : each.combo_menu_items;
             comboMenuItems.forEach((eachCombo) => {
                 if(eachCombo.flavour_types){
-                    flavourTypeLength += 1;
+                    flavourTypeLength += 50;
                 }
 
                 if(eachCombo.note){
-                    const noteItems = typeof each.note == "string" ? JSON.parse(each.note) : each.note;
-                    noteTypeLength += noteItems.length;
+                    const noteItems = typeof eachCombo.note == "string" ? JSON.parse(eachCombo.note) : eachCombo.note;
+                    noteTypeLength += (noteItems.length * 30) + 20;
                 }
             })
         }
     })
-
-    let canvasHeight = 250 + data.length * 40 + flavourTypeLength * 50;
+    console.log(data.length, flavourTypeLength, noteTypeLength);
+    let canvasHeight = 300 + data.length * 30 + flavourTypeLength + noteTypeLength;
+    // let canvasHeight = 300;
+    console.log("------- kitchen canvasHeight", canvasHeight);
     const canvas = createCanvas(576, canvasHeight);
     const ctx = canvas.getContext("2d");
 
-    const { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH, dateTimeH, tableNoH} = slipHeightData(dieInItems, takeAwayItems, flavourTypeLength);
+    const { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH} = slipHeightData(dieInItems, takeAwayItems, flavourTypeLength);
 
     ctx.fillStyle = "black";
     ctx.font = "24px Myanmar Text";
@@ -65,10 +74,7 @@ const slipHeightData = (dieInItems, takeAwayItems, orderNo) => {
     let takeAwayItemH = takeAwayItems.length > 0 ? (dieInLineH + 30) : dieInLineH;
     let takeAwayLineH = takeAwayItems.length > 0 ? (takeAwayItemH + 30) : takeAwayItemH;
 
-    const dateTimeH = takeAwayLineH + 30;
-    const tableNoH = dateTimeH + 40;
-
-    return { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH, dateTimeH, tableNoH };
+    return { checkNoH, checkLineH, dieInItemH, dieInLineH, takeAwayItemH, takeAwayLineH };
 };
 
 const checkNoUi = (ctx, canvas,transitionId, checkNoH, checkLineH, orderNo, slipType) => {
@@ -94,15 +100,15 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
     let flavourYPos = checkLineH;
     dieInItems.forEach((productItem, index) => {
         ctx.font = "24px Myanmar Text";
-        flavourYPos += 30;
+        flavourYPos += 40;
         ctx.textAlign = "start";
         ctx.fillText(productItem.item_name, 30, flavourYPos);
         if(productItem.comboName){
             ctx.textAlign = "right";
-            ctx.fillText(`(${productItem.comboName})`, canvas.width - 130, flavourYPos);
+            ctx.fillText(`(${productItem.comboName})`, canvas.width - 100, flavourYPos);
         }
         ctx.textAlign = "right";
-        ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, flavourYPos);
+        ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 60, flavourYPos);
 
         ctx.textAlign = "start";
         ctx.font = "18px Myanmar Text";
@@ -140,9 +146,11 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
 
     let customDieInItemH = dieInItemH + 30,
     customDieInLineH = customDieInItemH + 30;
+    // let customDieInItemH = flavourYPos + 30,
+    // customDieInLineH = flavourYPos + 30;
     if(dieInItems.length > 0){
-        customDieInItemH = flavourYPos + 40;
-        customDieInLineH = customDieInItemH + 20;
+        customDieInItemH = flavourYPos + 30;
+        customDieInLineH = customDieInItemH + 30;
 
         ctx.font = "24px Myanmar Text";
         ctx.textAlign = "center";
@@ -153,13 +161,15 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
             0,
             customDieInLineH
         );
+        console.log("customDieInLineH", customDieInLineH);
     }
     // => End Die In Item
 
     // =>  start Take Away Item
     let takeFlavourYPos = dieInItems.length > 0 ? customDieInLineH : checkLineH;
+    // let takeFlavourYPos = customDieInLineH;
     takeAwayItems.forEach((productItem, index) => {
-        takeFlavourYPos += 50;
+        takeFlavourYPos += 40;
 
         ctx.font = "24px Myanmar Text";
         ctx.textAlign = "start";
@@ -203,28 +213,33 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
     });
 
     if(takeAwayItems.length > 0){
+        takeFlavourYPos += 30;
         ctx.font = "24px Myanmar Text";
         ctx.textAlign = "center";
-        ctx.fillText("***** ( Take Away ) ******", canvas.width / 2 , takeFlavourYPos +40)
+        ctx.fillText("***** ( Take Away ) ******", canvas.width / 2 , takeFlavourYPos);
+
+        takeFlavourYPos += 30;
         ctx.textAlign = "start";
         ctx.fillText(
             `-----------------------------------------------------------------------------------------------------------`,
             0,
-            takeFlavourYPos + 60
+            takeFlavourYPos
         );
     }
     // =>  End Take Away Item
 
     ctx.font = "24px Myanmar Text";
     ctx.textAlign = "start";
-    ctx.fillText(date, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 90 : customDieInItemH + 60 );
+    ctx.fillText(date, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 30 : customDieInLineH + 30 );
+    console.log("------- kitchen date", takeAwayItems.length > 0 ? takeFlavourYPos + 30 : customDieInLineH + 30);
     ctx.textAlign = "right";
-    ctx.fillText(time, canvas.width - 30, takeAwayItems.length > 0 ? takeFlavourYPos + 90 : customDieInItemH + 60);
+    ctx.fillText(time, canvas.width - 30, takeAwayItems.length > 0 ? takeFlavourYPos + 30 : customDieInLineH + 30);
 
     ctx.textAlign = "start";
-    ctx.fillText(`Printer : ${printerName}`, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 120 : customDieInItemH + 90);
+    ctx.fillText(`Printer : ${printerName}`, 10, takeAwayItems.length > 0 ? takeFlavourYPos + 60 : customDieInLineH + 60);
+    console.log("------- kitchen date", takeAwayItems.length > 0 ? takeFlavourYPos + 60 : customDieInLineH + 60);
     ctx.textAlign = "right";
-    ctx.fillText(`Table : ${table_name ? table_name : "-"}`, canvas.width - 30, takeAwayItems.length > 0 ? takeFlavourYPos + 120 : customDieInItemH + 90);
+    ctx.fillText(`Table : ${table_name ? table_name : "-"}`, canvas.width - 30, takeAwayItems.length > 0 ? takeFlavourYPos + 60 : customDieInLineH + 60);
 }
 
 module.exports = kitchenPrintSlipBuffer;

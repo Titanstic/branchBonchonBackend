@@ -13,13 +13,15 @@ const cashierPrintSlipBuffer = async (employee_name, branchData, table_name, tra
   const { finishHeaderLineH } = await  headerUi(ctx, canvas, branchData, startLineHeight);
   const { finishInfoLineH } = informationUi(ctx, canvas, employee_name, table_name, date, time, orderNo, slipType, finishHeaderLineH);
   const { finishBuyItemLineH } = buyItemUi(ctx, canvas, data, finishInfoLineH);
-  const { finishPaymentInfoLineHeight } = paymentInformationUi(ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point, appAmount);
+  const finishPaymentInfoLineHeight = paymentInformationUi(ctx, canvas, finishBuyItemLineH, sub_total_amount, discount_amount, promotion, tax_amount, grand_total_amount, payment_type_name, payment, cash_back, point, appAmount);
 
   footerStartLineHeight = finishPaymentInfoLineHeight;
   if (point > 0) {
     const { qrTextLineH } = await qrUi(transitionId, point, ctx, canvas, grand_total_amount, finishPaymentInfoLineHeight, currentDate);
     footerStartLineHeight = qrTextLineH;
   }
+
+  console.log("cashierPrintUi [cashierPrintSlipBuffer]: ", footerStartLineHeight);
   footerUi(ctx, canvas, footerStartLineHeight);
 
   const filename = fs.existsSync("./resources/app/orderImages/receipt.png") ? "./resources/app/orderImages/receipt.png" : "./orderImages/receipt.png";
@@ -36,29 +38,31 @@ const slipHeight = (data, point) => {
 
   data.forEach((each) => {
     if (each.flavour_types) {
-      flavourTypeDataLength += 1;
+      flavourTypeDataLength += 30;
     }
 
     if (each.combo_menu_items) {
       const comboMenuItems = typeof each.combo_menu_items == "string" ? JSON.parse(each.combo_menu_items) : each.combo_menu_items;
       comboMenuItems.forEach((eachCombo) => {
         if (eachCombo.flavour_types) {
-          flavourTypeDataLength += 1;
+          flavourTypeDataLength += 30;
         }
       });
     }
 
     if (each.container_charges > 0) {
-      containerDataLength += 1;
+      containerDataLength += 30;
     }
 
     if (each.discount_price > 0) {
-      discountDataLength += 1;
+      discountDataLength += 30;
     }
   });
 
-  const originalHeight = point > 0 ? 1200 : 900;
-  let canvasHeight = originalHeight + data.length * 50 + flavourTypeDataLength * 30 + containerDataLength * 25 + discountDataLength * 25;
+  const originalHeight = point > 0 ? 1240 : 870;
+  let canvasHeight = originalHeight + data.length * 30 + flavourTypeDataLength + containerDataLength + discountDataLength;
+  // let canvasHeight = originalHeight;
+  console.log("cashierPrintUi [slipHeight]: canvasHeight", canvasHeight);
   const canvas = createCanvas(576, canvasHeight);
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "black";
@@ -156,14 +160,14 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
 
   let flavourYPos = firstLineH;
   data.forEach((productItem, index) => {
-    flavourYPos += 40;
+    flavourYPos += 30;
     ctx.font = "24px Myanmar Text";
     ctx.textAlign = "start";
     ctx.fillText(productItem.item_name, 30, flavourYPos);
-    ctx.fillText(productItem.is_take_away ? "T" : "D", 350, flavourYPos);
+    ctx.fillText(productItem.is_take_away ? "T" : "D", 380, flavourYPos);
 
     ctx.textAlign = "right";
-    ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 150, flavourYPos);
+    ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 125, flavourYPos);
     ctx.fillText((productItem.price * productItem.quantity).toLocaleString("en-US"), canvas.width - 10, flavourYPos);
 
     // need change
@@ -172,7 +176,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
       comboMenuItems.forEach((eachCombo) => {
         ctx.textAlign = "start";
         ctx.font = "20px Myanmar Text";
-        flavourYPos += 25;
+        flavourYPos += 30;
         ctx.fillText(`•`, 40, flavourYPos);
         ctx.fillText(eachCombo.item_name, 70, flavourYPos);
       });
@@ -181,7 +185,7 @@ const buyItemUi = (ctx, canvas, data, finishInfoLineH) => {
     if (productItem.flavour_types) {
       ctx.textAlign = "start";
       ctx.font = "20px Myanmar Text";
-      flavourYPos += 25;
+      flavourYPos += 30;
       ctx.fillText(`•`, 50, flavourYPos);
       ctx.fillText(productItem.flavour_types, 70, flavourYPos);
     }
@@ -275,18 +279,14 @@ const paymentInformationUi = (ctx, canvas, finishBuyItemLineH, sub_total_amount,
     ctx.textAlign = "start";
     ctx.fillText(`-----------------------------------------------------------------------------------------------------------`, 0, finishPaymentInfoLineHeight);
 
-    return { finishPaymentInfoLineHeight };
+    return finishPaymentInfoLineHeight;
   }
 
-  return { changeLineHeight };
+  return changeLineHeight;
 }
 
 const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finishBuyItemLineH, currentDate) => {
   const qrLineH = finishBuyItemLineH + 10;
-
-  // const formattedDate = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1)
-  //     .toString()
-  //     .padStart(2, '0')}/${currentDate.getDate().toString().padStart(2, '0')}`;
 
   const formattedDate = currentDate.toLocaleString('en-US', { timeZone: 'Asia/Yangon' });
   console.log("formattedDate", formattedDate);
@@ -312,7 +312,8 @@ const qrUi = async (transitionId, point, ctx, canvas, grand_total_amount, finish
 const footerUi = (ctx, canvas, footerStartLineHeight) => {
   const thanYouH = footerStartLineHeight + 30;
   const seeYouH = thanYouH + 30;
-
+  console.log("footerStartLineHeight", thanYouH);
+  console.log("footerStartLineHeight", seeYouH);
   ctx.textAlign = "center";
   ctx.fillText("Thank You for visiting Bonchon.....", canvas.width / 2, thanYouH);
   ctx.fillText("See You  Again!!", canvas.width / 2, seeYouH);

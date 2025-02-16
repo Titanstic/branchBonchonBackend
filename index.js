@@ -46,7 +46,6 @@ app.use("/database", dbCleanRouter);
 // End API CALL
 
 // Start Frontend Static
-const frontendPosStatic = require("./FrontendPosStatic");
 const frontendDashboardStatic = require("./FrontendDashboardStatic");
 const {deleteHasuraEventLog} = require("./src/models/dbCleanModel");
 // End Frontend Static
@@ -56,10 +55,6 @@ const {deleteHasuraEventLog} = require("./src/models/dbCleanModel");
         console.log(`Express server listening on ports ${port || 3002}`);
     })
 
-//     frontendPosStatic.listen(posPort || 4000 , () => {
-//         console.log(`POS is running at port ${posPort}`);
-//     })
-//
 //     frontendDashboardStatic.listen(dashboardPort || 5000, () => {
 //         console.log(`Dashboard is running at port ${dashboardPort || 5000}`);
 //     })
