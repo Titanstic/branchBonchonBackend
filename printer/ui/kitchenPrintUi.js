@@ -174,8 +174,12 @@ const buyItemUi = (ctx, canvas, checkLineH, dieInItemH, dieInLineH, takeAwayItem
         ctx.font = "24px Myanmar Text";
         ctx.textAlign = "start";
         ctx.fillText(productItem.item_name, 30, takeFlavourYPos);
+        if(productItem.comboName){
+            ctx.textAlign = "right";
+            ctx.fillText(`(${productItem.comboName})`, canvas.width - 100, takeFlavourYPos);
+        }
         ctx.textAlign = "right";
-        ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 80, takeFlavourYPos);
+        ctx.fillText(productItem.quantity.toLocaleString("en-US"), canvas.width - 60, takeFlavourYPos);
 
         ctx.textAlign = "start";
         ctx.font = "18px Myanmar Text";
