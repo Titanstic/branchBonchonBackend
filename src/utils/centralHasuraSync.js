@@ -33,7 +33,7 @@ const branchHeaders  = {
 
 const executeBranchMutation = async ( query, variables, branch) => {
     try{
-        const response = await axios.post(`https://${branch.ip_address}/v1/graphql`, {
+        const response = await axios.post(`http://localhost:9090/v1/graphql`, {
             query,
             variables
         }, { headers: branchHeaders });

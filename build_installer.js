@@ -11,7 +11,7 @@ const  msiCreator = new MSICreator({
     description: "This is Bonchon app",
     exe: "bonchon_branch",
     icon: "./icon.ico",
-    name: "Bonchon Dashboard",
+    name: "Branch Dashboard",
     manufacturer: "Axra Inc",
     version: "1.0.0",
 

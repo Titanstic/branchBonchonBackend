@@ -84,7 +84,6 @@ dbCleanController.post("/setup", async (req, res) => {
     try {
         const { query, variables } = getQueryForSetup(branchId);
         const getSetUpData = await executeCentralMutation(query, variables);
-        console.log(`[dbCleanController] getSetUpData :`, getSetUpData);
 
         for (let key in getSetUpData) {
             const records = getSetUpData[key];
@@ -96,7 +95,6 @@ dbCleanController.post("/setup", async (req, res) => {
             }
 
             console.log(`[dbCleanController] key :`, key);
-            console.log(`[dbCleanController] value :`, records);
 
             // Prepare insertion mutation
             const { insertQuery, insertVariables } = insertQueryAndVar(key, records);
@@ -105,7 +103,7 @@ dbCleanController.post("/setup", async (req, res) => {
             await executeBranchMutation(insertQuery, insertVariables, getSetUpData.branches[0]);
         }
 
-        res.status(200).json({ success: true, message: "Setup Successfully", data: getSetUpData });
+        res.status(200).json({ success: true, message: "Setup Successfully" });
     } catch (e) {
         console.error(`[dbCleanController] Error:`, e.message);
         res.status(500).json({ success: false, message: e.message });
